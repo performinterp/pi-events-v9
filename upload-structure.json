@@ -1,0 +1,8 @@
+{
+  "approach": "batch_update_cells",
+  "ranges": {
+    "headers_and_existing": "A1:N21",
+    "o2_events": "A22:N153"
+  },
+  "total_rows": 153
+}

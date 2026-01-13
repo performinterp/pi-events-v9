@@ -1,0 +1,24 @@
+{
+  "ready_to_combine": true,
+  "headers": [
+    "EVENT_NAME",
+    "ARTIST_NAME",
+    "VENUE_NAME",
+    "CITY",
+    "COUNTRY",
+    "EVENT_DATE",
+    "EVENT_TIME",
+    "EVENT_URL",
+    "IMAGE_URL",
+    "ACCESS_STATUS",
+    "CATEGORY",
+    "SOURCE",
+    "NOTES",
+    "ADDED_DATE"
+  ],
+  "existing_events_count": 20,
+  "o2_events_count": 133,
+  "strictly_to_filter": 1,
+  "expected_final_count": 153,
+  "next_step": "Claude will combine and upload using MCP"
+}

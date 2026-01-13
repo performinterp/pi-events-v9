@@ -1,0 +1,28 @@
+{
+  "name": "Performance Interpreting - BSL/ISL Events",
+  "short_name": "PI Events",
+  "description": "Find BSL and ISL interpreted events across the UK and Ireland",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2563EB",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "PI Favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "PI Favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "entertainment", "accessibility"],
+  "lang": "en-GB",
+  "dir": "ltr"
+}

@@ -1,0 +1,31 @@
+{
+  "upload_complete": true,
+  "timestamp": "2025-12-07 00:58:13",
+  "total_rows_uploaded": 153,
+  "breakdown": {
+    "headers": 1,
+    "existing_manual_events": 20,
+    "o2_events": 132,
+    "strictly_filtered": 1
+  },
+  "target": "PI Work Flow >> PRE_APPROVED EVENTS",
+  "spreadsheet_id": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU",
+  "manual_cleanup_needed": {
+    "sheet_1": {
+      "spreadsheet": "PI Work Flow",
+      "sheet_name": "O2_TEMP",
+      "action": "DELETE (temporary working sheet)"
+    },
+    "sheet_2": {
+      "spreadsheet": "Public Events Feed",
+      "sheet_name": "PRE-APPROVED EVENTS",
+      "action": "DELETE (data migrated to PI Work Flow)"
+    }
+  },
+  "notes": [
+    "All 132 O2 events successfully uploaded with status 'Request Interpreter'",
+    "Strictly Come Dancing event was filtered out as requested",
+    "All existing 20 manual events transformed to new 14-column format",
+    "New structure: EVENT_NAME, ARTIST_NAME, VENUE_NAME, CITY, COUNTRY, EVENT_DATE, EVENT_TIME, EVENT_URL, IMAGE_URL, ACCESS_STATUS, CATEGORY, SOURCE, NOTES, ADDED_DATE"
+  ]
+}

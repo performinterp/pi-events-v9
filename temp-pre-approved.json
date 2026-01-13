@@ -1,0 +1,7 @@
+[
+  ["EVENT_NAME","ARTIST_NAME","VENUE_NAME","CITY","COUNTRY","EVENT_DATE","EVENT_TIME","EVENT_URL","IMAGE_URL","ACCESS_STATUS","CATEGORY","SOURCE","NOTES","ADDED_DATE","CATEGORY_ID"],
+  ["Mighty Hoopla","","London","London","UK","2026-05-30","2 Days","https://mightyhoopla.com/","","BSL","Festival","Manual Entry","","2025-12-06 15:12:12",""],
+  ["The Wailers","","The O2 Arena, London","London","UK","2025-12-05","19:00","https://www.theo2.co.uk/events/detail/the-wailers-2024","","Request Interpreter","Concert","O2 Auto Import","","2025-12-05 11:57:28",""],
+  ["Capital's Jingle Bell Ball","","The O2 Arena, London","London","UK","2025-12-06","16:30","https://www.theo2.co.uk/events/detail/capitals-jingle-bell-ball-2025","","Request Interpreter","Concert","O2 Auto Import","","2025-12-05 11:57:28",""],
+  ["Biffy Clyro","","The O2 Arena, London","London","UK","2026-01-14","","https://www.theo2.co.uk/events/detail/biffy-clyro-2026","","Request Interpreter","Concert","O2 Auto Import","","2025-12-05 11:57:28","concert"]
+]

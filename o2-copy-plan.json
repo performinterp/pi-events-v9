@@ -1,0 +1,19 @@
+{
+  "status": "Ready to copy O2 events",
+  "source": "O2_TEMP sheet in PI Work Flow",
+  "destination": "PRE_APPROVED EVENTS rows 22-153",
+  "method": "Copy in two ranges to skip Strictly",
+  "range1": {
+    "from": "O2_TEMP!A2:N33",
+    "to": "PRE_APPROVED EVENTS!A22:N53",
+    "events": 32,
+    "description": "Events before Strictly"
+  },
+  "range2": {
+    "from": "O2_TEMP!A35:N134",
+    "to": "PRE_APPROVED EVENTS!A54:N153",
+    "events": 100,
+    "description": "Events after Strictly"
+  },
+  "total_o2_events": 132
+}

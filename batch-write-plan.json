@@ -1,0 +1,42 @@
+[
+  {
+    "batch": 1,
+    "file": "write-batch-1.json",
+    "range": "A5:N36",
+    "rows": 32,
+    "start_row": 5,
+    "end_row": 36
+  },
+  {
+    "batch": 2,
+    "file": "write-batch-2.json",
+    "range": "A37:N68",
+    "rows": 32,
+    "start_row": 37,
+    "end_row": 68
+  },
+  {
+    "batch": 3,
+    "file": "write-batch-3.json",
+    "range": "A69:N100",
+    "rows": 32,
+    "start_row": 69,
+    "end_row": 100
+  },
+  {
+    "batch": 4,
+    "file": "write-batch-4.json",
+    "range": "A101:N132",
+    "rows": 32,
+    "start_row": 101,
+    "end_row": 132
+  },
+  {
+    "batch": 5,
+    "file": "write-batch-5.json",
+    "range": "A133:N134",
+    "rows": 2,
+    "start_row": 133,
+    "end_row": 134
+  }
+]

@@ -1,0 +1,153 @@
+{
+  "sheets": [
+    {
+      "spreadsheet_id": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU",
+      "sheet_name": "VENUES",
+      "headers": [
+        "VENUE_ID",
+        "VENUE_NAME",
+        "VENUE_ALIASES",
+        "CITY",
+        "COUNTRY",
+        "LANGUAGE",
+        "INTERPRETER_STATUS",
+        "ACCESS_EMAIL",
+        "ACCESS_PHONE",
+        "TEXTPHONE",
+        "VRS_PROVIDER",
+        "VRS_URL",
+        "DEFAULT_TICKET_URL",
+        "DEFAULT_IMAGE_URL",
+        "BOOKING_GUIDE_URL",
+        "ACCESS_NOTES",
+        "OFFICIAL_SITE_URL"
+      ]
+    },
+    {
+      "spreadsheet_id": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU",
+      "sheet_name": "EVENT_CATEGORIES",
+      "headers": [
+        "CATEGORY_ID",
+        "CATEGORY_NAME",
+        "KEYWORDS",
+        "DEFAULT_IMAGE_URL"
+      ],
+      "data": [
+        [
+          "concert",
+          "Concert",
+          "[\"concert\", \"music\", \"band\", \"tour\", \"festival\"]",
+          ""
+        ],
+        [
+          "sports",
+          "Sports",
+          "[\"football\", \"basketball\", \"rugby\", \"game\", \"match\", \"sport\"]",
+          ""
+        ],
+        [
+          "theatre",
+          "Theatre",
+          "[\"theatre\", \"musical\", \"play\", \"opera\", \"ballet\"]",
+          ""
+        ],
+        [
+          "comedy",
+          "Comedy",
+          "[\"comedy\", \"comedian\", \"stand-up\"]",
+          ""
+        ],
+        [
+          "family",
+          "Family",
+          "[\"family\", \"kids\", \"children\"]",
+          ""
+        ],
+        [
+          "cultural",
+          "Cultural",
+          "[\"exhibition\", \"talk\", \"workshop\", \"cultural\"]",
+          ""
+        ],
+        [
+          "festival-camping",
+          "Festival - Camping",
+          "[\"festival\", \"camping\"]",
+          ""
+        ],
+        [
+          "festival-non-camping",
+          "Festival - Non-Camping",
+          "[\"festival\"]",
+          ""
+        ]
+      ]
+    },
+    {
+      "spreadsheet_id": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU",
+      "sheet_name": "STAGED_EVENTS",
+      "headers": [
+        "EVENT_ID",
+        "SOURCE",
+        "SOURCE_REFERENCE",
+        "EVENT_DATE",
+        "EVENT_TIME",
+        "EVENT_NAME",
+        "ARTIST_NAME",
+        "EVENT_ORGANISER",
+        "VENUE_ID",
+        "VENUE_NAME",
+        "CITY",
+        "COUNTRY",
+        "LANGUAGE",
+        "TICKET_URL",
+        "IMAGE_URL",
+        "CATEGORY_ID",
+        "CATEGORY_SUGGESTION",
+        "VENUE_ID_OVERRIDE",
+        "CATEGORY_OVERRIDE",
+        "TICKET_URL_OVERRIDE",
+        "IMAGE_URL_OVERRIDE",
+        "ACCESS_STATUS",
+        "NOTES",
+        "VALIDATION_STATUS",
+        "APPROVE"
+      ]
+    },
+    {
+      "spreadsheet_id": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU",
+      "sheet_name": "INGEST_FROM_MONTHLY",
+      "headers": [
+        "SOURCE_TAB",
+        "SOURCE_ROW",
+        "EVENT_DATE",
+        "EVENT_NAME",
+        "VENUE_NAME",
+        "EVENT_TIME",
+        "INTERPRETERS",
+        "EVENT_ORGANISER"
+      ]
+    },
+    {
+      "spreadsheet_id": "1JyyEYBc9iliYw7q4lbNqcLEOHwZV64WUYwce87JaBk8",
+      "sheet_name": "READY_TO_PUBLISH",
+      "headers": [
+        "EVENT_ID",
+        "DATE",
+        "TIME",
+        "EVENT",
+        "ARTIST",
+        "ORGANISER",
+        "VENUE",
+        "CITY",
+        "COUNTRY",
+        "LANGUAGE",
+        "URL",
+        "IMAGE",
+        "CATEGORY",
+        "ACCESS_STATUS",
+        "LAST_UPDATED"
+      ]
+    }
+  ]
+}

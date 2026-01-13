@@ -1,0 +1,9 @@
+{
+  "step": "Upload complete dataset to PRE_APPROVED EVENTS",
+  "current_rows": 21,
+  "structure": "1 header + 20 existing",
+  "next": "Add 132 O2 events from O2_TEMP (excluding row 34 = Strictly)",
+  "final_total": 153,
+  "target_sheet": "PRE_APPROVED EVENTS",
+  "target_spreadsheet": "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU"
+}

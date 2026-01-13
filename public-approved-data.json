@@ -1,0 +1,101 @@
+[
+  [
+    "DATE",
+    "EVENT",
+    "VENUE",
+    "TIME",
+    "INTERPRETERS",
+    "APPROVED",
+    "CATEGORY"
+  ],
+  [
+    "15.12.25",
+    "Christmas Royal Choral Society",
+    "Royal Albert Hall, London",
+    "14:30 / 19:30",
+    "Frances Everingham & Clare Edwards",
+    "Pending",
+    "Family"
+  ],
+  [
+    "17.12.25",
+    "Top Hat",
+    "QEH, The Southbank Centre",
+    "14:00 - 16:30",
+    "Adam Price ",
+    "Pending",
+    "Other"
+  ],
+  [
+    "18.12.25",
+    "Stereophonics",
+    "The O2, London",
+    "18:30 - 22:30",
+    "Paula Cox & Paul Michaels",
+    "Pending",
+    "Concert"
+  ],
+  [
+    "20.12.25",
+    "Disney On Ice Presents: Find Your Hero",
+    "Utilita Arena Sheffield",
+    "14:30 - 16:00",
+    "Karen Ward-Welch",
+    "Pending",
+    "Family"
+  ],
+  [
+    "20.12.25",
+    "Gladiators Live Tour",
+    "Glasgow",
+    "09:30 - 20:00",
+    "Omoyele Davey",
+    "Pending",
+    "Sports, Family"
+  ],
+  [
+    "21.12.25",
+    "Gladiators Live Tour",
+    "Glasgow",
+    "09:30 - 20:00",
+    "Omoyele Davey",
+    "Pending",
+    "Sports, Family"
+  ],
+  [
+    "21.12.25",
+    "Aladdin Pantomime (with songs)",
+    "Epsom Playhouse",
+    "12:00 - 15:30",
+    "Hayley Wiseman",
+    "Pending",
+    "Other"
+  ],
+  [
+    "23.12.25",
+    "Arsenal vs Crystal Palace (Carabo Cup)",
+    "Emirates Stadium",
+    "KO - 20:00",
+    "Samuel Adedeji",
+    "Pending",
+    "Sports"
+  ],
+  [
+    "27.12.25",
+    "Arsenal vs Brighton ",
+    "Emirates Stadium",
+    "KO - 15:00",
+    "Samuel Adedeji",
+    "Pending",
+    "Sports"
+  ],
+  [
+    "28.12.25",
+    "Disney On Ice Presents: Find Your Hero",
+    "The O2, London",
+    "09:30 - 12:00",
+    "Karen Ward-Welch",
+    "Pending",
+    "Family"
+  ]
+]

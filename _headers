@@ -1,0 +1,33 @@
+# Cloudflare Pages Headers Configuration
+
+# Don't cache the booking guide or clear cache pages
+/booking-guide.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Robots-Tag: noindex
+
+/clear-cache.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Robots-Tag: noindex
+
+# Service worker should be checked frequently
+/service-worker.js
+  Cache-Control: no-cache, must-revalidate
+  Service-Worker-Allowed: /
+
+# Cache static assets
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+# Main HTML should be fresh
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

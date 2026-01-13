@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Step-by-step guide for booking BSL and ISL accessible tickets with venues across the UK and Ireland. Find contact details and booking tips.">
+    <meta name="theme-color" content="#2563EB">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://events.performanceinterpreting.co.uk/booking-guide.html">
+    <meta property="og:title" content="How to Book BSL/ISL Accessible Tickets">
+    <meta property="og:description" content="Step-by-step guide for booking BSL and ISL accessible tickets with venues across the UK and Ireland.">
+    <meta property="og:image" content="https://events.performanceinterpreting.co.uk/full_pi_logo_long_white.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://events.performanceinterpreting.co.uk/booking-guide.html">
+    <meta property="twitter:title" content="How to Book BSL/ISL Accessible Tickets">
+    <meta property="twitter:description" content="Step-by-step guide for booking BSL and ISL accessible tickets with venues across the UK and Ireland.">
+    <meta property="twitter:image" content="https://events.performanceinterpreting.co.uk/full_pi_logo_long_white.png">
+
+    <title>How to Book BSL/ISL Accessible Tickets - Performance Interpreting</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="PI Favicon.png">
+
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://tally.so">
+    <link rel="dns-prefetch" href="https://tally.so">
+
+    <!-- Link main styles for consistent header -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F8FAFC;
+            color: #0F172A;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Override header for this page if needed */
+
+        /* Main Content */
+        .booking-content {
+            padding: 0;
+        }
+
+        /* Override sections grid padding */
+        .sections-grid {
+            padding: 60px 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid #E2E8F0;
+        }
+
+        .section-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.16);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .section-card:active {
+            transform: translateY(-4px);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+            color: #0F172A;
+            padding: 32px 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .section-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #0F172A;
+            letter-spacing: -0.01em;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .click-hint {
+            font-size: 11px;
+            color: #2563EB;
+            font-weight: 600;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            background: white;
+            color: #0F172A;
+            padding: 30px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .modal-header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-icon {
+            font-size: 2.5rem;
+        }
+
+        .modal-header-text h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #0F172A;
+            letter-spacing: -0.01em;
+        }
+
+        .modal-header-text p {
+            font-size: 14px;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: #F1F5F9;
+            border: 1px solid #E2E8F0;
+            color: #64748B;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: #EF4444;
+            border-color: #EF4444;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Custom Scrollbar */
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* FAQ Styling - Accordion Style */
+        .faq-button {
+            width: 100%;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .faq-button:hover {
+            border-color: #2563EB;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .faq-button.active {
+            border-color: #2563EB;
+            background: #F8FAFC;
+        }
+
+        .faq-question-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            flex: 1;
+            padding-right: 15px;
+        }
+
+        .faq-toggle {
+            color: #2563EB;
+            font-size: 20px;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .faq-button.active .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-top: -10px;
+            margin-bottom: 12px;
+        }
+
+        .faq-answer-container.show {
+            max-height: 500px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .faq-answer {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            font-size: 15px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* Tips Styling */
+        .tip-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+            border-left: 3px solid #2563EB;
+        }
+
+        .tip-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .tip-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .tip-content p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        /* Steps Styling */
+        .step-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: start;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .step-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* Venue Section */
+        .venue-search {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08), 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .venue-button {
+            width: 100%;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .venue-button:hover {
+            border-color: #2563EB;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .venue-button.active {
+            border-color: #2563EB;
+            background: #F8FAFC;
+        }
+
+        .venue-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .venue-toggle {
+            color: #2563EB;
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .venue-button.active .venue-toggle {
+            transform: rotate(180deg);
+        }
+
+        .venue-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+            border-radius: 8px;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        .venue-details.show {
+            max-height: 3000px;
+            transition: max-height 0.5s ease-in;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .venue-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .badge-guaranteed {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .badge-request {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            background: #F8FAFC;
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .contact-icon {
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        .contact-info strong {
+            display: block;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .contact-info a {
+            color: #2563EB;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+            color: #1E40AF;
+        }
+
+        .contact-info p {
+            color: #4a5568;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .tour-venues {
+            margin-top: 20px;
+            padding: 20px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #2563EB;
+        }
+
+        .tour-venue-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .tour-venue-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .tour-venue-item strong {
+            display: block;
+            color: #0F172A;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .tour-venue-item p {
+            color: #64748B;
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
+        .tour-venue-item a {
+            color: #2563EB;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: #111827;
+            color: white;
+            padding: 32px 0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 32px;
+        }
+
+        .footer-main {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a,
+        .footer-link-button {
+            color: #9CA3AF;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.15s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .footer-links a:hover,
+        .footer-link-button:hover {
+            color: white;
+        }
+
+        .footer-social {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .social-label {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.15s;
+        }
+
+        .social-icons a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+                padding: 40px 16px 60px;
+            }
+        }
+
+            .modal-container {
+                max-height: 95vh;
+                margin: 10px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-icon {
+                font-size: 2rem;
+            }
+
+            .modal-header-text h2 {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .footer-main {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .footer-social {
+                align-items: center;
+            }
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to Content Link (Accessibility) -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <!-- Logo Container -->
+            <div class="logo-container">
+                <a href="index.html">
+                    <img
+                        src="side_by_side_PI_logo_black.png"
+                        alt="Performance Interpreting Logo"
+                        class="logo"
+                    >
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <a href="index.html#events" class="nav-link">Upcoming Events</a>
+                <a href="booking-guide.html" class="nav-link active">How to Book</a>
+                <button onclick="openInstallPrompt()" class="nav-link nav-button">Install App</button>
+                <button onclick="openNotificationPreferences()" class="nav-link nav-button">Get Notifications 🔔</button>
+                <div class="nav-dropdown">
+                    <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
+                    <div class="dropdown-menu" id="moreDropdownMenu">
+                        <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
+                        <button onclick="openFestivalChecklistModal()" class="dropdown-item">Festival Checklist</button>
+                        <button onclick="openKnowYourRightsModal()" class="dropdown-item">Know Your Rights</button>
+                        <a href="index.html#about" class="dropdown-item">About PI</a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav" id="mobileNav">
+            <a href="index.html#events" class="mobile-nav-link" onclick="closeMobileMenu()">Upcoming Events</a>
+            <a href="booking-guide.html" class="mobile-nav-link">How to Book</a>
+            <button onclick="openInstallPrompt()" class="mobile-nav-link mobile-nav-button">Install App</button>
+            <button onclick="openNotificationPreferences()" class="mobile-nav-link mobile-nav-button">Get Notifications 🔔</button>
+            <div class="mobile-nav-dropdown">
+                <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
+                <div class="mobile-dropdown-menu" id="mobileMoreMenu">
+                    <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
+                    <button onclick="openFestivalChecklistModal()" class="mobile-dropdown-item">Festival Checklist</button>
+                    <button onclick="openKnowYourRightsModal()" class="mobile-dropdown-item">Know Your Rights</button>
+                    <a href="index.html#about" class="mobile-dropdown-item" onclick="closeMobileMenu()">About PI</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="booking-content" id="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">How to Book BSL/ISL Accessible Tickets</h1>
+                <p class="hero-subtitle" style="max-width: 800px;"><strong>Performance Interpreting <u>does not</u> sell tickets.</strong><br><br>Below is a guide for booking BSL/ISL accessible tickets with different venues and promoters. Please note this information is subject to change.</p>
+                <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list will be continuously updated as we work with event organisers to streamline the booking process for accessible events.</p>
+            </div>
+        </section>
+
+        <!-- Section Cards Grid -->
+        <div class="sections-grid">
+
+            <!-- How to Book Card -->
+            <div class="section-card" onclick="openModal('bookingModal')">
+                <div class="section-header">
+                    <span class="section-icon">✅</span>
+                    <h3 class="section-title">How to Book</h3>
+                    <p class="section-subtitle">Step-by-Step Guide</p>
+                    <p class="click-hint"><u>CLICK</u> TO OPEN</p>
+                </div>
+            </div>
+
+            <!-- Venues Card -->
+            <div class="section-card" onclick="openModal('venuesModal')">
+                <div class="section-header">
+                    <span class="section-icon">🏟️</span>
+                    <h3 class="section-title">Venues</h3>
+                    <p class="section-subtitle">Contact Details</p>
+                    <p class="click-hint"><u>CLICK</u> TO OPEN</p>
+                </div>
+            </div>
+
+            <!-- Quick Tips Card -->
+            <div class="section-card" onclick="openModal('tipsModal')">
+                <div class="section-header">
+                    <span class="section-icon">💡</span>
+                    <h3 class="section-title">Quick Tips</h3>
+                    <p class="section-subtitle">Make Booking Easier</p>
+                    <p class="click-hint"><u>CLICK</u> TO OPEN</p>
+                </div>
+            </div>
+
+            <!-- FAQs Card -->
+            <div class="section-card" onclick="openModal('faqModal')">
+                <div class="section-header">
+                    <span class="section-icon">❓</span>
+                    <h3 class="section-title">FAQs</h3>
+                    <p class="section-subtitle">Common Questions</p>
+                    <p class="click-hint"><u>CLICK</u> TO OPEN</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FAQ Modal -->
+    <div class="modal-overlay" id="faqModal" onclick="closeModalOnOverlay(event, 'faqModal')">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <span class="modal-icon">❓</span>
+                    <div class="modal-header-text">
+                        <h2>Frequently Asked Questions</h2>
+                        <p>Everything you need to know</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('faqModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- FAQ 1 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">Do I need to request an interpreter in advance?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">It depends on the venue. Some venues provide interpreters at every show (like Wembley Stadium), while others require advance booking (like The O2 Arena). Check the venues section for specific details.</div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">How far in advance should I book?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">As soon as possible! For venues that require interpreter requests, contact them immediately after buying your tickets. Some venues need 2-4 weeks notice.</div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">Are BSL/ISL tickets more expensive?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">No! BSL and ISL interpretation is provided free of charge as an accessibility service. You only pay the standard ticket price.</div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">Can I bring a companion or personal assistant?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">Yes! Most venues offer companion tickets at reduced or no cost for personal support workers. Contact the venue's accessibility team when booking.</div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">What's the difference between BSL and ISL?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">BSL (British Sign Language) is used in the UK and ISL (Irish Sign Language) is used in Ireland. They are distinct languages with different grammar and vocabulary.</div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">Can I request a specific interpreter?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">Generally, no. Venues work with professional interpretation agencies who assign qualified interpreters based on availability and expertise for that event type.</div>
+                </div>
+
+                <!-- FAQ 7 -->
+                <button class="faq-button" onclick="toggleFaq(event, this)">
+                    <span class="faq-question-text">Where will the interpreter be positioned?</span>
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer-container">
+                    <div class="faq-answer">This varies by venue and event. Many concerts have interpreters on stage or in a designated viewing area. The access team will provide details when you book.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Modal -->
+    <div class="modal-overlay" id="tipsModal" onclick="closeModalOnOverlay(event, 'tipsModal')">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <span class="modal-icon">💡</span>
+                    <div class="modal-header-text">
+                        <h2>Quick Tips</h2>
+                        <p>Make booking easier</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('tipsModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="tip-item">
+                    <div class="tip-icon">📞</div>
+                    <div class="tip-content">
+                        <h4>Always Use the Accessible Booking Line</h4>
+                        <p>Don't use the general ticketing number. Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-icon">👀</div>
+                    <div class="tip-content">
+                        <h4>Request Optimal Seating Position</h4>
+                        <p>Ask for seats with a clear view of the interpreter. Many venues have designated BSL viewing areas with the best sightlines.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-icon">✉️</div>
+                    <div class="tip-content">
+                        <h4>Get Written Confirmation</h4>
+                        <p>Always request email confirmation that interpretation has been arranged. Save this confirmation and bring it to the event.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-icon">⏰</div>
+                    <div class="tip-content">
+                        <h4>Arrive Early</h4>
+                        <p>Give yourself extra time to locate the interpretation area and get settled before the event starts.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-icon">💬</div>
+                    <div class="tip-content">
+                        <h4>Share Your Experience</h4>
+                        <p>Let Performance Interpreting know how your experience was. Your feedback helps improve accessibility for everyone.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Book Modal -->
+    <div class="modal-overlay" id="bookingModal" onclick="closeModalOnOverlay(event, 'bookingModal')">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <span class="modal-icon">✅</span>
+                    <div class="modal-header-text">
+                        <h2>How to Book</h2>
+                        <p>Step-by-step guide</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Find Your Event</h4>
+                        <p>Browse events on the Performance Interpreting app. Each event lists which interpreter(s) will be present.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Check the Venues Section</h4>
+                        <p>Look up your venue in the venues section to see if interpreters are guaranteed at every show or if you need to request one.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Call the Accessible Booking Line</h4>
+                        <p>Use the contact details from the venues section. SignVideo links are available for many venues for BSL users.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Specify Your Requirements</h4>
+                        <p>Clearly state: (1) You need BSL/ISL interpretation, (2) Event name and date, (3) Number of people in your group, (4) Any companion tickets needed.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Get Confirmation</h4>
+                        <p>Request email confirmation that interpretation is arranged. Save this confirmation and bring it with you on the day.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h4>Enjoy the Event!</h4>
+                        <p>Arrive early to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Venues Modal -->
+    <div class="modal-overlay" id="venuesModal" onclick="closeModalOnOverlay(event, 'venuesModal')">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <span class="modal-icon">🏟️</span>
+                    <div class="modal-header-text">
+                        <h2>Venues</h2>
+                        <p>Contact details</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('venuesModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Bar -->
+                <div class="venue-search">
+                    <input 
+                        type="text" 
+                        id="venueSearch" 
+                        class="search-input" 
+                        placeholder="🔍 Search for a venue..."
+                        oninput="searchVenues()"
+                    >
+                </div>
+
+                <div id="venueList">
+                    <!-- The O2 Arena -->
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="The O2 Arena, London">
+                        <span class="venue-name">The O2 Arena, London</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <span class="venue-badge badge-request">⚠️ Interpreter Available on Request</span>
+                        <p style="color: #4a5568; margin-bottom: 15px;">The O2 provides interpreters when requested. Book your tickets, then contact them to arrange BSL interpretation.</p>
+                        
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>SignVideo (Recommended)</strong>
+                                    <a href="http://o2.signvideo.net" target="_blank" rel="noopener">o2.signvideo.net</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@theo2.co.uk">access@theo2.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📱</span>
+                                <div class="contact-info">
+                                    <strong>Textphone</strong>
+                                    <a href="tel:18001-020-8463-3359">18001 020 8463 3359</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-info">
+                                    <strong>Phone</strong>
+                                    <a href="tel:020-8463-3359">020 8463 3359</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wembley Stadium -->
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Wembley Stadium, London">
+                        <span class="venue-name">Wembley Stadium, London</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <span class="venue-badge badge-guaranteed">✅ Guaranteed Interpreter at Every Show</span>
+                        <p style="color: #4a5568; margin-bottom: 15px;">Wembley Stadium pledges to provide a BSL interpreter at EVERY event, regardless of deaf attendance. You can book with confidence!</p>
+                        
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>BSL Interpreter Booking (SignVideo)</strong>
+                                    <a href="http://thefa.signvideo.net" target="_blank" rel="noopener">thefa.signvideo.net</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-info">
+                                    <strong>Accessible Ticketing Line</strong>
+                                    <a href="tel:0800-093-0824">0800 093 0824</a>
+                                    <p>(Mon–Fri, 9am–5pm)</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:help@wembleystadium.com">help@wembleystadium.com</a><br>
+                                    <a href="mailto:accessforall@wembleystadium.com">accessforall@wembleystadium.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Southbank Centre -->
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Southbank Centre, London">
+                        <span class="venue-name">Southbank Centre, London</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accesslist@southbankcentre.co.uk">accesslist@southbankcentre.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-info">
+                                    <strong>Phone (VRS)</strong>
+                                    <a href="tel:020-3879-9555">020 3879 9555</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Strictly Come Dancing -->
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Strictly Come Dancing Live Tour 2025">
+                        <span class="venue-name">Strictly Come Dancing Live Tour 2025</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <span class="venue-badge badge-guaranteed">✅ BSL Interpreter at Every Performance</span>
+                        <p style="color: #4a5568; margin-bottom: 15px;">Each performance will host a BSL interpreter, displayed on two large screens on either side of the stage. Audiences can book tickets and sit almost anywhere to enjoy the show with family and friends. For best access, we recommend seats in the side blocks near the front.</p>
+
+                        <div class="tour-venues">
+                            <h4 style="color: #0F172A; margin-bottom: 15px; font-weight: 600;">Tour Venues & Interpreters:</h4>
+
+                            <div class="tour-venue-item">
+                                <strong>Utilita Arena Birmingham</strong>
+                                <p><strong>Interpreter:</strong> Clare Edwards</p>
+                                <p><strong>Dates:</strong> Fri 23 Jan 19:30 | Sat 24 Jan 14:30 & 19:30 | Sun 25 Jan 13:30 & 18:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:boxoffice@utilitaarenabham.co.uk">boxoffice@utilitaarenabham.co.uk</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>Utilita Arena Newcastle</strong>
+                                <p><strong>Interpreter:</strong> Faye Alvi</p>
+                                <p><strong>Dates:</strong> Tue 27 Jan 19:30 | Wed 28 Jan 14:30 & 19:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:access@utilitaarena.co.uk">access@utilitaarena.co.uk</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>First Direct Arena Leeds</strong>
+                                <p><strong>Interpreter:</strong> Lauren Lister</p>
+                                <p><strong>Dates:</strong> Thu 29 Jan 19:30 | Fri 30 Jan 19:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@firstdirectarena.com">accessibility@firstdirectarena.com</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>AO Arena Manchester</strong>
+                                <p><strong>Interpreter:</strong> Sammie Vanterpool</p>
+                                <p><strong>Dates:</strong> Sat 31 Jan 14:30 & 19:30 | Sun 1 Feb 13:30 & 18:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@ao-arena.com">accessibility@ao-arena.com</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>Utilita Arena Sheffield</strong>
+                                <p><strong>Interpreter:</strong> Sarah Hides</p>
+                                <p><strong>Dates:</strong> Tue 3 Feb 19:30 | Wed 4 Feb 14:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:boxoffice@sheffieldarena.co.uk">boxoffice@sheffieldarena.co.uk</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>M&S Bank Arena Liverpool</strong>
+                                <p><strong>Interpreter:</strong> Sammie Vanterpool</p>
+                                <p><strong>Dates:</strong> Thu 5 Feb 19:30 | Fri 6 Feb 19:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@accliverpool.com">accessibility@accliverpool.com</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>OVO Hydro Glasgow</strong>
+                                <p><strong>Interpreter:</strong> Tracey Tyer</p>
+                                <p><strong>Dates:</strong> Sat 7 Feb 14:30 & 19:30 | Sun 8 Feb 13:30 & 18:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@ovo-hydro.com">accessibility@ovo-hydro.com</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>Motorpoint Arena Nottingham</strong>
+                                <p><strong>Interpreter:</strong> Sarah Hides</p>
+                                <p><strong>Dates:</strong> Tue 10 Feb 19:30 | Wed 11 Feb 19:30 | Thu 12 Feb 19:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@motorpointarenanottingham.com">accessibility@motorpointarenanottingham.com</a></p>
+                            </div>
+
+                            <div class="tour-venue-item">
+                                <strong>The O2 London</strong>
+                                <p><strong>Interpreter:</strong> Omoyele Davey</p>
+                                <p><strong>Dates:</strong> Fri 13 Feb 19:30 | Sat 14 Feb 14:30 & 19:30 | Sun 15 Feb 13:30 & 18:30</p>
+                                <p><strong>Accessibility:</strong> <a href="mailto:access@theo2.co.uk">access@theo2.co.uk</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motorpoint Arena Nottingham -->
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Motorpoint Arena Nottingham">
+                        <span class="venue-name">Motorpoint Arena Nottingham</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <span class="venue-badge badge-request">⚠️ Important: Contact Before Purchasing</span>
+                        <p style="color: #4a5568; margin-bottom: 15px;">Please contact before purchasing tickets to ensure you are seated in the best positions available to see the interpreter.</p>
+                        
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:Accessibility.officer@motorpointarenanottingham.com">Accessibility.officer@motorpointarenanottingham.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="noResults" class="no-results">
+                    <h3>No venues found</h3>
+                    <p>Try adjusting your search</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="feedback-modal-overlay" id="feedbackModal" onclick="closeFeedbackModalOnOverlay(event)">
+        <div class="feedback-modal-container">
+            <div class="feedback-modal-header">
+                <h2>Share Your Thoughts</h2>
+                <button class="feedback-modal-close" onclick="closeFeedbackModal()" aria-label="Close">✕</button>
+            </div>
+            <div class="feedback-modal-body">
+                <iframe
+                    data-tally-src="https://tally.so/embed/Y5Dd20?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                    loading="lazy"
+                    width="100%"
+                    height="100%"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0"
+                    title="Share Your Thoughts">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install App Modal -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-prompt-container">
+            <div class="install-prompt-header">
+                <div>
+                    <h2 class="install-prompt-title">Add PI Events to Your Home Screen</h2>
+                    <p class="install-prompt-subtitle">For easy access to BSL/ISL Accessible Events</p>
+                </div>
+                <button class="install-prompt-close" onclick="closeInstallPrompt()" aria-label="Close">
+                    ✕
+                </button>
+            </div>
+            <div class="install-prompt-content">
+
+                <!-- iOS Instructions -->
+                <div class="install-instructions ios-instructions" id="iosInstructions">
+                    <h3 class="platform-title">iPhone/iPad (Safari or Chrome)</h3>
+                    <ol class="simple-steps">
+                        <li>
+                            <span class="step-text">Tap the Share button
+                                <svg class="share-icon" width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 0V14M9 0L4 5M9 0L14 5M1 14V19C1 20.1046 1.89543 21 3 21H15C16.1046 21 17 20.1046 17 19V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </li>
+                        <li><span class="step-text">Tap "Add to Home Screen"</span></li>
+                    </ol>
+                </div>
+
+                <!-- Android Instructions -->
+                <div class="install-instructions android-instructions" id="androidInstructions">
+                    <h3 class="platform-title">Android (Chrome)</h3>
+                    <ol class="simple-steps">
+                        <li>
+                            <span class="step-text">Tap the menu button
+                                <svg class="menu-icon" width="4" height="18" viewBox="0 0 4 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="2" cy="2" r="2" fill="currentColor"/>
+                                    <circle cx="2" cy="9" r="2" fill="currentColor"/>
+                                    <circle cx="2" cy="16" r="2" fill="currentColor"/>
+                                </svg>
+                            </span>
+                        </li>
+                        <li><span class="step-text">Tap "Add to Home Screen"</span></li>
+                    </ol>
+                </div>
+
+                <div class="install-success">
+                    🎉 That's it! The app icon will appear on your home screen.
+                </div>
+
+                <button class="install-prompt-button" onclick="closeInstallPrompt()">
+                    Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Festival Checklist Modal -->
+    <div class="festival-modal-overlay" id="festivalChecklistModal" onclick="closeFestivalChecklistModalOnOverlay(event)">
+        <div class="festival-modal-container">
+            <div class="festival-modal-header">
+                <h2>🎪 Festival Checklist</h2>
+                <button class="festival-modal-close" onclick="closeFestivalChecklistModal()" aria-label="Close">✕</button>
+            </div>
+            <div class="festival-modal-body">
+                <p class="festival-subtitle"><strong>Plan. Pack. Enjoy.</strong><br>Quick tips to help you have an easy, accessible festival day.</p>
+
+                <div class="festival-divider"></div>
+
+                <div class="festival-section festival-section-1">
+                    <h3 class="festival-section-title">Before You Go</h3>
+                    <ul class="festival-checklist">
+                        <li>Tickets ready</li>
+                        <li>Interpreted stage times checked</li>
+                        <li>Map downloaded</li>
+                        <li>Phone charged + power bank packed</li>
+                        <li>Suncream & earplugs in your bag</li>
+                    </ul>
+                </div>
+
+                <div class="festival-section festival-section-2">
+                    <h3 class="festival-section-title">When You Arrive</h3>
+                    <ul class="festival-checklist">
+                        <li>Find the Access / Interpreter Point</li>
+                        <li>Collect wristband (if needed)</li>
+                        <li>Meet the interpreter team</li>
+                        <li>Plan your route between stages</li>
+                    </ul>
+                </div>
+
+                <div class="festival-section festival-section-3">
+                    <h3 class="festival-section-title">During the Festival</h3>
+                    <ul class="festival-checklist">
+                        <li>Keep hydrated</li>
+                        <li>Ask staff for visual access help if needed</li>
+                        <li>Follow live updates on our socials or WhatsApp</li>
+                    </ul>
+                </div>
+
+                <div class="festival-section festival-section-4">
+                    <h3 class="festival-section-title">After the Festival</h3>
+                    <ul class="festival-checklist">
+                        <li>Share your feedback</li>
+                        <li>Stay connected for more BSL / ISL events</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Know Your Rights Modal -->
+    <div class="festival-modal-overlay" id="knowYourRightsModal" onclick="closeKnowYourRightsModalOnOverlay(event)">
+        <div class="festival-modal-container">
+            <div class="festival-modal-header">
+                <h2>⚖️ Know Your Rights</h2>
+                <button class="festival-modal-close" onclick="closeKnowYourRightsModal()" aria-label="Close">✕</button>
+            </div>
+            <div class="festival-modal-body">
+                <p class="festival-subtitle"><strong>You have the right to access.<br>It's not optional — it's the law.</strong></p>
+
+                <div class="festival-divider"></div>
+
+                <div class="festival-section festival-section-1">
+                    <p style="font-size: 16px; line-height: 1.8; color: var(--gray-700); margin: 0;">
+                        Under the <strong>Equality Act 2010</strong>, venues and organisers must make events accessible for Deaf attendees.
+                    </p>
+                </div>
+
+                <div class="festival-section festival-section-2">
+                    <p style="font-size: 16px; line-height: 1.8; color: var(--gray-700); margin: 0;">
+                        Providing interpreters is part of that responsibility.<br>
+                        <strong>You should never have to pay for your own interpreter.</strong>
+                    </p>
+                </div>
+
+                <div class="festival-section festival-section-3">
+                    <p style="font-size: 16px; line-height: 1.8; color: var(--gray-700); margin: 0;">
+                        If an organiser refuses access or you're unsure how to ask, <strong>we can help</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <p>&copy; 2025 Performance Interpreting. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="https://www.performanceinterpreting.co.uk" target="_blank" rel="noopener">Website</a>
+                        <a href="booking-guide.html">How to Book</a>
+                        <button onclick="openFeedbackModal()" class="footer-link-button">Share Your Thoughts</button>
+                        <a href="#about">About</a>
+                    </div>
+                </div>
+                
+                <!-- Social Media Icons -->
+                <div class="footer-social">
+                    <p class="social-label"><em>@performanceinterpreting</em></p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/performanceinterpreting" target="_blank" rel="noopener" aria-label="Facebook">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="https://x.com/performinterp" target="_blank" rel="noopener" aria-label="X (Twitter)">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.instagram.com/performanceinterpreting/" target="_blank" rel="noopener" aria-label="Instagram">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.tiktok.com/@performinterp" target="_blank" rel="noopener" aria-label="TikTok">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.linkedin.com/company/performance-interpreting" target="_blank" rel="noopener" aria-label="LinkedIn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Open modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Close modal when clicking on overlay (not on modal content)
+        function closeModalOnOverlay(event, modalId) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeModal(modalId);
+            }
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const activeModal = document.querySelector('.modal-overlay.active');
+                if (activeModal) {
+                    closeModal(activeModal.id);
+                }
+            }
+        });
+
+        // Toggle venue details (within venues modal)
+        function toggleVenue(event, button) {
+            event.stopPropagation();
+            
+            const details = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+            
+            // Close all venue details
+            const allButtons = document.querySelectorAll('.venue-button');
+            const allDetails = document.querySelectorAll('.venue-details');
+            allButtons.forEach(b => b.classList.remove('active'));
+            allDetails.forEach(d => d.classList.remove('show'));
+            
+            // Open clicked venue (unless it was already open)
+            if (!isActive) {
+                button.classList.add('active');
+                details.classList.add('show');
+            }
+        }
+
+        // Toggle FAQ details (within FAQ modal)
+        function toggleFaq(event, button) {
+            event.stopPropagation();
+            
+            const answerContainer = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+            
+            // Close all FAQ answers
+            const allButtons = document.querySelectorAll('.faq-button');
+            const allAnswers = document.querySelectorAll('.faq-answer-container');
+            allButtons.forEach(b => b.classList.remove('active'));
+            allAnswers.forEach(a => a.classList.remove('show'));
+            
+            // Open clicked FAQ (unless it was already open)
+            if (!isActive) {
+                button.classList.add('active');
+                answerContainer.classList.add('show');
+            }
+        }
+
+        // Search venues
+        function searchVenues() {
+            const searchTerm = document.getElementById('venueSearch').value.toLowerCase();
+            const venues = document.querySelectorAll('.venue-button');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+            
+            venues.forEach(venue => {
+                const venueName = venue.getAttribute('data-venue').toLowerCase();
+                const venueDetails = venue.nextElementSibling;
+                
+                if (venueName.includes(searchTerm)) {
+                    venue.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    venue.style.display = 'none';
+                    venue.classList.remove('active');
+                    venueDetails.classList.remove('show');
+                }
+            });
+            
+            // Show/hide no results message
+            if (visibleCount === 0 && searchTerm !== '') {
+                noResults.classList.add('show');
+            } else {
+                noResults.classList.remove('show');
+            }
+        }
+
+        // Tally Embed Script
+        var d = document,
+            w = "https://tally.so/widgets/embed.js",
+            v = function () {
+                "undefined" != typeof Tally
+                    ? Tally.loadEmbeds()
+                    : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function (e) {
+                        e.src = e.dataset.tallySrc;
+                    });
+            };
+        if ("undefined" != typeof Tally) v();
+        else if (d.querySelector('script[src="' + w + '"]') == null) {
+            var s = d.createElement("script");
+            (s.src = w), (s.onload = v), (s.onerror = v), d.body.appendChild(s);
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+
+        // Close mobile menu function (used by navigation links)
+        function closeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileNav = document.getElementById('mobileNav');
+
+            if (mobileMenuBtn && mobileNav) {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+            }
+        }
+
+        // Make closeMobileMenu available globally
+        window.closeMobileMenu = closeMobileMenu;
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        if (mobileMenuBtn && mobileNav) {
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileMenuBtn.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (mobileNav.classList.contains('active')) {
+                    // Check if click is outside both the menu and the button
+                    if (!mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        mobileMenuBtn.classList.remove('active');
+                        mobileNav.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Feedback Modal Functions
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+
+            // Load Tally iframe if not already loaded
+            const iframe = modal.querySelector('iframe');
+            if (iframe && iframe.hasAttribute('data-tally-src')) {
+                iframe.src = iframe.getAttribute('data-tally-src');
+                iframe.removeAttribute('data-tally-src');
+            }
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function closeFeedbackModalOnOverlay(event) {
+            if (event.target.id === 'feedbackModal') {
+                closeFeedbackModal();
+            }
+        }
+
+        // Install Prompt Functions
+        function openInstallPrompt() {
+            const installPrompt = document.getElementById('installPrompt');
+            installPrompt.classList.add('show');
+
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                // Detect platform and show appropriate instructions
+                const userAgent = navigator.userAgent.toLowerCase();
+                const isIOS = /iphone|ipad|ipod/.test(userAgent);
+                const isAndroid = /android/.test(userAgent);
+
+                const iosInstructions = document.getElementById('iosInstructions');
+                const androidInstructions = document.getElementById('androidInstructions');
+
+                console.log('Install prompt opened', { isIOS, isAndroid, iosInstructions, androidInstructions });
+
+                if (iosInstructions && androidInstructions) {
+                    if (isIOS) {
+                        iosInstructions.style.display = 'block';
+                        iosInstructions.style.visibility = 'visible';
+                        androidInstructions.style.display = 'none';
+                    } else if (isAndroid) {
+                        iosInstructions.style.display = 'none';
+                        androidInstructions.style.display = 'block';
+                        androidInstructions.style.visibility = 'visible';
+                    } else {
+                        // Show both for desktop/unknown
+                        iosInstructions.style.display = 'block';
+                        iosInstructions.style.visibility = 'visible';
+                        androidInstructions.style.display = 'block';
+                        androidInstructions.style.visibility = 'visible';
+                    }
+                }
+            }, 10);
+        }
+
+        function closeInstallPrompt() {
+            const installPrompt = document.getElementById('installPrompt');
+            installPrompt.classList.remove('show');
+        }
+
+        // Close install prompt when clicking outside
+        document.getElementById('installPrompt')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInstallPrompt();
+            }
+        });
+
+        // Close modals on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const feedbackModal = document.getElementById('feedbackModal');
+                if (feedbackModal && feedbackModal.classList.contains('active')) {
+                    closeFeedbackModal();
+                }
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && installPrompt.classList.contains('show')) {
+                    closeInstallPrompt();
+                }
+                const festivalModal = document.getElementById('festivalChecklistModal');
+                if (festivalModal && festivalModal.classList.contains('active')) {
+                    closeFestivalChecklistModal();
+                }
+            }
+        });
+
+        // Desktop "More" dropdown
+        const moreDropdownBtn = document.getElementById('moreDropdownBtn');
+        const moreDropdownMenu = document.getElementById('moreDropdownMenu');
+
+        if (moreDropdownBtn && moreDropdownMenu) {
+            moreDropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moreDropdownMenu.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (moreDropdownMenu.classList.contains('active')) {
+                    if (!moreDropdownMenu.contains(e.target) && !moreDropdownBtn.contains(e.target)) {
+                        moreDropdownMenu.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Mobile "More" dropdown
+        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+        const mobileMoreMenu = document.getElementById('mobileMoreMenu');
+
+        if (mobileMoreBtn && mobileMoreMenu) {
+            mobileMoreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileMoreMenu.classList.toggle('active');
+
+                // Rotate the arrow
+                const arrow = mobileMoreBtn.textContent.includes('▾') ? '▴' : '▾';
+                mobileMoreBtn.textContent = mobileMoreMenu.classList.contains('active') ? 'More ▴' : 'More ▾';
+            });
+        }
+
+        // Festival Checklist Modal Functions
+        function openFestivalChecklistModal() {
+            const modal = document.getElementById('festivalChecklistModal');
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeFestivalChecklistModal() {
+            const modal = document.getElementById('festivalChecklistModal');
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function closeFestivalChecklistModalOnOverlay(event) {
+            if (event.target.id === 'festivalChecklistModal') {
+                closeFestivalChecklistModal();
+            }
+        }
+
+        // Know Your Rights Modal Functions
+        function openKnowYourRightsModal() {
+            const modal = document.getElementById('knowYourRightsModal');
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeKnowYourRightsModal() {
+            const modal = document.getElementById('knowYourRightsModal');
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function closeKnowYourRightsModalOnOverlay(event) {
+            if (event.target.id === 'knowYourRightsModal') {
+                closeKnowYourRightsModal();
+            }
+        }
+
+        // Back to top button and close dropdowns on scroll
+        const backToTopBtn = document.getElementById('backToTop');
+        const dropdownMenuEl = document.getElementById('moreDropdownMenu');
+        const mobileNavEl = document.getElementById('mobileNav');
+        const mobileMenuBtnEl = document.getElementById('mobileMenuBtn');
+
+        window.addEventListener('scroll', () => {
+            if (backToTopBtn) {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            }
+
+            // Close dropdowns when scrolling
+            if (dropdownMenuEl && dropdownMenuEl.classList.contains('active')) {
+                dropdownMenuEl.classList.remove('active');
+            }
+            if (mobileNavEl && mobileNavEl.classList.contains('active')) {
+                mobileNavEl.classList.remove('active');
+                if (mobileMenuBtnEl) {
+                    mobileMenuBtnEl.classList.remove('active');
+                }
+            }
+        });
+
+        if (backToTopBtn) {
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // Make logo clickable to scroll to top
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.style.cursor = 'pointer';
+            logo.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+
+    <!-- Notification Preferences Modal -->
+    <div class="festival-modal-overlay" id="notificationPreferencesModal" onclick="closeNotificationPreferencesOnOverlay(event)">
+        <div class="festival-modal-container">
+            <div class="festival-modal-header">
+                <h2>🔔 Get Event Notifications</h2>
+                <button class="festival-modal-close" onclick="closeNotificationPreferences()" aria-label="Close">✕</button>
+            </div>
+            <div class="festival-modal-body">
+                <p class="festival-subtitle" style="margin-bottom: 24px;">
+                    <strong>100% Anonymous. Zero Data Collection.</strong><br>
+                    Get notified about new events that match your interests. We only store your notification preferences - no names, emails, or personal data.
+                </p>
+
+                <div class="festival-divider"></div>
+
+                <div id="notificationStatus" class="notification-status">
+                    <!-- Dynamic status will be inserted here -->
+                </div>
+
+                <div id="notificationForm" style="display: none;">
+                    <div class="festival-section festival-section-1">
+                        <h3 class="festival-section-title">What types of events?</h3>
+                        <div class="notification-checkbox-group" id="categoryCheckboxes">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="festival-section festival-section-2">
+                        <h3 class="festival-section-title">Which locations?</h3>
+                        <div class="notification-checkbox-group" id="locationCheckboxes">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="festival-section festival-section-3" style="text-align: center;">
+                        <button onclick="subscribeToNotifications()" class="notification-subscribe-btn">
+                            Enable Notifications
+                        </button>
+                        <p style="font-size: 13px; color: var(--gray-600); margin-top: 12px;">
+                            You can unsubscribe anytime
+                        </p>
+                    </div>
+                </div>
+
+                <div id="notificationSubscribed" style="display: none; text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                    <h3 style="color: var(--gray-900); margin-bottom: 8px;">You're Subscribed!</h3>
+                    <p style="color: var(--gray-600); margin-bottom: 24px;">
+                        You'll be notified when new events match your preferences.
+                    </p>
+                    <button onclick="unsubscribeFromNotifications()" class="notification-unsubscribe-btn">
+                        Unsubscribe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="notifications.js"></script>
+
+</body>
+</html>
