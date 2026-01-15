@@ -320,6 +320,26 @@ function setLoadingState(isLoading) {
 }
 
 // ========================================
+// LAST UPDATED TIMESTAMP
+// ========================================
+
+function updateLastUpdatedTimestamp(timestamp) {
+    const element = document.getElementById('lastUpdatedTimestamp');
+    if (!element) return;
+
+    const date = new Date(timestamp);
+    const options = {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    const formattedDate = date.toLocaleDateString('en-GB', options);
+    element.textContent = `Events data last updated: ${formattedDate}`;
+}
+
+// ========================================
 // UTILITY FUNCTIONS
 // ========================================
 
@@ -1132,6 +1152,8 @@ function loadCachedEvents() {
                 const events = JSON.parse(cached);
                 AppState.allEvents = events;
                 AppState.lastFetch = parseInt(timestamp);
+                // Update timestamp display from cache
+                updateLastUpdatedTimestamp(parseInt(timestamp));
                 return events;
             }
         }
@@ -1187,6 +1209,9 @@ async function fetchEvents(skipCache = false) {
 
         // Save to localStorage for instant next load
         saveCachedEvents(events);
+
+        // Update last updated timestamp
+        updateLastUpdatedTimestamp(now);
 
         return events;
     } catch (error) {
