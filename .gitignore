@@ -1,1 +1,16 @@
 .aider*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Auth tokens
+token.pickle
+
+# Pipeline intermediary data
+*-data.json
+*-output.json
+*-existing.json
+
+# Apps Script scratch files
+apps-script-link-finder*.js
