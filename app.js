@@ -15,6 +15,236 @@ const CONFIG = {
 };
 
 // ========================================
+// VENUE EMAIL DATABASE
+// ========================================
+// Add venue access emails here as we collect them
+// Keys are lowercase venue names (or aliases), values are email addresses
+const VENUE_EMAILS = {
+    // London
+    'the o2': 'access@theo2.co.uk',
+    'o2 arena': 'access@theo2.co.uk',
+    'the o2 arena': 'access@theo2.co.uk',
+    'the o2 arena, london': 'access@theo2.co.uk',
+    'wembley stadium': 'accessforall@wembleystadium.com',
+    'wembley': 'accessforall@wembleystadium.com',
+    'wembley stadium, london': 'accessforall@wembleystadium.com',
+    'southbank centre': 'accesslist@southbankcentre.co.uk',
+    'southbank centre, london': 'accesslist@southbankcentre.co.uk',
+
+    // Birmingham
+    'utilita arena birmingham': 'boxoffice@utilitaarenabham.co.uk',
+    'utilita arena': 'boxoffice@utilitaarenabham.co.uk',
+
+    // Newcastle
+    'utilita arena newcastle': 'access@utilitarena.co.uk',
+
+    // Leeds
+    'first direct arena': 'accessibility@firstdirectarena.com',
+    'first direct arena leeds': 'accessibility@firstdirectarena.com',
+
+    // Manchester
+    'ao arena': 'accessibility@ao-arena.com',
+    'ao arena manchester': 'accessibility@ao-arena.com',
+
+    // Sheffield
+    'utilita arena sheffield': 'boxoffice@sheffieldarena.co.uk',
+
+    // Liverpool
+    'm&s bank arena': 'accessibility@accliverpool.com',
+    'm&s bank arena liverpool': 'accessibility@accliverpool.com',
+
+    // Glasgow
+    'ovo hydro': 'accessibility@ovo-hydro.com',
+    'ovo hydro glasgow': 'accessibility@ovo-hydro.com',
+    'the ovo hydro': 'accessibility@ovo-hydro.com',
+
+    // Nottingham
+    'motorpoint arena': 'accessibility@motorpointarenanottingham.com',
+    'motorpoint arena nottingham': 'accessibility@motorpointarenanottingham.com',
+};
+
+/**
+ * Find all matching venues from database
+ * Returns array of { venueName, email } objects
+ */
+function findMatchingVenues(query) {
+    if (!query || query.trim() === '') return [];
+
+    const queryLower = query.toLowerCase().trim();
+    const matches = [];
+    const seenEmails = new Set(); // Avoid duplicates (same venue, different aliases)
+
+    // Exact match first
+    if (VENUE_EMAILS[queryLower]) {
+        return [{ venueName: queryLower, email: VENUE_EMAILS[queryLower] }];
+    }
+
+    // Fuzzy match - find all venues that contain the query or vice versa
+    for (const [key, email] of Object.entries(VENUE_EMAILS)) {
+        if ((queryLower.includes(key) || key.includes(queryLower)) && !seenEmails.has(email)) {
+            matches.push({ venueName: key, email });
+            seenEmails.add(email);
+        }
+    }
+
+    // Sort by name length (shorter/more specific first)
+    matches.sort((a, b) => a.venueName.length - b.venueName.length);
+
+    return matches;
+}
+
+/**
+ * Set up venue name input listener for auto-fill
+ */
+function setupVenueEmailLookup() {
+    const venueNameInput = document.getElementById('venueName');
+    const venueEmailInput = document.getElementById('venueEmail');
+    const venueEmailStatus = document.getElementById('venueEmailStatus');
+    const venueMatches = document.getElementById('venueMatches');
+
+    if (!venueNameInput || !venueEmailInput || !venueEmailStatus) return;
+
+    // Track if email was auto-filled (so we know if user overrode it)
+    let wasAutoFilled = false;
+
+    // Debounce the lookup
+    let debounceTimer;
+    venueNameInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const matches = findMatchingVenues(venueNameInput.value);
+
+            // Hide picker by default
+            if (venueMatches) venueMatches.style.display = 'none';
+
+            if (matches.length === 1) {
+                // Single match - auto-fill
+                venueEmailInput.value = matches[0].email;
+                wasAutoFilled = true;
+                venueEmailStatus.innerHTML = '<span class="status-found">We have this venue\'s access email</span>';
+                venueEmailStatus.className = 'venue-email-status found';
+            } else if (matches.length > 1) {
+                // Multiple matches - show picker
+                showVenuePicker(matches);
+                venueEmailStatus.innerHTML = '<span class="status-pick">Multiple venues found - please select one</span>';
+                venueEmailStatus.className = 'venue-email-status pick';
+            } else if (venueNameInput.value.trim().length > 2) {
+                // No matches
+                if (wasAutoFilled) {
+                    venueEmailInput.value = '';
+                    wasAutoFilled = false;
+                }
+                updateEmailStatus();
+            } else {
+                if (wasAutoFilled) {
+                    venueEmailInput.value = '';
+                    wasAutoFilled = false;
+                }
+                venueEmailStatus.innerHTML = '';
+                venueEmailStatus.className = 'venue-email-status';
+            }
+        }, 300);
+    });
+
+    // Listen for manual email entry
+    venueEmailInput.addEventListener('input', () => {
+        wasAutoFilled = false;
+        if (venueMatches) venueMatches.style.display = 'none';
+        updateEmailStatus();
+    });
+
+    function showVenuePicker(matches) {
+        if (!venueMatches) return;
+
+        // Build picker HTML
+        const html = matches.map(m => {
+            // Capitalize venue name for display
+            const displayName = m.venueName.split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            return `<button type="button" class="venue-match-btn" data-email="${m.email}" data-venue="${displayName}">${displayName}</button>`;
+        }).join('');
+
+        venueMatches.innerHTML = html;
+        venueMatches.style.display = 'flex';
+
+        // Add click handlers
+        venueMatches.querySelectorAll('.venue-match-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                venueEmailInput.value = btn.dataset.email;
+                venueNameInput.value = btn.dataset.venue;
+                wasAutoFilled = true;
+                venueMatches.style.display = 'none';
+                venueEmailStatus.innerHTML = '<span class="status-found">We have this venue\'s access email</span>';
+                venueEmailStatus.className = 'venue-email-status found';
+            });
+        });
+    }
+
+    function updateEmailStatus() {
+        const hasManualEmail = venueEmailInput.value.trim() !== '';
+        const hasVenueName = venueNameInput.value.trim().length > 2;
+
+        if (hasManualEmail) {
+            venueEmailStatus.innerHTML = '<span class="status-found">Email will go to venue, PI CC\'d</span>';
+            venueEmailStatus.className = 'venue-email-status found';
+        } else if (hasVenueName) {
+            venueEmailStatus.innerHTML = '<span class="status-not-found">No email? Your message will go to PI, we\'ll contact them for you</span>';
+            venueEmailStatus.className = 'venue-email-status not-found';
+        } else {
+            venueEmailStatus.innerHTML = '';
+            venueEmailStatus.className = 'venue-email-status';
+        }
+    }
+}
+
+// ========================================
+// REQUEST INTERPRETER URL BUILDER
+// ========================================
+
+/**
+ * Build a URL to the request interpreter form, pre-filled with event data
+ */
+function buildRequestInterpreterUrl(event) {
+    const params = new URLSearchParams();
+    if (event['EVENT']) params.set('event', event['EVENT']);
+    if (event['VENUE']) params.set('venue', event['VENUE']);
+    if (event['DATE']) params.set('date', event['DATE']);
+    if (event['TIME']) params.set('time', event['TIME']);
+    return `#/flow3?${params.toString()}`;
+}
+
+/**
+ * Pre-fill the request form from URL parameters
+ */
+function prefillRequestForm() {
+    const hash = window.location.hash;
+    if (!hash.includes('/flow3?')) return;
+
+    const queryString = hash.split('?')[1];
+    if (!queryString) return;
+
+    const params = new URLSearchParams(queryString);
+
+    const eventInput = document.getElementById('eventName');
+    const venueInput = document.getElementById('venueName');
+    const dateInput = document.getElementById('eventDate');
+
+    if (eventInput && params.get('event')) eventInput.value = params.get('event');
+    if (venueInput && params.get('venue')) {
+        venueInput.value = params.get('venue');
+        // Trigger venue email lookup if the function exists
+        if (typeof findMatchingVenues === 'function') {
+            venueInput.dispatchEvent(new Event('input'));
+        }
+    }
+    if (dateInput && params.get('date')) {
+        const time = params.get('time');
+        dateInput.value = params.get('date') + (time ? ` at ${time}` : '');
+    }
+}
+
+// ========================================
 // BADGE SYSTEM (NEW)
 // ========================================
 
@@ -51,20 +281,43 @@ function calculateBadgeStatus(event) {
     const language = getInterpretationLanguage(event);
 
     // 🟢 GREEN: Interpreter booked (confirmed)
-    const hasInterpreter = event['INTERPRETERS'] && event['INTERPRETERS'].trim() !== '';
+    const interpreterValue = event['INTERPRETERS'] ? event['INTERPRETERS'].trim() : '';
+    const hasInterpreter = interpreterValue !== '';
     const isConfirmed = event['INTERPRETER_CONFIRMED'] === 'Yes' ||
                        event['INTERPRETER_CONFIRMED'] === 'TRUE' ||
                        event['INTERPRETER_CONFIRMED'] === true;
 
-    if ((isConfirmed || hasInterpreter) && hasInterpreter) {
+    // Check if interpreter status is "Request Interpreter" or "TBC" - these are NOT confirmed
+    const interpreterLower = interpreterValue.toLowerCase();
+    const isRequestOrTBC = interpreterLower === 'request interpreter' ||
+                           interpreterLower === 'tbc' ||
+                           interpreterLower === 'to be confirmed';
+
+    if (hasInterpreter && !isRequestOrTBC) {
         return {
             badge: 'green',
-            icon: '🟢',
+            icon: '✅',
             label: 'Interpreter Booked',
-            shortLabel: `${language} Confirmed`,
+            shortLabel: `${language} Interpreted`,
             action: 'book-tickets',
             message: `${language} interpretation confirmed for this event`,
             canBook: true,
+            language: language
+        };
+    }
+
+    // 🟠 ORANGE: Request Interpreter - venue accepts requests
+    if (isRequestOrTBC) {
+        return {
+            badge: 'orange',
+            icon: '🟠',
+            label: interpreterValue === 'TBC' ? 'TBC' : 'Request Interpreter',
+            shortLabel: interpreterValue === 'TBC' ? `${language} TBC` : `Request ${language}`,
+            action: 'request-interpreter',
+            message: interpreterValue === 'TBC'
+                ? `${language} interpretation to be confirmed`
+                : `Contact venue to request ${language} interpretation`,
+            canBook: false,
             language: language
         };
     }
@@ -199,6 +452,8 @@ const Router = {
         const flow3El = document.getElementById('flow3Section');
         if (flow3El) {
             flow3El.style.display = 'block';
+            // Pre-fill form from URL params if coming from an event card
+            setTimeout(prefillRequestForm, 100);
         }
     },
 
@@ -238,7 +493,7 @@ function eventHasCategory(event, targetCategory) {
         return categories.some(cat => cat.toLowerCase().includes('festival'));
     }
 
-    return categories.includes(targetCategory);
+    return categories.some(cat => cat.toLowerCase() === targetCategory.toLowerCase());
 }
 
 // ========================================
@@ -247,6 +502,7 @@ function eventHasCategory(event, targetCategory) {
 const AppState = {
     allEvents: [],
     filteredEvents: [],
+    searchVocabulary: [], // For "Did you mean?" fuzzy search suggestions
     displayMode: localStorage.getItem('pi-view-mode') || 'card', // 'card', 'compact', 'list' - how events are displayed
     currentFlow: 'home', // NEW: 'home', 'flow1', 'flow2', 'flow3'
     badgeCache: new Map(), // NEW: Cache badge calculations
@@ -497,7 +753,7 @@ async function shareEvent(event) {
     const shareData = {
         title: event['EVENT'],
         text: `${event['EVENT']} - Interpreted by ${event['INTERPRETERS'] || 'Professional BSL/ISL interpreters'}`,
-        url: event['TICKET LINK'] || event['BOOKING GUIDE'] || window.location.href
+        url: event['EVENT URL'] || event['BOOKING GUIDE'] || window.location.href
     };
     
     try {
@@ -514,13 +770,150 @@ async function shareEvent(event) {
 }
 
 // ========================================
+// MULTI-DATE EVENT GROUPING
+// ========================================
+
+/**
+ * Normalize event name for grouping comparison
+ */
+function normalizeEventName(name) {
+    if (!name) return '';
+    return name.toString().toLowerCase().trim()
+        .replace(/\s+/g, ' ')
+        .replace(/['"]/g, '')
+        .replace(/\s*\(\d+ dates?\).*$/i, ''); // Remove existing "(X dates)" suffix
+}
+
+/**
+ * Normalize venue name for grouping comparison
+ */
+function normalizeVenueName(venue) {
+    if (!venue) return '';
+    let normalized = venue.toString().toLowerCase().trim();
+    normalized = normalized.replace(/\bthe\b/g, '');
+    normalized = normalized.replace(/,?\s*london$/i, '');
+    normalized = normalized.replace(/,?\s*uk$/i, '');
+    return normalized.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Parse date string to Date object
+ * Handles DD.MM.YY and DD.MM.YYYY formats
+ */
+function parseDateString(dateStr) {
+    if (!dateStr) return null;
+
+    // Handle date ranges - take first date
+    if (dateStr.includes(' - ')) {
+        dateStr = dateStr.split(' - ')[0];
+    }
+
+    const parts = dateStr.toString().trim().split('.');
+    if (parts.length !== 3) return null;
+
+    const day = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1;
+    let year = parseInt(parts[2]);
+    if (year < 100) year += 2000;
+
+    return new Date(year, month, day);
+}
+
+/**
+ * Format date range from array of dates
+ * Returns: "24 Jul" for single, "24-26 Jul" for consecutive, "24, 25, 28 Jul" for non-consecutive
+ */
+function formatDateRange(dates) {
+    if (!dates || dates.length === 0) return '';
+    if (dates.length === 1) {
+        const d = dates[0];
+        return `${d.day} ${d.month}`;
+    }
+
+    // Sort dates
+    const sorted = [...dates].sort((a, b) => a.dateObj - b.dateObj);
+
+    // Check if consecutive
+    const firstDate = sorted[0];
+    const lastDate = sorted[sorted.length - 1];
+
+    // If all in same month, show range
+    if (firstDate.month === lastDate.month) {
+        return `${firstDate.day}-${lastDate.day} ${firstDate.month}`;
+    }
+
+    // Different months
+    return `${firstDate.day} ${firstDate.month} - ${lastDate.day} ${lastDate.month}`;
+}
+
+/**
+ * Group events by event name + venue
+ * Returns array of grouped event objects with allDates array
+ */
+function groupEventsByNameAndVenue(events) {
+    const groups = new Map();
+
+    events.forEach(event => {
+        const eventName = normalizeEventName(event['EVENT']);
+        const venueName = normalizeVenueName(event['VENUE']);
+        const key = `${eventName}|||${venueName}`;
+
+        if (!groups.has(key)) {
+            groups.set(key, {
+                ...event,
+                allDates: [],
+                isGrouped: false
+            });
+        }
+
+        const group = groups.get(key);
+        const dateStr = event['DATE'];
+        const dateObj = parseDateString(dateStr);
+        const formatted = formatDate(dateStr);
+
+        group.allDates.push({
+            original: dateStr,
+            dateObj: dateObj,
+            day: formatted.day,
+            month: formatted.month,
+            time: event['TIME'] || '',
+            interpreters: event['INTERPRETERS'] || ''
+        });
+
+        // Keep the earliest date as the primary display date
+        if (dateObj && (!group._earliestDate || dateObj < group._earliestDate)) {
+            group._earliestDate = dateObj;
+            group['DATE'] = dateStr;
+            group['TIME'] = event['TIME'];
+            group['INTERPRETERS'] = event['INTERPRETERS'];
+        }
+    });
+
+    // Mark groups with multiple dates
+    groups.forEach(group => {
+        if (group.allDates.length > 1) {
+            group.isGrouped = true;
+            // Sort dates chronologically
+            group.allDates.sort((a, b) => a.dateObj - b.dateObj);
+        }
+    });
+
+    return Array.from(groups.values());
+}
+
+// ========================================
 // EVENT CARD GENERATION
 // ========================================
 
 function createEventCard(event) {
     const date = formatDate(event['DATE']);
     const hasBookingGuide = event['BOOKING GUIDE'] && event['BOOKING GUIDE'].trim() !== '';
-    const hasTicketLink = event['TICKET LINK'] && event['TICKET LINK'].trim() !== '';
+    const hasTicketLink = event['EVENT URL'] && event['EVENT URL'].trim() !== '';
+
+    // Check if this is a multi-date grouped event
+    const isGrouped = event.isGrouped && event.allDates && event.allDates.length > 1;
+    const dateRange = isGrouped ? formatDateRange(event.allDates) : null;
+    const eventId = `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // NEW: Calculate badge status
     const badge = calculateBadgeStatus(event);
@@ -537,20 +930,108 @@ function createEventCard(event) {
         `;
     } else {
         // Orange/Red badge - show request BSL option
-        primaryButton = `
-            <a href="#/flow3" class="btn-primary">
-                ✉️ Request BSL
-            </a>
+        // For O2 events, create pre-filled email to their accessibility team
+        const venue = (event['VENUE'] || '').toLowerCase();
+        const isO2Venue = venue.includes('o2') || venue.includes('indigo');
+
+        if (isO2Venue) {
+            const eventName = event['EVENT'] || 'Event';
+            const eventDate = event['DATE'] || '';
+            const eventTime = event['TIME'] || 'TBC';
+            const subject = encodeURIComponent(`BSL Interpreter Request - ${eventName}`);
+            const body = encodeURIComponent(
+`Hello O2 Accessibility Team,
+
+I would like to request a BSL interpreter for the following event:
+
+Event: ${eventName}
+Date: ${eventDate}
+Time: ${eventTime}
+Venue: ${event['VENUE'] || 'The O2'}
+
+Please let me know the process for arranging BSL interpretation for this event.
+
+Thank you`
+            );
+            primaryButton = `
+                <a href="mailto:access@theo2.co.uk?cc=office@performanceinterpreting.co.uk&subject=${subject}&body=${body}" class="btn-primary">
+                    ✉️ Request BSL
+                </a>
+            `;
+        } else {
+            primaryButton = `
+                <a href="#/flow3" class="btn-primary">
+                    ✉️ Request BSL
+                </a>
+            `;
+        }
+    }
+
+    // Build expandable dates section for multi-date events
+    let expandableDates = '';
+    if (isGrouped) {
+        const datesList = event.allDates.map(d => `
+            <div class="expandable-date-item">
+                <span class="date-item-date">📅 ${d.day} ${d.month}</span>
+                ${d.time ? `<span class="date-item-time">🕐 ${d.time}</span>` : ''}
+                ${d.interpreters ? `<span class="date-item-interpreters">👥 ${d.interpreters}</span>` : ''}
+            </div>
+        `).join('');
+
+        expandableDates = `
+            <div class="multi-date-section">
+                <button class="multi-date-toggle" onclick="toggleDates('${eventId}')" aria-expanded="false">
+                    <span class="toggle-text">📅 ${event.allDates.length} dates available</span>
+                    <span class="toggle-arrow">▼</span>
+                </button>
+                <div class="expandable-dates" id="dates-${eventId}" style="display: none;">
+                    ${datesList}
+                </div>
+            </div>
         `;
     }
 
+    // Date badge shows range for multi-date, single date otherwise
+    // For multi-date: show 3 lines - days, month, count
+    let dateBadgeContent;
+    if (isGrouped) {
+        const hasValidRange = dateRange && !dateRange.includes('undefined');
+        if (hasValidRange) {
+            // Split "27-28 JAN" into days and month
+            const parts = dateRange.split(' ');
+            const days = parts[0]; // "27-28"
+            const month = parts.slice(1).join(' '); // "JAN" or "JAN - 28 FEB" for cross-month
+            dateBadgeContent = `
+                <span class="date-badge-day">${days}</span>
+                <span class="date-badge-month">${month}</span>
+                <span class="date-badge-count">${event.allDates.length} dates</span>
+            `;
+        } else {
+            dateBadgeContent = `
+                <span class="date-badge-multi-icon">📅</span>
+                <span class="date-badge-count">${event.allDates.length} shows</span>
+            `;
+        }
+    } else {
+        dateBadgeContent = `
+            <span class="date-badge-day">${date.day}</span>
+            <span class="date-badge-month">${date.month}</span>
+        `;
+    }
+
+    const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
+
     return `
-        <article class="event-card" data-event-id="${Date.now()}-${Math.random()}">
-            <!-- NEW: Badge Indicator -->
-            <div class="event-badge-indicator badge-${badge.badge}">
-                <span class="badge-icon">${badge.icon}</span>
+        <article class="event-card ${isGrouped ? 'multi-date-card' : ''} ${isCancelled ? 'event-cancelled' : ''}" data-event-id="${eventId}">
+            ${isCancelled ? `
+            <div class="event-badge-indicator badge-cancelled">
+                <span class="badge-label">CANCELLED</span>
+            </div>
+            ` : badge.badge === 'green' ? `
+            <div class="event-badge-indicator badge-green">
                 <span class="badge-label">${badge.shortLabel}</span>
             </div>
+            ` : ''}
 
             <div class="event-image-container">
                 <img
@@ -560,23 +1041,32 @@ function createEventCard(event) {
                     onerror="this.src='${CONFIG.defaultImage}'"
                 >
 
-                <div class="date-badge">
-                    <span class="date-badge-day">${date.day}</span>
-                    <span class="date-badge-month">${date.month}</span>
+                <div class="date-badge ${isGrouped ? 'date-badge-multi' : ''}">
+                    ${dateBadgeContent}
                 </div>
             </div>
-            
+
             <div class="event-content">
                 <h3 class="event-title">${event['EVENT']}</h3>
 
                 <div class="event-meta-simple">
                     📍 ${event['VENUE']}<br>
-                    ${event['TIME'] ? `🕐 ${event['TIME']}` : ''}
+                    ${!isGrouped && event['TIME'] ? `🕐 ${event['TIME']}` : ''}
                 </div>
 
-                ${event['INTERPRETERS'] ? `
+                ${expandableDates}
+
+                ${!isGrouped && event['INTERPRETERS'] && badge.badge === 'green' ? `
                     <div class="event-interpreters-simple">
                         👥 ${event['INTERPRETERS']}
+                    </div>
+                ` : ''}
+
+                ${!isGrouped && badge.badge !== 'green' ? `
+                    <div class="event-request-interpreter">
+                        <a href="${buildRequestInterpreterUrl(event)}" class="request-interpreter-link">
+                            Request an interpreter for this event →
+                        </a>
                     </div>
                 ` : ''}
 
@@ -589,11 +1079,30 @@ function createEventCard(event) {
 }
 
 /**
+ * Toggle expandable dates section
+ */
+function toggleDates(eventId) {
+    const datesDiv = document.getElementById(`dates-${eventId}`);
+    const button = datesDiv.previousElementSibling;
+    const arrow = button.querySelector('.toggle-arrow');
+
+    if (datesDiv.style.display === 'none') {
+        datesDiv.style.display = 'block';
+        arrow.textContent = '▲';
+        button.setAttribute('aria-expanded', 'true');
+    } else {
+        datesDiv.style.display = 'none';
+        arrow.textContent = '▼';
+        button.setAttribute('aria-expanded', 'false');
+    }
+}
+
+/**
  * Create a compact event card (2-column grid on mobile)
  */
 function createCompactEventCard(event) {
     const date = formatDate(event['DATE']);
-    const hasTicketLink = event['TICKET LINK'] && event['TICKET LINK'].trim() !== '';
+    const hasTicketLink = event['EVENT URL'] && event['EVENT URL'].trim() !== '';
 
     return `
         <article class="event-card-compact" data-event-id="${Date.now()}-${Math.random()}">
@@ -614,7 +1123,7 @@ function createCompactEventCard(event) {
                 <h3 class="compact-title">${event['EVENT']}</h3>
                 <div class="compact-venue">📍 ${event['VENUE']}</div>
                 ${hasTicketLink ? `
-                    <a href="${event['TICKET LINK']}" target="_blank" rel="noopener" class="compact-btn">
+                    <a href="${event['EVENT URL']}" target="_blank" rel="noopener" class="compact-btn">
                         🎟️ Tickets
                     </a>
                 ` : ''}
@@ -628,7 +1137,7 @@ function createCompactEventCard(event) {
  */
 function createListEventItem(event) {
     const date = formatDate(event['DATE']);
-    const hasTicketLink = event['TICKET LINK'] && event['TICKET LINK'].trim() !== '';
+    const hasTicketLink = event['EVENT URL'] && event['EVENT URL'].trim() !== '';
 
     return `
         <article class="event-list-item" data-event-id="${Date.now()}-${Math.random()}">
@@ -646,7 +1155,7 @@ function createListEventItem(event) {
             </div>
 
             ${hasTicketLink ? `
-                <a href="${event['TICKET LINK']}" target="_blank" rel="noopener" class="list-btn">
+                <a href="${event['EVENT URL']}" target="_blank" rel="noopener" class="list-btn">
                     🎟️ Tickets
                 </a>
             ` : ''}
@@ -671,6 +1180,13 @@ function renderEvents(events) {
     DOM.eventsGrid.className = 'events-grid';
     DOM.eventsGrid.classList.add(`view-${AppState.displayMode}`);
 
+    // Group multi-date events (same event + venue = one card)
+    // Only for default card view, not compact or list
+    let eventsToRender = events;
+    if (AppState.displayMode === 'card' || !AppState.displayMode) {
+        eventsToRender = groupEventsByNameAndVenue(events);
+    }
+
     // Use DocumentFragment for faster rendering
     const fragment = document.createDocumentFragment();
     const tempDiv = document.createElement('div');
@@ -680,7 +1196,7 @@ function renderEvents(events) {
                         AppState.displayMode === 'list' ? createListEventItem :
                         createEventCard;
 
-    events.forEach(event => {
+    eventsToRender.forEach(event => {
         tempDiv.innerHTML = cardFunction(event);
         fragment.appendChild(tempDiv.firstElementChild);
     });
@@ -832,6 +1348,11 @@ function renderCategorySelection() {
             // Aggregate all festival types under "Festival"
             if (category.toLowerCase().includes('festival')) {
                 category = 'Festival';
+            } else {
+                // Normalize category case to canonical form
+                const knownCategories = ['Concert', 'Sports', 'Comedy', 'Family', 'Literature', 'Theatre', 'Dance', 'Talks & Discussions'];
+                const match = knownCategories.find(c => c.toLowerCase() === category.toLowerCase());
+                if (match) category = match;
             }
 
             categoryCounts[category] = (categoryCounts[category] || 0) + 1;
@@ -1152,6 +1673,8 @@ function loadCachedEvents() {
                 const events = JSON.parse(cached);
                 AppState.allEvents = events;
                 AppState.lastFetch = parseInt(timestamp);
+                // Build search vocabulary for "Did you mean?" suggestions
+                buildSearchVocabulary(events);
                 // Update timestamp display from cache
                 updateLastUpdatedTimestamp(parseInt(timestamp));
                 return events;
@@ -1206,6 +1729,9 @@ async function fetchEvents(skipCache = false) {
 
         AppState.allEvents = events;
         AppState.lastFetch = now;
+
+        // Build search vocabulary for "Did you mean?" suggestions
+        buildSearchVocabulary(events);
 
         // Save to localStorage for instant next load
         saveCachedEvents(events);
@@ -1268,15 +1794,18 @@ function showErrorState(errorMessage) {
 function applyFilters() {
     let filtered = [...AppState.allEvents];
 
-    // LEGAL COMPLIANCE: Flow 1 only shows confirmed interpreter events
+    // LEGAL COMPLIANCE: Flow 1 only shows events with interpreter assignments
+    // NOTE: INTERPRETER_CONFIRMED field not yet populated in pipeline, so we use
+    // hasInterpreter as fallback. When INTERPRETER_CONFIRMED is implemented,
+    // change to: return hasInterpreter && isConfirmed;
     if (AppState.currentFlow === 'flow1' || window.location.hash.includes('/flow1')) {
         filtered = filtered.filter(event => {
             const hasInterpreter = event['INTERPRETERS'] && event['INTERPRETERS'].trim() !== '';
             const isConfirmed = event['INTERPRETER_CONFIRMED'] === 'Yes' ||
                                event['INTERPRETER_CONFIRMED'] === 'TRUE' ||
                                event['INTERPRETER_CONFIRMED'] === true;
-            // Only show events with both interpreter listed AND confirmed
-            return hasInterpreter && (isConfirmed || hasInterpreter); // Use hasInterpreter as fallback
+            // Show events with interpreter listed (confirmation check ready for future use)
+            return hasInterpreter;
         });
     }
 
@@ -1357,25 +1886,231 @@ function applyFilters() {
                 }
             }
 
-            // For other categories, check if event has this category tag
-            // Also aggregate festivals under Festival category
-            if (categories.some(cat => cat.toLowerCase().includes('festival'))) {
-                return AppState.filters.category === 'Festival';
+            // For other categories, check if event directly matches the filter
+            if (categories.includes(AppState.filters.category)) {
+                return true;
             }
 
-            return categories.includes(AppState.filters.category);
+            // Also aggregate all festival types under "Festival" category filter
+            if (AppState.filters.category === 'Festival') {
+                return categories.some(cat => cat.toLowerCase().includes('festival'));
+            }
+
+            return false;
         });
     }
     
     if (AppState.filters.location !== 'all') {
         filtered = filtered.filter(event => {
-            return event['VENUE'].includes(AppState.filters.location);
+            // Check CITY column first, then fallback to VENUE
+            const city = event['CITY'] || '';
+            const venue = event['VENUE'] || '';
+            return city === AppState.filters.location || venue.includes(AppState.filters.location);
         });
     }
     
     AppState.filteredEvents = filtered;
     renderEvents(filtered);
     updateActiveFilters();
+
+    // Show "Did you mean?" suggestions if no results and search term exists
+    if (AppState.filters.search && AppState.filters.search.length >= 3 && filtered.length === 0) {
+        showSearchSuggestions(AppState.filters.search);
+    } else {
+        hideSearchSuggestions();
+    }
+}
+
+// ========================================
+// FUZZY SEARCH ("Did you mean?")
+// ========================================
+
+/**
+ * Calculate Levenshtein distance between two strings
+ * (minimum number of single-character edits to transform one into the other)
+ */
+function levenshteinDistance(str1, str2) {
+    const m = str1.length;
+    const n = str2.length;
+
+    // Create distance matrix
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+    // Initialize first column and row
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    // Fill in the rest
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,      // deletion
+                dp[i][j - 1] + 1,      // insertion
+                dp[i - 1][j - 1] + cost // substitution
+            );
+        }
+    }
+
+    return dp[m][n];
+}
+
+/**
+ * Build search vocabulary from loaded events
+ * Called after events are loaded
+ */
+function buildSearchVocabulary(events) {
+    const vocabulary = new Set();
+
+    events.forEach(event => {
+        // Add full event names
+        if (event.EVENT) {
+            vocabulary.add(event.EVENT);
+            // Also add individual significant words (3+ chars)
+            event.EVENT.split(/\s+/).forEach(word => {
+                const cleaned = word.replace(/[^\w]/g, '');
+                if (cleaned.length >= 3) {
+                    vocabulary.add(cleaned);
+                }
+            });
+        }
+
+        // Add venue names
+        if (event.VENUE) {
+            vocabulary.add(event.VENUE);
+            // Add venue without location suffix
+            const venueParts = event.VENUE.split(',');
+            if (venueParts.length > 1) {
+                vocabulary.add(venueParts[0].trim());
+            }
+        }
+
+        // Add interpreter names
+        if (event.INTERPRETERS) {
+            event.INTERPRETERS.split(/[,&]/).forEach(name => {
+                const trimmed = name.trim();
+                if (trimmed.length >= 3) {
+                    vocabulary.add(trimmed);
+                }
+            });
+        }
+    });
+
+    // Filter out very short terms and return as array
+    AppState.searchVocabulary = Array.from(vocabulary).filter(v => v && v.length >= 3);
+    console.log(`Built search vocabulary with ${AppState.searchVocabulary.length} terms`);
+}
+
+/**
+ * Find similar terms to a query using Levenshtein distance
+ * Handles both full phrases and individual words
+ */
+function findSimilarTerms(query, maxSuggestions = 3) {
+    if (!AppState.searchVocabulary || !query || query.length < 3) {
+        return [];
+    }
+
+    const queryLower = query.toLowerCase().trim();
+    const queryWords = queryLower.split(/\s+/).filter(w => w.length >= 3);
+    const suggestions = [];
+
+    AppState.searchVocabulary.forEach(term => {
+        const termLower = term.toLowerCase();
+
+        // Skip if it's an exact match (already found in search)
+        if (termLower === queryLower) return;
+        if (termLower.includes(queryLower) || queryLower.includes(termLower)) return;
+
+        // Strategy 1: Compare full query to full term (for multi-word matches)
+        const lengthDiff = Math.abs(term.length - query.length);
+        if (lengthDiff <= 5) {
+            const distance = levenshteinDistance(queryLower, termLower);
+            // More generous: allow up to 40% of characters to be different
+            const maxDistance = Math.max(2, Math.ceil(query.length * 0.4));
+
+            if (distance > 0 && distance <= maxDistance) {
+                suggestions.push({ term, distance, termLower });
+                return; // Found a match, skip word-by-word check
+            }
+        }
+
+        // Strategy 2: Check if any query word is similar to any word in term
+        const termWords = termLower.split(/\s+/).filter(w => w.length >= 3);
+        for (const qWord of queryWords) {
+            for (const tWord of termWords) {
+                if (Math.abs(qWord.length - tWord.length) <= 2) {
+                    const wordDistance = levenshteinDistance(qWord, tWord);
+                    // For individual words, allow 1-2 edits
+                    if (wordDistance > 0 && wordDistance <= 2) {
+                        // Weight by how good the match is
+                        suggestions.push({ term, distance: wordDistance + 0.5, termLower });
+                        return;
+                    }
+                }
+            }
+        }
+    });
+
+    // Sort by distance (best matches first), then alphabetically
+    suggestions.sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        return a.termLower.localeCompare(b.termLower);
+    });
+
+    // Remove duplicates (case-insensitive)
+    const seen = new Set();
+    const unique = suggestions.filter(s => {
+        if (seen.has(s.termLower)) return false;
+        seen.add(s.termLower);
+        return true;
+    });
+
+    return unique.slice(0, maxSuggestions).map(s => s.term);
+}
+
+/**
+ * Show "Did you mean?" suggestions
+ */
+function showSearchSuggestions(query) {
+    const container = document.getElementById('searchSuggestions');
+    const itemsContainer = document.getElementById('suggestionItems');
+
+    if (!container || !itemsContainer) return;
+
+    const suggestions = findSimilarTerms(query);
+
+    if (suggestions.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    // Build suggestion buttons
+    itemsContainer.innerHTML = suggestions.map(term =>
+        `<button class="suggestion-item" onclick="applySuggestion('${term.replace(/'/g, "\\'")}')">${term}</button>`
+    ).join('');
+
+    container.style.display = 'block';
+}
+
+/**
+ * Hide search suggestions
+ */
+function hideSearchSuggestions() {
+    const container = document.getElementById('searchSuggestions');
+    if (container) {
+        container.style.display = 'none';
+    }
+}
+
+/**
+ * Apply a suggestion to the search input
+ */
+function applySuggestion(term) {
+    DOM.searchInput.value = term;
+    AppState.filters.search = term;
+    DOM.searchClear.classList.add('visible');
+    hideSearchSuggestions();
+    applyFilters();
 }
 
 /**
@@ -1385,10 +2120,14 @@ function populateFilters() {
     // Generate category tabs (NEW!)
     generateCategoryTabs();
     
-    // Locations (extract city/venue names)
+    // Locations - use CITY column if available, otherwise extract from VENUE
     const locations = [...new Set(AppState.allEvents.map(e => {
-        const venue = e['VENUE'];
-        // Try to extract city/location from venue string
+        // Prefer CITY column if available
+        if (e['CITY'] && e['CITY'].trim()) {
+            return e['CITY'].trim();
+        }
+        // Fallback: extract city from venue string (e.g., "The O2 Arena, London" → "London")
+        const venue = e['VENUE'] || '';
         const parts = venue.split(',');
         return parts[parts.length - 1].trim();
     }).filter(Boolean))];
@@ -1734,9 +2473,17 @@ function initEventListeners() {
         applyFilters();
     });
     
-    // Refresh button
+    // Refresh button - also clears service worker cache for fresh data
     DOM.refreshBtn.addEventListener('click', async () => {
         AppState.lastFetch = null;
+        // Clear service worker data cache so fresh CSV is fetched
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.filter(name => name.includes('-data'))
+                    .map(name => caches.delete(name))
+            );
+        }
         const events = await fetchEvents();
         populateFilters();
         applyFilters();
@@ -1921,6 +2668,9 @@ async function init() {
         // Initialize request BSL form handler (NEW)
         handleRequestBSLForm();
 
+        // Initialize venue email lookup for Request BSL form
+        setupVenueEmailLookup();
+
         // Initialize Flow 2 search handler (NEW)
         handleFlow2Search();
 
@@ -2086,9 +2836,6 @@ function openInstallPrompt() {
     const prompt = document.getElementById('installPrompt');
     prompt.classList.add('show');
     document.body.classList.add('modal-open');
-
-    // Detect platform and show appropriate instructions
-    detectPlatformAndShowInstructions();
 }
 
 /**
@@ -2101,22 +2848,6 @@ function closeInstallPrompt() {
 
     // Remember that user has seen this
     localStorage.setItem('pi-install-prompt-seen', 'true');
-}
-
-/**
- * Detect user's platform and show appropriate instructions
- */
-function detectPlatformAndShowInstructions() {
-    const iosInstructions = document.getElementById('iosInstructions');
-    const androidInstructions = document.getElementById('androidInstructions');
-
-    // Show both iOS and Android instructions (no desktop)
-    if (iosInstructions) {
-        iosInstructions.style.display = 'block';
-    }
-    if (androidInstructions) {
-        androidInstructions.style.display = 'block';
-    }
 }
 
 /**
@@ -2140,10 +2871,10 @@ function checkInstallPrompt() {
         return;
     }
 
-    // Show after 3 seconds
+    // Show after 10 seconds
     setTimeout(() => {
         openInstallPrompt();
-    }, 3000);
+    }, 10000);
 }
 
 // Make functions available globally
@@ -2175,7 +2906,8 @@ Thank you.`;
 
     friendly: {
         name: 'Friendly Request',
-        generate: (eventName, venueName, eventDate) => {
+        generate: (eventName, venueName, eventDate, includePINote = false) => {
+            const piNote = includePINote ? `\n\nI've CC'd Performance Interpreting to help support this request.` : '';
             return `Hi ${venueName} team,
 
 I want to attend ${eventName}${eventDate ? ' on ' + eventDate : ''}!
@@ -2183,7 +2915,7 @@ I want to attend ${eventName}${eventDate ? ' on ' + eventDate : ''}!
 I am Deaf and use BSL.
 Will there be a BSL interpreter?
 
-If not, can you arrange one?
+If not, can you arrange one?${piNote}
 
 Thank you!`;
         }
@@ -2201,13 +2933,17 @@ function handleRequestBSLForm() {
         const eventName = document.getElementById('eventName').value;
         const venueName = document.getElementById('venueName').value;
         const eventDate = document.getElementById('eventDate').value;
+        const venueEmail = document.getElementById('venueEmail')?.value || '';
+        const hasVenueEmail = venueEmail.trim() !== '';
 
         // Generate message using friendly template
-        const message = MessageTemplates.friendly.generate(eventName, venueName, eventDate);
+        // Include PI note only when email goes to venue (PI will be CC'd)
+        const message = MessageTemplates.friendly.generate(eventName, venueName, eventDate, hasVenueEmail);
 
         // Show message template
         const messageTemplate = document.getElementById('messageTemplate');
         const messageContent = document.getElementById('messageContent');
+        const emailNote = document.getElementById('emailNote');
 
         if (messageContent) {
             messageContent.textContent = message;
@@ -2216,11 +2952,24 @@ function handleRequestBSLForm() {
             messageTemplate.style.display = 'block';
         }
 
+        // Set dynamic email note based on whether we have venue email
+        if (emailNote) {
+            if (hasVenueEmail) {
+                emailNote.innerHTML = 'This email goes to the <strong>venue\'s access team</strong>. PI is CC\'d to support your request if needed.';
+                emailNote.className = 'email-note venue-email';
+            } else {
+                emailNote.innerHTML = 'This email goes to <strong>Performance Interpreting</strong>. We\'ll contact the venue on your behalf.';
+                emailNote.className = 'email-note pi-email';
+            }
+        }
+
         // Store for copy/email functions
         window.currentMessage = {
             message: message,
             venueName: venueName,
-            eventName: eventName
+            eventName: eventName,
+            venueEmail: venueEmail,
+            hasVenueEmail: hasVenueEmail
         };
 
         // Scroll to message
@@ -2247,7 +2996,13 @@ function openEmail() {
     const subject = encodeURIComponent('BSL Interpretation Request - ' + window.currentMessage.eventName);
     const body = encodeURIComponent(window.currentMessage.message);
 
-    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    if (window.currentMessage.hasVenueEmail) {
+        // Send to venue, CC PI
+        window.location.href = 'mailto:' + window.currentMessage.venueEmail + '?cc=office@performanceinterpreting.co.uk&subject=' + subject + '&body=' + body;
+    } else {
+        // Send to PI directly (they'll contact venue on user's behalf)
+        window.location.href = 'mailto:office@performanceinterpreting.co.uk?subject=' + subject + '&body=' + body;
+    }
 }
 
 // Make functions global
@@ -2305,11 +3060,24 @@ function displaySearchResults(results, query) {
     if (!resultsContainer) return;
 
     if (results.length === 0) {
-        // No results found
+        // No results found - show "Did you mean?" suggestions
+        const suggestions = query.length >= 3 ? findSimilarTerms(query) : [];
+        const suggestionsHTML = suggestions.length > 0 ? `
+            <div class="search-suggestions" style="display: block; margin-bottom: 20px;">
+                <span class="suggestion-label">Did you mean:</span>
+                <div class="suggestion-items">
+                    ${suggestions.map(term =>
+                        `<button class="suggestion-item" onclick="applyFlow2Suggestion('${term.replace(/'/g, "\\'")}')">${term}</button>`
+                    ).join('')}
+                </div>
+            </div>
+        ` : '';
+
         resultsContainer.innerHTML = `
             <div class="search-no-results">
                 <div class="no-results-icon">🔴</div>
                 <h3>No events found for "${query}"</h3>
+                ${suggestionsHTML}
                 <p>We couldn't find any events matching your search.</p>
                 <p><strong>But you can still request BSL!</strong></p>
                 <a href="#/flow3" class="btn-primary">Request BSL for This Event →</a>
@@ -2390,6 +3158,18 @@ function handleFlow2Search() {
             performSearch();
         }
     });
+}
+
+/**
+ * Apply a "Did you mean?" suggestion in Flow 2
+ */
+function applyFlow2Suggestion(term) {
+    const searchInput = document.getElementById('flow2SearchInput');
+    if (searchInput) {
+        searchInput.value = term;
+        const results = fuzzySearchEvents(term, AppState.allEvents);
+        displaySearchResults(results, term);
+    }
 }
 
 // ========================================
@@ -2490,7 +3270,7 @@ function openGetTicketsModal(event) {
     // Store ticket URL for continue button
     const continueBtn = document.getElementById('continueToTicketsBtn');
     if (continueBtn) {
-        continueBtn.setAttribute('data-ticket-url', event['TICKET LINK']);
+        continueBtn.setAttribute('data-ticket-url', event['EVENT URL']);
     }
 
     // Show/hide SignVideo button if link available
@@ -2530,13 +3310,13 @@ function closeGetTicketsModal() {
  * Continue to external ticket site after seeing guidance
  */
 function continueToTickets() {
-    if (!currentTicketEvent || !currentTicketEvent['TICKET LINK']) {
+    if (!currentTicketEvent || !currentTicketEvent['EVENT URL']) {
         alert('No ticket link available');
         return;
     }
 
     // Open ticket link in new tab
-    window.open(currentTicketEvent['TICKET LINK'], '_blank', 'noopener,noreferrer');
+    window.open(currentTicketEvent['EVENT URL'], '_blank', 'noopener,noreferrer');
 
     // Close the modal
     closeGetTicketsModal();
@@ -2677,14 +3457,14 @@ function closeKnowYourRightsModal() {
  * Dynamic rights ticker - rotates empowerment messages
  */
 const rightsMessages = [
-    "You can request BSL at any public event",
-    "Venues must consider reasonable access requests",
-    "You can ask for seats with clear interpreter view",
-    "You can request information in accessible formats",
-    "You don't need a group to request BSL access",
-    "Your access needs are protected by law",
-    "Venues should respond to requests in reasonable time",
-    "You have the right to enjoy events equally"
+    "You can <strong>request BSL</strong> at any event",
+    "Venues <strong>must consider</strong> access requests",
+    "Ask for seats with <strong>clear interpreter view</strong>",
+    "Request info in <strong>accessible formats</strong>",
+    "<strong>No group needed</strong> to request BSL",
+    "Your access is <strong>protected by law</strong>",
+    "Venues should respond in <strong>reasonable time</strong>",
+    "You have the <strong>right to enjoy</strong> events equally"
 ];
 
 let currentRightsIndex = 0;
@@ -2698,7 +3478,7 @@ function initRightsTicker() {
     if (!tickerEl) return;
 
     // Set initial message
-    tickerEl.textContent = rightsMessages[0];
+    tickerEl.innerHTML = rightsMessages[0];
     tickerEl.classList.add('rights-ticker-visible');
 
     // Rotate every 5 seconds
@@ -2709,7 +3489,7 @@ function initRightsTicker() {
         setTimeout(() => {
             // Change message
             currentRightsIndex = (currentRightsIndex + 1) % rightsMessages.length;
-            tickerEl.textContent = rightsMessages[currentRightsIndex];
+            tickerEl.innerHTML = rightsMessages[currentRightsIndex];
 
             // Fade in
             tickerEl.classList.add('rights-ticker-visible');

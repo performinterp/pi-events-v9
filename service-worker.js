@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.8.0-access-first-complete'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.1-cancelled-refresh'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 
@@ -112,24 +112,40 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Handle Google Sheets CSV requests separately (always try network first)
+    // Handle Google Sheets CSV requests with timeout for better offline UX
+    // Try network first, but fall back to cache after 3 seconds
     if (requestUrl.hostname === 'docs.google.com' && requestUrl.pathname.includes('/pub')) {
+        const NETWORK_TIMEOUT = 3000; // 3 seconds
+
         event.respondWith(
-            fetch(event.request)
-                .then((response) => {
-                    // Clone the response before caching
-                    const responseClone = response.clone();
-                    
-                    caches.open(DATA_CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                    
-                    return response;
+            Promise.race([
+                // Network fetch
+                fetch(event.request)
+                    .then((response) => {
+                        // Clone and cache the response
+                        const responseClone = response.clone();
+                        caches.open(DATA_CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                        return response;
+                    }),
+                // Timeout - fall back to cache after 3 seconds
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        caches.match(event.request)
+                            .then((cachedResponse) => {
+                                if (cachedResponse) {
+                                    resolve(cachedResponse);
+                                } else {
+                                    reject(new Error('No cached response'));
+                                }
+                            });
+                    }, NETWORK_TIMEOUT);
                 })
-                .catch(() => {
-                    // If network fails, try to serve from cache
-                    return caches.match(event.request);
-                })
+            ]).catch(() => {
+                // If both network and timeout fail, try cache one more time
+                return caches.match(event.request);
+            })
         );
         return;
     }
