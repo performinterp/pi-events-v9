@@ -268,6 +268,10 @@ def enrich_events(staged_events_data: list, venues_data: list, categories_data: 
     unmatched_count = 0
 
     for i, row in enumerate(staged_events_data[1:], start=2):
+        # Pad row to match header length so column assignments don't fail
+        while len(row) < len(headers):
+            row.append("")
+
         # Get effective VENUE_ID (override or matched)
         venue_name = row[col_map.get('VENUE_NAME', -1)]
         venue_id_override = row[col_map.get('VENUE_ID_OVERRIDE', -1)] if col_map.get('VENUE_ID_OVERRIDE', -1) >= 0 and col_map.get('VENUE_ID_OVERRIDE', -1) < len(row) else ""

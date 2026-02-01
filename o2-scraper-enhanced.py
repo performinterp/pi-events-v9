@@ -150,6 +150,99 @@ class O2EnhancedScraper:
 
         return None
 
+    def detect_category(self, event_name: str, event_type: str = None) -> str:
+        """
+        Smart category detection - avoids false positives from simple substring matching.
+        Uses JSON-LD @type when available, then pattern matching for specific keywords.
+        """
+        name_lower = event_name.lower()
+
+        # First, trust JSON-LD event type if provided
+        if event_type:
+            if event_type == 'TheaterEvent':
+                return 'Theatre'
+            elif event_type == 'SportsEvent':
+                return 'Sports'
+            elif event_type == 'ComedyEvent':
+                return 'Comedy'
+
+        # SPORTS: Must be actual sporting events, not just "sport" in name
+        # Look for specific sports keywords that are unambiguous
+        sports_keywords = [
+            'boxing',
+            'ufc',
+            'mma',
+            'wrestling',  # but not "wrestling with" metaphorically
+            'premier league',
+            'champions league',
+            'football match',
+            'darts',
+            'snooker',
+            'world championship',
+            'vs ',  # "Fighter vs Fighter" pattern
+            ' v ',   # UK style "Fighter v Fighter"
+            'fight night',
+            'cage warriors',
+        ]
+
+        for keyword in sports_keywords:
+            if keyword in name_lower:
+                return 'Sports'
+
+        # COMEDY: Look for comedy-specific indicators
+        comedy_keywords = [
+            'comedy',
+            'stand-up',
+            'standup',
+            'stand up',
+            'comedian',
+            'live comedy',
+        ]
+
+        # Known comedians who perform at O2
+        known_comedians = [
+            'michael mcintyre',
+            'kevin hart',
+            'dave chappelle',
+            'ricky gervais',
+            'jimmy carr',
+            'peter kay',
+            'lee mack',
+            'jack whitehall',
+            'russell howard',
+            'romesh ranganathan',
+            'rob beckett',
+        ]
+
+        for keyword in comedy_keywords:
+            if keyword in name_lower:
+                return 'Comedy'
+
+        for comedian in known_comedians:
+            if comedian in name_lower:
+                return 'Comedy'
+
+        # THEATRE: Musicals and theatrical productions
+        theatre_keywords = [
+            'musical',
+            'theatre',
+            'theater',
+            'the musical',
+            'west end',
+            'broadway',
+            'ballet',
+            'opera',
+            'cirque',
+            'disney on ice',
+        ]
+
+        for keyword in theatre_keywords:
+            if keyword in name_lower:
+                return 'Theatre'
+
+        # Default to Concert for music events at O2
+        return 'Concert'
+
     def extract_events_from_html(self, html: str) -> List[Dict]:
         """
         Extract events from full HTML using both JSON-LD and HTML parsing
@@ -220,14 +313,8 @@ class O2EnhancedScraper:
                             except Exception:
                                 pass
 
-                        # Determine category
-                        category = 'Concert'
-                        if event_type == 'TheaterEvent':
-                            category = 'Theatre'
-                        elif 'sport' in event_name.lower():
-                            category = 'Sports'
-                        elif 'comedy' in event_name.lower():
-                            category = 'Comedy'
+                        # Determine category using smarter detection
+                        category = self.detect_category(event_name, event_type)
 
                         # Extract performer if available
                         artist_name = ''
@@ -383,14 +470,8 @@ class O2EnhancedScraper:
                 # Only add if we have at least name and URL
                 if event_name and event_url:
 
-                    # Determine category from name
-                    category = 'Concert'
-                    if 'theatre' in event_name.lower() or 'musical' in event_name.lower():
-                        category = 'Theatre'
-                    elif 'sport' in event_name.lower() or 'game' in event_name.lower():
-                        category = 'Sports'
-                    elif 'comedy' in event_name.lower():
-                        category = 'Comedy'
+                    # Determine category using smarter detection
+                    category = self.detect_category(event_name)
 
                     event = {
                         'event_name': event_name,

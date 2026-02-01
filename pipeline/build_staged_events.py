@@ -189,11 +189,12 @@ def preserve_approval_status(new_events: list, existing_staged_data: list) -> li
     col_map = {h: i for i, h in enumerate(headers)}
 
     existing_approvals = {}
+    event_id_idx = col_map.get('EVENT_ID', 0)
     for row in existing_staged_data[1:]:
-        if len(row) < 3:
+        if len(row) <= event_id_idx:
             continue
 
-        event_id = row[col_map.get('EVENT_ID', 0)]
+        event_id = row[event_id_idx]
         existing_approvals[event_id] = {
             'approve': row[col_map.get('APPROVE', -1)] if col_map.get('APPROVE', -1) >= 0 and col_map.get('APPROVE', -1) < len(row) else "FALSE",
             'venue_id_override': row[col_map.get('VENUE_ID_OVERRIDE', -1)] if col_map.get('VENUE_ID_OVERRIDE', -1) >= 0 and col_map.get('VENUE_ID_OVERRIDE', -1) < len(row) else "",
