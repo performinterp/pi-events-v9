@@ -406,6 +406,9 @@ const Router = {
         // Hide all flow sections
         this.hideAllFlows();
 
+        // Scroll to top when navigating between routes
+        window.scrollTo(0, 0);
+
         // Route to appropriate flow
         if (route === '/' || route === '') {
             this.renderHome();
@@ -1343,10 +1346,12 @@ function renderCategorySelection() {
             continue;
         }
 
-        let category = event['CATEGORY'] || 'Other';
+        const categories = parseCategories(event['CATEGORY'] || 'Other');
+        const groupKey = `${normalizeEventName(event['EVENT'])}|${normalizeVenueName(event['VENUE'])}`;
 
-        // Only count singular categories for filter buttons
-        if (!category.includes(',')) {
+        for (const rawCat of categories) {
+            let category = rawCat;
+
             // Aggregate all festival types under "Festival"
             if (category.toLowerCase().includes('festival')) {
                 category = 'Festival';
@@ -1357,8 +1362,7 @@ function renderCategorySelection() {
                 if (match) category = match;
             }
 
-            // Count unique event+venue combos (matches multi-date grouping)
-            const groupKey = `${(event['EVENT'] || '').trim()}|${(event['VENUE'] || '').trim()}`;
+            // Count unique event+venue combos using same normalization as render grouping
             if (!categoryGroupKeys[category]) {
                 categoryGroupKeys[category] = new Set();
             }
