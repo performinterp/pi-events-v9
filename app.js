@@ -1898,8 +1898,9 @@ function applyFilters() {
                 }
             }
 
-            // For other categories, check if event directly matches the filter
-            if (categories.includes(AppState.filters.category)) {
+            // For other categories, check if event matches the filter (case-insensitive)
+            const filterLower = AppState.filters.category.toLowerCase();
+            if (categories.some(cat => cat.toLowerCase() === filterLower)) {
                 return true;
             }
 

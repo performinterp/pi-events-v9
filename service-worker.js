@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.3-count-consistency'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.4-case-insensitive-filter'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 
