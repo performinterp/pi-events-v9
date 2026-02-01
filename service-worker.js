@@ -11,8 +11,8 @@ const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css',
-    '/app.js',
+    '/styles.css?v=1.9.4',
+    '/app.js?v=1.9.4',
     '/manifest.json'
 ];
 
