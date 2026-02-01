@@ -394,6 +394,13 @@ const Router = {
     handleRouteChange() {
         const hash = window.location.hash.slice(1) || '/';
         const route = hash.split('?')[0]; // Remove query params
+
+        // Anchor-style hashes (about, contact, etc.) are page sections, not routes.
+        // Don't let the router hide flows for these - just let the browser scroll.
+        if (route && !route.startsWith('/') && route !== 'events') {
+            return;
+        }
+
         this.currentRoute = route;
 
         // Hide all flow sections
@@ -402,7 +409,7 @@ const Router = {
         // Route to appropriate flow
         if (route === '/' || route === '') {
             this.renderHome();
-        } else if (route === '/flow1' || route.startsWith('/flow1/')) {
+        } else if (route === '/flow1' || route.startsWith('/flow1/') || route === 'events') {
             this.renderFlow1();
         } else if (route === '/flow2') {
             this.renderFlow2();
@@ -1237,11 +1244,11 @@ function renderEvents(events) {
                 <button onclick="${backButtonHandler}" class="back-button">
                     ${backButtonText}
                 </button>
-                <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${events.length} ${events.length === 1 ? 'event' : 'events'}</h2>
+                <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${eventsToRender.length} ${eventsToRender.length === 1 ? 'event' : 'events'}</h2>
             `;
         } else {
             // Show just count with back button
-            const eventWord = events.length === 1 ? 'event' : 'events';
+            const eventWord = eventsToRender.length === 1 ? 'event' : 'events';
             const hasActiveFilters = AppState.filters.search ||
                                      AppState.filters.time !== 'all' ||
                                      AppState.filters.interpretation !== 'all' ||
@@ -1249,9 +1256,9 @@ function renderEvents(events) {
 
             let titleText;
             if (hasActiveFilters) {
-                titleText = `${events.length} ${eventWord} found`;
+                titleText = `${eventsToRender.length} ${eventWord} found`;
             } else {
-                titleText = `All: ${events.length} ${eventWord}`;
+                titleText = `All: ${eventsToRender.length} ${eventWord}`;
             }
 
             resultsHeaderContent.innerHTML = `
@@ -1262,7 +1269,7 @@ function renderEvents(events) {
             `;
         }
     } else {
-        updateResultsTitle(events.length);
+        updateResultsTitle(eventsToRender.length);
     }
 }
 
@@ -1323,21 +1330,24 @@ function renderCategorySelection() {
         return;
     }
 
-    // Get unique categories with counts - OPTIMIZED
-    // Only create filter buttons for singular categories (no commas)
-    // LEGAL COMPLIANCE: Only count confirmed interpreter events in Flow 1
+    // Get unique categories with counts
+    // Apply the same time filter as applyFilters() so counts match what users see
     const categoryCounts = {};
+    const now = Date.now();
+    const monthFromNow = now + (30 * 24 * 60 * 60 * 1000);
+
     for (let i = 0; i < AppState.allEvents.length; i++) {
         const event = AppState.allEvents[i];
 
-        // Filter for confirmed interpreters only
+        // Skip events without interpreter listed
         const hasInterpreter = event['INTERPRETERS'] && event['INTERPRETERS'].trim() !== '';
-        const isConfirmed = event['INTERPRETER_CONFIRMED'] === 'Yes' ||
-                           event['INTERPRETER_CONFIRMED'] === 'TRUE' ||
-                           event['INTERPRETER_CONFIRMED'] === true;
+        if (!hasInterpreter) {
+            continue;
+        }
 
-        // Skip events without confirmed interpreters
-        if (!hasInterpreter || (!isConfirmed && !hasInterpreter)) {
+        // Apply default time filter (month) to match what applyFilters shows
+        const eventTime = formatDate(event['DATE']).timestamp;
+        if (eventTime && (eventTime < now || eventTime > monthFromNow)) {
             continue;
         }
 
