@@ -516,7 +516,7 @@ const AppState = {
     selectedEvent: null, // NEW: For event detail view
     filters: {
         search: '',
-        time: 'month',
+        time: 'all',
         selectedMonth: '',
         interpretation: 'all',
         category: 'all',
@@ -1330,11 +1330,9 @@ function renderCategorySelection() {
         return;
     }
 
-    // Get unique categories with counts
-    // Apply the same time filter as applyFilters() so counts match what users see
+    // Get unique categories with counts (grouped by event+venue to match card display)
     const categoryCounts = {};
-    const now = Date.now();
-    const monthFromNow = now + (30 * 24 * 60 * 60 * 1000);
+    const categoryGroupKeys = {}; // Track unique event+venue combos per category
 
     for (let i = 0; i < AppState.allEvents.length; i++) {
         const event = AppState.allEvents[i];
@@ -1342,12 +1340,6 @@ function renderCategorySelection() {
         // Skip events without interpreter listed
         const hasInterpreter = event['INTERPRETERS'] && event['INTERPRETERS'].trim() !== '';
         if (!hasInterpreter) {
-            continue;
-        }
-
-        // Apply default time filter (month) to match what applyFilters shows
-        const eventTime = formatDate(event['DATE']).timestamp;
-        if (eventTime && (eventTime < now || eventTime > monthFromNow)) {
             continue;
         }
 
@@ -1365,8 +1357,18 @@ function renderCategorySelection() {
                 if (match) category = match;
             }
 
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            // Count unique event+venue combos (matches multi-date grouping)
+            const groupKey = `${(event['EVENT'] || '').trim()}|${(event['VENUE'] || '').trim()}`;
+            if (!categoryGroupKeys[category]) {
+                categoryGroupKeys[category] = new Set();
+            }
+            categoryGroupKeys[category].add(groupKey);
         }
+    }
+
+    // Convert Sets to counts
+    for (const cat in categoryGroupKeys) {
+        categoryCounts[cat] = categoryGroupKeys[cat].size;
     }
 
     // Category icons mapping
