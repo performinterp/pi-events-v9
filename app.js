@@ -1386,11 +1386,12 @@ function renderCategorySelection() {
         'Theatre': '🎭',
         'Dance': '💃',
         'Talks & Discussions': '🗣️',
-        'Other': '❓'
+        'Cultural': '🏛️',
+        'Other': '🎟️'
     };
 
     // Sort categories in priority order
-    const categoryOrder = ['Concert', 'Sports', 'Festival', 'Comedy', 'Family', 'Literature', 'Theatre', 'Dance', 'Talks & Discussions', 'Other'];
+    const categoryOrder = ['Concert', 'Sports', 'Festival', 'Comedy', 'Family', 'Literature', 'Theatre', 'Dance', 'Talks & Discussions', 'Cultural', 'Other'];
     const sortedCategories = Object.keys(categoryCounts).sort((a, b) => {
         const indexA = categoryOrder.indexOf(a);
         const indexB = categoryOrder.indexOf(b);
@@ -1660,9 +1661,10 @@ function getCategoryIcon(category) {
         'Theatre': '🎭',
         'Dance': '💃',
         'Talks & Discussions': '🗣️',
-        'Other': '❓'
+        'Cultural': '🏛️',
+        'Other': '🎟️'
     };
-    return categoryIcons[category] || '❓';
+    return categoryIcons[category] || '🎟️';
 }
 
 // Make functions available globally
@@ -2192,11 +2194,13 @@ function generateCategoryTabs() {
         'Literature': '📚',
         'Theatre': '🎭',
         'Dance': '💃',
-        'Other': '❓'
+        'Talks & Discussions': '🗣️',
+        'Cultural': '🏛️',
+        'Other': '🎟️'
     };
 
     // Sort categories in priority order
-    const categoryOrder = ['Concert', 'Sports', 'Festival', 'Comedy', 'Family', 'Literature', 'Theatre', 'Dance', 'Talks & Discussions', 'Other'];
+    const categoryOrder = ['Concert', 'Sports', 'Festival', 'Comedy', 'Family', 'Literature', 'Theatre', 'Dance', 'Talks & Discussions', 'Cultural', 'Other'];
     const sortedCategories = Object.keys(categoryCounts).sort((a, b) => {
         const indexA = categoryOrder.indexOf(a);
         const indexB = categoryOrder.indexOf(b);

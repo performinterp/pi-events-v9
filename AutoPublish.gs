@@ -15,6 +15,8 @@ const DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
 
 var DRY_RUN = false; // Set true to test without writing
 
+const CANCELLED_SHEET = 'CANCELLED';
+
 const PUBLISHED_HEADERS = [
   'DATE', 'EVENT', 'VENUE', 'CITY', 'TIME',
   'INTERPRETERS', 'INTERPRETATION', 'CATEGORY',
@@ -51,6 +53,9 @@ function dailyAutoPublish() {
     const existingData = publishedSheet.getDataRange().getValues();
     const existingKeys = buildDedupKeys(existingData);
 
+    // 1b. Load cancelled events blocklist
+    const cancelledKeys = getCancelledKeys(publishedSS);
+
     // 2. Read events from sources
     const preApprovedEvents = getEventsFromPreApproved();
     const monthlyEvents = getEventsFromMonthlyTabs();
@@ -58,14 +63,23 @@ function dailyAutoPublish() {
     // 3. Merge (monthly wins over pre-approved for same event)
     const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
 
-    // 4. Filter: new events only (not already in PUBLISHED)
+    // 4. Filter: new events only (not already in PUBLISHED, not cancelled)
     const newEvents = [];
+    log.cancelledSkipped = 0;
     for (const evt of mergedEvents) {
-      if (existingKeys.has(evt.key)) {
+      if (cancelledKeys.has(evt.key)) {
+        log.cancelledSkipped++;
+      } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
         newEvents.push(evt);
       }
+    }
+
+    // 4b. Remove any cancelled events still in PUBLISHED
+    const cancelRemoved = removeCancelledEvents(publishedSheet, existingData, cancelledKeys);
+    if (cancelRemoved.length > 0) {
+      log.warnings.push('Removed ' + cancelRemoved.length + ' cancelled event(s) from PUBLISHED: ' + cancelRemoved.join(', '));
     }
 
     // 5. Remove past events from PUBLISHED
@@ -86,7 +100,11 @@ function dailyAutoPublish() {
       source: e.source
     }));
 
-    // 7. Audit ALL published events for data quality
+    // 7. Enrich missing images via artist name matching
+    const enrichResult = enrichMissingImages(publishedSheet);
+    log.enriched = enrichResult;
+
+    // 8. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
 
@@ -318,6 +336,80 @@ function mergeEvents(preApproved, monthly) {
   return Array.from(eventMap.values());
 }
 
+// ==================== CANCELLATION CHECK ====================
+
+/**
+ * Read CANCELLED sheet and build a set of dedup keys for blocked events.
+ * CANCELLED sheet has columns: DATE, EVENT, VENUE, REASON
+ */
+function getCancelledKeys(spreadsheet) {
+  var keys = new Set();
+  try {
+    var sheet = spreadsheet.getSheetByName(CANCELLED_SHEET);
+    if (!sheet || sheet.getLastRow() < 2) return keys;
+
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+    var dateIdx = headers.indexOf('DATE');
+    var eventIdx = headers.indexOf('EVENT');
+    var venueIdx = headers.indexOf('VENUE');
+
+    if (dateIdx < 0 || eventIdx < 0 || venueIdx < 0) return keys;
+
+    for (var i = 1; i < data.length; i++) {
+      var date = (data[i][dateIdx] || '').toString().trim();
+      var event = (data[i][eventIdx] || '').toString().trim();
+      var venue = (data[i][venueIdx] || '').toString().trim();
+      if (!date || !event) continue;
+      keys.add(makeDedupKey(date, event, venue));
+    }
+  } catch (e) {
+    Logger.log('Error reading CANCELLED sheet: ' + e.toString());
+  }
+  return keys;
+}
+
+/**
+ * Remove any cancelled events that are still in PUBLISHED.
+ * Returns array of removed event names.
+ */
+function removeCancelledEvents(sheet, data, cancelledKeys) {
+  if (!data || data.length < 2 || cancelledKeys.size === 0) return [];
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var dateIdx = headers.indexOf('DATE');
+  var eventIdx = headers.indexOf('EVENT');
+  var venueIdx = headers.indexOf('VENUE');
+
+  if (dateIdx < 0 || eventIdx < 0 || venueIdx < 0) return [];
+
+  var rowsToKeep = [data[0]];
+  var removed = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var date = (row[dateIdx] || '').toString().trim();
+    var event = (row[eventIdx] || '').toString().trim();
+    var venue = (row[venueIdx] || '').toString().trim();
+    var key = makeDedupKey(date, event, venue);
+
+    if (cancelledKeys.has(key)) {
+      removed.push(event);
+    } else {
+      rowsToKeep.push(row);
+    }
+  }
+
+  if (removed.length > 0 && !DRY_RUN) {
+    sheet.clearContents();
+    if (rowsToKeep.length > 0) {
+      sheet.getRange(1, 1, rowsToKeep.length, rowsToKeep[0].length).setValues(rowsToKeep);
+    }
+  }
+
+  return removed;
+}
+
 // ==================== PUBLISH & PRUNE ====================
 
 /**
@@ -416,10 +508,17 @@ function sendDigestEmail(log) {
 
   body += `QUICK SUMMARY\n`;
   body += `-`.repeat(55) + `\n`;
+  const enrichResult = log.enriched || { enriched: 0, totalMissing: 0, filled: [] };
   body += `  Total published events:  ${quality.total || '?'}\n`;
   body += `  Added today:             ${addedCount}\n`;
+  if (enrichResult.enriched > 0) {
+    body += `  Images auto-filled:      ${enrichResult.enriched} (via artist matching)\n`;
+  }
   body += `  Removed (past):          ${removedCount}\n`;
   body += `  Skipped (duplicates):    ${log.skipped}\n`;
+  if (log.cancelledSkipped > 0) {
+    body += `  Blocked (cancelled):     ${log.cancelledSkipped}\n`;
+  }
   body += `  Missing images:          ${(quality.missingImage || []).length}\n`;
   body += `  Missing event links:     ${(quality.missingLink || []).length}\n`;
   if (warningCount > 0) {
@@ -518,6 +617,19 @@ function sendDigestEmail(log) {
     body += '\n';
   }
 
+  // ---- IMAGES AUTO-FILLED ----
+  if (enrichResult.filled.length > 0) {
+    body += `IMAGES AUTO-FILLED (${enrichResult.enriched} via artist matching)\n`;
+    body += `-`.repeat(55) + `\n`;
+    for (const name of enrichResult.filled) {
+      body += `  + ${name}\n`;
+    }
+    if (enrichResult.totalMissing > enrichResult.enriched) {
+      body += `  (${enrichResult.totalMissing - enrichResult.enriched} events still missing images - no artist match found)\n`;
+    }
+    body += '\n';
+  }
+
   // ---- WARNINGS ----
   if (warningCount > 0) {
     body += `WARNINGS (${warningCount})\n`;
@@ -607,6 +719,278 @@ function auditPublishedData(data) {
   }
 
   return report;
+}
+
+// ==================== IMAGE ENRICHMENT ====================
+
+// Venue configs for og:image scraping (slug-based URL construction)
+var VENUE_SCRAPE_CONFIGS = [
+  { matcher: /motorpoint.*nottingham|nottingham.*(motorpoint|arena)/i, baseUrl: 'https://www.motorpointarenanottingham.com/whats-on/' },
+  { matcher: /southbank|south\s*bank|rfh|qeh|purcell|royal\s*festival/i, baseUrl: 'https://www.southbankcentre.co.uk/whats-on/', trailingSlash: true },
+  { matcher: /alexandra\s*palace/i, baseUrl: 'https://www.alexandrapalace.com/whats-on/' },
+  { matcher: /eventim\s*apollo|hammersmith.*apollo/i, baseUrl: 'https://www.eventimapollo.com/events/' },
+  { matcher: /ovo\s*(arena)?.*wembley|wembley.*ovo/i, baseUrl: 'https://www.ovoarena.com/events/' },
+  { matcher: /bournemouth/i, baseUrl: 'https://www.bic.co.uk/events/' },
+  { matcher: /utilita.*sheffield|sheffield.*(utilita|arena)/i, baseUrl: 'https://www.utilitaarenasheffield.co.uk/whats-on/' },
+  { matcher: /ao\s*arena|manchester\s*arena/i, baseUrl: 'https://www.ao-arena.com/whats-on/' },
+  { matcher: /bp\s*pulse/i, baseUrl: 'https://bppulselive.co.uk/events/' },
+  { matcher: /o2.*apollo.*manchester|manchester.*o2.*apollo/i, baseUrl: 'https://academymusicgroup.com/o2apollomanchester/events/' },
+  { matcher: /o2.*forum.*kentish|kentish.*o2.*forum/i, baseUrl: 'https://academymusicgroup.com/o2forumkentishtown/events/' },
+  { matcher: /3\s*arena.*dublin|dublin.*3\s*arena/i, baseUrl: 'https://3arena.ie/events/' },
+];
+
+/**
+ * Enrich missing images using two tiers:
+ *   Tier 1: Same-venue artist matching (fast, reliable, no API calls)
+ *   Tier 2: Venue website og:image scraping (UrlFetchApp, rate-limited)
+ */
+function enrichMissingImages(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { enriched: 0, totalMissing: 0, filled: [] };
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var eventCol = headers.indexOf('EVENT');
+  var venueCol = headers.indexOf('VENUE');
+  var imgCol = headers.indexOf('IMAGE URL');
+
+  if (eventCol < 0 || imgCol < 0) return { enriched: 0, totalMissing: 0, filled: [] };
+
+  // Build image bank keyed on artist+venue family for same-venue matching
+  var imageBankByVenue = {};  // "artistKey|venueFam" → imgUrl
+  for (var i = 1; i < data.length; i++) {
+    var img = (data[i][imgCol] || '').toString().trim();
+    if (!img) continue;
+    var event = (data[i][eventCol] || '').toString().trim();
+    var venue = venueCol >= 0 ? (data[i][venueCol] || '').toString().trim() : '';
+    var artistKeys = extractArtistKeys(event);
+    var venueFam = normalizeVenueFamily(venue);
+    for (var k = 0; k < artistKeys.length; k++) {
+      var fullKey = artistKeys[k] + '|' + venueFam;
+      if (!imageBankByVenue[fullKey]) imageBankByVenue[fullKey] = img;
+    }
+  }
+
+  var enriched = 0;
+  var totalMissing = 0;
+  var filled = [];
+  var needsScraping = [];
+
+  // Tier 1: Same-venue artist match
+  for (var i = 1; i < data.length; i++) {
+    var img = (data[i][imgCol] || '').toString().trim();
+    if (img) continue;
+
+    var event = (data[i][eventCol] || '').toString().trim();
+    var venue = venueCol >= 0 ? (data[i][venueCol] || '').toString().trim() : '';
+    if (!event) continue;
+    totalMissing++;
+
+    var artistKeys = extractArtistKeys(event);
+    var venueFam = normalizeVenueFamily(venue);
+    var matched = null;
+
+    for (var k = 0; k < artistKeys.length; k++) {
+      var fullKey = artistKeys[k] + '|' + venueFam;
+      if (imageBankByVenue[fullKey]) {
+        matched = imageBankByVenue[fullKey];
+        break;
+      }
+    }
+
+    if (matched) {
+      if (!DRY_RUN) sheet.getRange(i + 1, imgCol + 1).setValue(matched);
+      filled.push(event + ' [venue match]');
+      enriched++;
+    } else {
+      needsScraping.push({ row: i, event: event, venue: venue });
+    }
+  }
+
+  // Tier 2: Venue website scraping (max 15 per run to avoid timeout)
+  var scrapeCount = 0;
+  for (var s = 0; s < needsScraping.length && scrapeCount < 15; s++) {
+    var item = needsScraping[s];
+    var scraped = scrapeImageFromVenue_(item.event, item.venue);
+    if (scraped) {
+      if (!DRY_RUN) sheet.getRange(item.row + 1, imgCol + 1).setValue(scraped);
+      filled.push(item.event + ' [scraped]');
+      enriched++;
+    }
+    scrapeCount++;
+  }
+
+  return { enriched: enriched, totalMissing: totalMissing, filled: filled };
+}
+
+/**
+ * Normalize venue name to a family identifier so different spellings
+ * of the same venue match (e.g., "The O2 London" ≡ "The O2 Arena, London")
+ */
+function normalizeVenueFamily(venue) {
+  var v = (venue || '').toLowerCase();
+  if (/\b(the\s*)?o2\b/i.test(v) && !/indigo|apollo|victoria|forum|kentish|academy|ritz/i.test(v)) return 'o2main';
+  if (/indigo.*o2|o2.*indigo/i.test(v)) return 'indigoo2';
+  if (/wembley\s*(stadium)?/i.test(v) && !/arena|ovo|sse/i.test(v)) return 'wembleystadium';
+  if (/ovo.*arena.*wembley|wembley.*ovo/i.test(v)) return 'ovowembley';
+  if (/motorpoint.*nottingham|nottingham.*(motorpoint|arena)/i.test(v)) return 'motorpointnott';
+  if (/southbank|rfh|qeh|purcell|royal\s*festival/i.test(v)) return 'southbank';
+  if (/alexandra\s*palace/i.test(v)) return 'allypal';
+  if (/eventim\s*apollo|hammersmith.*(apollo|eventim)/i.test(v)) return 'eventimapollo';
+  if (/utilita.*sheffield|sheffield.*(utilita|arena)/i.test(v)) return 'utilitasheff';
+  if (/ao\s*arena|manchester\s*arena/i.test(v)) return 'aomanc';
+  if (/ovo\s*hydro|glasgow.*hydro/i.test(v)) return 'ovohydro';
+  if (/bp\s*pulse/i.test(v)) return 'bppulse';
+  if (/m&?s\s*bank|liverpool.*arena/i.test(v)) return 'msbankliverpool';
+  if (/bournemouth/i.test(v)) return 'bournemouth';
+  if (/o2.*apollo.*manchester|manchester.*o2.*apollo/i.test(v)) return 'o2apollomanc';
+  if (/3\s*arena.*dublin|dublin.*3\s*arena/i.test(v)) return '3arenadublin';
+  // Fallback: strip common words
+  return v.replace(/\b(the|arena|stadium|centre|center|at)\b/g, '').replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Try to scrape an event image from the venue's website.
+ * Constructs slug-based URLs and fetches og:image.
+ */
+function scrapeImageFromVenue_(eventName, venue) {
+  var config = null;
+  for (var c = 0; c < VENUE_SCRAPE_CONFIGS.length; c++) {
+    if (VENUE_SCRAPE_CONFIGS[c].matcher.test(venue)) {
+      config = VENUE_SCRAPE_CONFIGS[c];
+      break;
+    }
+  }
+  if (!config) return null;
+
+  var slugs = generateEventSlugs_(eventName);
+  for (var s = 0; s < slugs.length; s++) {
+    var url = config.baseUrl + slugs[s];
+    if (config.trailingSlash) url += '/';
+
+    try {
+      var response = UrlFetchApp.fetch(url, {
+        muteHttpExceptions: true,
+        followRedirects: true,
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PIEventsBot/1.0)' }
+      });
+
+      if (response.getResponseCode() === 200) {
+        var html = response.getContentText();
+        var image = extractOgImage_(html);
+        if (image) return image;
+      }
+      Utilities.sleep(500);
+    } catch (e) {
+      // Fetch failed - try next slug
+    }
+  }
+  return null;
+}
+
+/**
+ * Generate URL slug variations from an event name.
+ * "James Arthur concert" → ["james-arthur-concert", "james-arthur", "james-arthur-2026"]
+ */
+function generateEventSlugs_(eventName) {
+  var name = (eventName || '').toString().trim()
+    .replace(/\s*[\(\[].*?[\)\]]/g, '')
+    .replace(/\s*[&+]\s*Support\s*Acts?\s*(tbc)?/gi, '')
+    .replace(/\s*concerts?$/gi, '')
+    .replace(/\s*\blive\b$/gi, '')
+    .replace(/\s*\btour\b$/gi, '')
+    .replace(/\s*\bshow\b$/gi, '')
+    .trim();
+
+  var base = name.toLowerCase()
+    .replace(/[''`]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  var year = new Date().getFullYear();
+  var slugs = [base, base + '-' + year];
+
+  // Try shorter (artist name only, first 2-3 words)
+  var words = base.split('-');
+  if (words.length > 2) {
+    slugs.push(words.slice(0, 2).join('-'));
+    slugs.push(words.slice(0, 3).join('-'));
+  }
+
+  return slugs;
+}
+
+/**
+ * Extract og:image or twitter:image from HTML.
+ */
+function extractOgImage_(html) {
+  var patterns = [
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+  ];
+  for (var p = 0; p < patterns.length; p++) {
+    var m = html.match(patterns[p]);
+    if (m && m[1] && m[1].indexOf('logo') < 0 && m[1].indexOf('icon') < 0 && m[1].indexOf('favicon') < 0) {
+      return m[1];
+    }
+  }
+  return null;
+}
+
+/**
+ * Extract normalized artist name keys from an event name.
+ * Returns multiple variants for fuzzy matching.
+ */
+function extractArtistKeys(eventName) {
+  var name = (eventName || '').toString().trim();
+  var keys = [];
+  var seen = {};
+
+  function addKey(s) {
+    var k = normalizeForImageMatch(s);
+    if (k && k.length >= 3 && !seen[k]) {
+      seen[k] = true;
+      keys.push(k);
+    }
+  }
+
+  addKey(name);
+
+  var stripped = name
+    .replace(/\s*[\(\[].*?[\)\]]/g, '')
+    .replace(/\s*[&+]\s*Support\s*Acts?\s*(tbc)?/gi, '')
+    .replace(/\s*concerts?$/gi, '')
+    .replace(/\s*\blive\b$/gi, '')
+    .replace(/\s*\btour\b$/gi, '')
+    .replace(/\s*\bshow\b$/gi, '')
+    .replace(/\s*\b\d{4}\b$/g, '')
+    .trim();
+  addKey(stripped);
+
+  var ampParts = stripped.split(/\s*&\s*/);
+  if (ampParts.length > 1) {
+    addKey(ampParts[0].replace(/\s*concerts?$/gi, '').trim());
+  }
+
+  var noType = stripped.replace(/\s*concerts?$/gi, '').replace(/\s*\blive\b$/gi, '').trim();
+  addKey(noType);
+
+  var colonSplit = noType.split(/\s*[:\-–—]\s*/);
+  if (colonSplit.length > 1 && colonSplit[0].trim().length >= 3) {
+    addKey(colonSplit[0].trim());
+  }
+
+  return keys;
+}
+
+/**
+ * Normalize string for image matching: lowercase, strip non-alphanumeric
+ */
+function normalizeForImageMatch(str) {
+  return (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 // ==================== HELPER FUNCTIONS ====================
@@ -812,13 +1196,17 @@ function dailyAutoPublishDryRun_() {
 
     const existingData = publishedSheet.getDataRange().getValues();
     const existingKeys = buildDedupKeys(existingData);
+    const cancelledKeys = getCancelledKeys(publishedSS);
 
     const preApprovedEvents = getEventsFromPreApproved();
     const monthlyEvents = getEventsFromMonthlyTabs();
     const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
 
+    log.cancelledSkipped = 0;
     for (const evt of mergedEvents) {
-      if (existingKeys.has(evt.key)) {
+      if (cancelledKeys.has(evt.key)) {
+        log.cancelledSkipped++;
+      } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
         log.added.push({
@@ -853,10 +1241,13 @@ function dailyAutoPublishDryRun_() {
       }
     }
 
+    // Image enrichment (DRY_RUN=true so no writes, but shows what WOULD fill)
+    log.enriched = enrichMissingImages(publishedSheet);
+
     // Audit data quality
     log.quality = auditPublishedData(existingData);
 
-    Logger.log(`Dry run: Would add ${log.added.length}, remove ${log.removed.length}, skip ${log.skipped}`);
+    Logger.log(`Dry run: Would add ${log.added.length}, remove ${log.removed.length}, skip ${log.skipped}, enrich ${log.enriched.enriched} images`);
   } catch (error) {
     log.warnings.push('Error: ' + error.toString());
   }
