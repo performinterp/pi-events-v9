@@ -14,3 +14,6 @@ token.pickle
 
 # Apps Script scratch files
 apps-script-link-finder*.js
+
+# Audit reports
+AUDIT-REPORT-*.md
