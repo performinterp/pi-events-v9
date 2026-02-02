@@ -97,8 +97,14 @@ function dailyAutoPublish() {
       city: e.row[3],
       imageUrl: e.row[8],
       eventUrl: e.row[9],
-      source: e.source
+      source: e.source,
+      categoryAssumed: e.categoryAssumed
     }));
+
+    // Track all events with assumed categories (from all sources, not just new)
+    log.assumedCategories = mergedEvents
+      .filter(e => e.categoryAssumed)
+      .map(e => ({ date: e.row[0], event: e.row[1], venue: e.row[2], category: e.row[7] }));
 
     // 7. Enrich missing images via artist name matching
     const enrichResult = enrichMissingImages(publishedSheet);
@@ -174,7 +180,16 @@ function getEventsFromPreApproved() {
       const interpreters = col.interpreters >= 0 ? (row[col.interpreters] || '').toString().trim() : '';
       const city = col.city >= 0 ? (row[col.city] || '').toString().trim() : '';
       const interpretation = col.language >= 0 ? (row[col.language] || '').toString().trim() : 'BSL';
-      const category = col.category >= 0 ? (row[col.category] || '').toString().trim() : detectCategory(eventName, venue);
+      const explicitCategory = col.category >= 0 ? (row[col.category] || '').toString().trim() : '';
+      var categoryAssumed = false;
+      var category;
+      if (explicitCategory) {
+        category = explicitCategory;
+      } else {
+        var catResult = detectCategoryWithDefault(eventName, venue);
+        category = catResult.category;
+        categoryAssumed = catResult.assumed;
+      }
       const imageUrl = col.imageUrl >= 0 ? (row[col.imageUrl] || '').toString().trim() : '';
       const eventUrl = col.eventUrl >= 0 ? (row[col.eventUrl] || '').toString().trim() : '';
 
@@ -186,14 +201,14 @@ function getEventsFromPreApproved() {
         time || 'TBC',     // TIME
         interpreters || 'TBC', // INTERPRETERS
         interpretation || 'BSL', // INTERPRETATION
-        category || detectCategory(eventName, venue), // CATEGORY
+        category,          // CATEGORY
         imageUrl,          // IMAGE URL
         eventUrl,          // EVENT URL
         ''                 // STATUS
       ];
 
       const key = makeDedupKey(dateRaw, eventName, venue);
-      events.push({ key, row: publishedRow, source: 'Pre-Approved' });
+      events.push({ key, row: publishedRow, source: 'Pre-Approved', categoryAssumed: categoryAssumed });
     }
   } catch (error) {
     Logger.log('Error reading PRE_APPROVED: ' + error.toString());
@@ -260,7 +275,7 @@ function getEventsFromMonthlyTabs() {
         const interpreters = interpIdx >= 0 ? (row[interpIdx] || '').toString().trim() : '';
         const city = extractCityFromVenue(venue);
         const interpretation = venue.toLowerCase().includes('ireland') ? 'ISL' : 'BSL';
-        const category = detectCategory(eventName, venue);
+        const catResult = detectCategoryWithDefault(eventName, venue);
 
         const publishedRow = [
           dateFormatted,           // DATE
@@ -270,14 +285,14 @@ function getEventsFromMonthlyTabs() {
           time || 'TBC',           // TIME
           interpreters || 'TBC',   // INTERPRETERS
           interpretation,          // INTERPRETATION
-          category,                // CATEGORY
+          catResult.category,      // CATEGORY
           '',                      // IMAGE URL (not available from monthly tabs)
           '',                      // EVENT URL (not available from monthly tabs)
           ''                       // STATUS
         ];
 
         const key = makeDedupKey(dateRaw, eventName, venue);
-        events.push({ key, row: publishedRow, source: 'Monthly (' + name + ')' });
+        events.push({ key, row: publishedRow, source: 'Monthly (' + name + ')', categoryAssumed: catResult.assumed });
       }
     }
   } catch (error) {
@@ -521,6 +536,10 @@ function sendDigestEmail(log) {
   }
   body += `  Missing images:          ${(quality.missingImage || []).length}\n`;
   body += `  Missing event links:     ${(quality.missingLink || []).length}\n`;
+  const assumedCount = (log.assumedCategories || []).length;
+  if (assumedCount > 0) {
+    body += `  Assumed categories:      ${assumedCount} (check below)\n`;
+  }
   if (warningCount > 0) {
     body += `  Warnings:                ${warningCount}\n`;
   }
@@ -626,6 +645,20 @@ function sendDigestEmail(log) {
     }
     if (enrichResult.totalMissing > enrichResult.enriched) {
       body += `  (${enrichResult.totalMissing - enrichResult.enriched} events still missing images - no artist match found)\n`;
+    }
+    body += '\n';
+  }
+
+  // ---- ASSUMED CATEGORIES ----
+  const assumed = log.assumedCategories || [];
+  if (assumed.length > 0) {
+    body += `ASSUMED CATEGORIES (${assumed.length} — please check)\n`;
+    body += `-`.repeat(55) + `\n`;
+    body += `  These events had no category set and were defaulted to Concert.\n`;
+    body += `  If incorrect, update the CATEGORY column in PUBLISHED.\n\n`;
+    for (const evt of assumed) {
+      body += `  ${evt.date} | ${evt.event}\n`;
+      body += `    ${evt.venue} → ${evt.category}\n`;
     }
     body += '\n';
   }
@@ -1160,6 +1193,18 @@ function isTruthyValue(val) {
 }
 
 // detectCategory() defined in Code.gs (shared namespace)
+
+/**
+ * Wrapper: detect category, defaulting "Other" to "Concert" for monthly tab events.
+ * Returns { category, assumed } so the digest can flag assumed ones.
+ */
+function detectCategoryWithDefault(eventName, venue) {
+  var detected = detectCategory(eventName, venue);
+  if (detected === 'Other') {
+    return { category: 'Concert', assumed: true };
+  }
+  return { category: detected, assumed: false };
+}
 
 /**
  * Extract city from venue string (text after last comma)
