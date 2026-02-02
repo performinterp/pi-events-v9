@@ -184,7 +184,7 @@ function getEventsFromPreApproved() {
       var categoryAssumed = false;
       var category;
       if (explicitCategory) {
-        category = explicitCategory;
+        category = normalizeCategory(explicitCategory);
       } else {
         var catResult = detectCategoryWithDefault(eventName, venue);
         category = catResult.category;
@@ -1195,11 +1195,34 @@ function isTruthyValue(val) {
 // detectCategory() defined in Code.gs (shared namespace)
 
 /**
+ * Normalize category to proper case. Handles lowercase from O2 scraper/PRE_APPROVED
+ * and strips multi-category values down to the first one.
+ */
+var VALID_CATEGORIES = {
+  'concert': 'Concert', 'sports': 'Sports', 'festival': 'Festival',
+  'comedy': 'Comedy', 'theatre': 'Theatre', 'cultural': 'Cultural',
+  'family': 'Family', 'literature': 'Literature', 'dance': 'Dance',
+  'talks & discussions': 'Talks & Discussions', 'other': 'Other'
+};
+
+function normalizeCategory(category) {
+  if (!category) return '';
+  var cat = category.toString().trim();
+  // If multi-category (comma-separated), take the first one
+  if (cat.indexOf(',') >= 0) {
+    cat = cat.split(',')[0].trim();
+  }
+  // Normalize case
+  var lookup = VALID_CATEGORIES[cat.toLowerCase()];
+  return lookup || cat; // Return normalized or original if unknown
+}
+
+/**
  * Wrapper: detect category, defaulting "Other" to "Concert" for monthly tab events.
  * Returns { category, assumed } so the digest can flag assumed ones.
  */
 function detectCategoryWithDefault(eventName, venue) {
-  var detected = detectCategory(eventName, venue);
+  var detected = normalizeCategory(detectCategory(eventName, venue));
   if (detected === 'Other') {
     return { category: 'Concert', assumed: true };
   }
