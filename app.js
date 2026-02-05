@@ -2955,11 +2955,37 @@ function handleRequestBSLForm() {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const eventName = document.getElementById('eventName').value;
-        const venueName = document.getElementById('venueName').value;
-        const eventDate = document.getElementById('eventDate').value;
-        const venueEmail = document.getElementById('venueEmail')?.value || '';
-        const hasVenueEmail = venueEmail.trim() !== '';
+        const eventName = document.getElementById('eventName').value.trim();
+        const venueName = document.getElementById('venueName').value.trim();
+        const eventDate = document.getElementById('eventDate').value.trim();
+        const venueEmail = document.getElementById('venueEmail')?.value.trim() || '';
+
+        // Validate required fields
+        if (!eventName || !venueName) {
+            const missing = [];
+            if (!eventName) missing.push('Event Name');
+            if (!venueName) missing.push('Venue');
+            const msg = 'Please fill in: ' + missing.join(' and ');
+            const firstEmpty = !eventName ? document.getElementById('eventName') : document.getElementById('venueName');
+            firstEmpty.focus();
+            firstEmpty.setAttribute('aria-invalid', 'true');
+            // Brief visual feedback
+            firstEmpty.style.borderColor = '#ef4444';
+            setTimeout(() => { firstEmpty.style.borderColor = ''; firstEmpty.removeAttribute('aria-invalid'); }, 3000);
+            return;
+        }
+
+        // Validate email format if provided
+        if (venueEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(venueEmail)) {
+            const emailField = document.getElementById('venueEmail');
+            emailField.focus();
+            emailField.setAttribute('aria-invalid', 'true');
+            emailField.style.borderColor = '#ef4444';
+            setTimeout(() => { emailField.style.borderColor = ''; emailField.removeAttribute('aria-invalid'); }, 3000);
+            return;
+        }
+
+        const hasVenueEmail = venueEmail !== '';
 
         // Generate message using friendly template
         // Include PI note only when email goes to venue (PI will be CC'd)
