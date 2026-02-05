@@ -1983,28 +1983,22 @@ function levenshteinDistance(str1, str2) {
  * Called after events are loaded
  */
 function buildSearchVocabulary(events) {
-    const vocabulary = new Set();
+    const eventNames = new Set();
+    const venueNames = new Set();
+    const interpreterNames = new Set();
 
     events.forEach(event => {
-        // Add full event names
-        if (event.EVENT) {
-            vocabulary.add(event.EVENT);
-            // Also add individual significant words (3+ chars)
-            event.EVENT.split(/\s+/).forEach(word => {
-                const cleaned = word.replace(/[^\w]/g, '');
-                if (cleaned.length >= 3) {
-                    vocabulary.add(cleaned);
-                }
-            });
+        // Add full event names only (no individual word fragments)
+        if (event.EVENT && event.EVENT.length >= 3) {
+            eventNames.add(event.EVENT);
         }
 
         // Add venue names
         if (event.VENUE) {
-            vocabulary.add(event.VENUE);
-            // Add venue without location suffix
+            venueNames.add(event.VENUE);
             const venueParts = event.VENUE.split(',');
             if (venueParts.length > 1) {
-                vocabulary.add(venueParts[0].trim());
+                venueNames.add(venueParts[0].trim());
             }
         }
 
@@ -2013,14 +2007,18 @@ function buildSearchVocabulary(events) {
             event.INTERPRETERS.split(/[,&]/).forEach(name => {
                 const trimmed = name.trim();
                 if (trimmed.length >= 3) {
-                    vocabulary.add(trimmed);
+                    interpreterNames.add(trimmed);
                 }
             });
         }
     });
 
-    // Filter out very short terms and return as array
-    AppState.searchVocabulary = Array.from(vocabulary).filter(v => v && v.length >= 3);
+    // Store categorised vocabulary for smarter ranking
+    AppState.searchVocabulary = [
+        ...Array.from(eventNames).map(t => ({ term: t, type: 'event' })),
+        ...Array.from(venueNames).map(t => ({ term: t, type: 'venue' })),
+        ...Array.from(interpreterNames).map(t => ({ term: t, type: 'interpreter' }))
+    ].filter(v => v.term && v.term.length >= 3);
     console.log(`Built search vocabulary with ${AppState.searchVocabulary.length} terms`);
 }
 
@@ -2037,36 +2035,43 @@ function findSimilarTerms(query, maxSuggestions = 3) {
     const queryWords = queryLower.split(/\s+/).filter(w => w.length >= 3);
     const suggestions = [];
 
-    AppState.searchVocabulary.forEach(term => {
+    AppState.searchVocabulary.forEach(entry => {
+        const term = entry.term;
         const termLower = term.toLowerCase();
 
         // Skip if it's an exact match (already found in search)
         if (termLower === queryLower) return;
         if (termLower.includes(queryLower) || queryLower.includes(termLower)) return;
 
-        // Strategy 1: Compare full query to full term (for multi-word matches)
-        const lengthDiff = Math.abs(term.length - query.length);
-        if (lengthDiff <= 5) {
-            const distance = levenshteinDistance(queryLower, termLower);
-            // More generous: allow up to 40% of characters to be different
-            const maxDistance = Math.max(2, Math.ceil(query.length * 0.4));
-
-            if (distance > 0 && distance <= maxDistance) {
-                suggestions.push({ term, distance, termLower });
-                return; // Found a match, skip word-by-word check
+        // Strategy 1: Prefix match — query starts like a word in the term
+        const termWords = termLower.split(/\s+/).filter(w => w.length >= 3);
+        for (const tWord of termWords) {
+            if (tWord.startsWith(queryLower.slice(0, 4)) && Math.abs(tWord.length - queryLower.length) <= 3) {
+                suggestions.push({ term, distance: 0.5, type: entry.type });
+                return;
             }
         }
 
-        // Strategy 2: Check if any query word is similar to any word in term
-        const termWords = termLower.split(/\s+/).filter(w => w.length >= 3);
+        // Strategy 2: Compare full query to full term (tight threshold: 25%)
+        const lengthDiff = Math.abs(term.length - query.length);
+        if (lengthDiff <= 4) {
+            const distance = levenshteinDistance(queryLower, termLower);
+            const maxDistance = Math.max(2, Math.ceil(query.length * 0.25));
+            if (distance > 0 && distance <= maxDistance) {
+                suggestions.push({ term, distance, type: entry.type });
+                return;
+            }
+        }
+
+        // Strategy 3: Word-level match — a query word closely matches a term word
         for (const qWord of queryWords) {
             for (const tWord of termWords) {
                 if (Math.abs(qWord.length - tWord.length) <= 2) {
                     const wordDistance = levenshteinDistance(qWord, tWord);
-                    // For individual words, allow 1-2 edits
-                    if (wordDistance > 0 && wordDistance <= 2) {
-                        // Weight by how good the match is
-                        suggestions.push({ term, distance: wordDistance + 0.5, termLower });
+                    // Strict: allow only 1 edit for short words, 2 for longer
+                    const maxWordDist = qWord.length <= 5 ? 1 : 2;
+                    if (wordDistance > 0 && wordDistance <= maxWordDist) {
+                        suggestions.push({ term, distance: wordDistance + 1, type: entry.type });
                         return;
                     }
                 }
@@ -2074,17 +2079,22 @@ function findSimilarTerms(query, maxSuggestions = 3) {
         }
     });
 
-    // Sort by distance (best matches first), then alphabetically
+    // Sort: events first, then by distance, then alphabetically
+    const typePriority = { event: 0, venue: 1, interpreter: 2 };
     suggestions.sort((a, b) => {
         if (a.distance !== b.distance) return a.distance - b.distance;
-        return a.termLower.localeCompare(b.termLower);
+        const aPri = typePriority[a.type] ?? 3;
+        const bPri = typePriority[b.type] ?? 3;
+        if (aPri !== bPri) return aPri - bPri;
+        return a.term.toLowerCase().localeCompare(b.term.toLowerCase());
     });
 
     // Remove duplicates (case-insensitive)
     const seen = new Set();
     const unique = suggestions.filter(s => {
-        if (seen.has(s.termLower)) return false;
-        seen.add(s.termLower);
+        const key = s.term.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
     });
 
