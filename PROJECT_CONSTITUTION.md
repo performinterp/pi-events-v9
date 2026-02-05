@@ -1,7 +1,17 @@
 # PI Events App — Project Constitution
 
 **Status:** AUTHORITATIVE
-**Current State:** State 2 — Prototype proving value with real data
+**Last Updated:** 4 February 2026
+
+---
+
+## State History
+
+| State | Description | Status |
+|-------|-------------|--------|
+| State 1 | Concept & first prototype | COMPLETED |
+| State 2 | Prototype proving value with real data | COMPLETED |
+| **State 3** | **Production hardening & data quality** | **CURRENT** |
 
 ---
 
@@ -14,132 +24,144 @@ Automate the publication of accessible, interpreter-supported events so Deaf and
 
 ---
 
-## 2. Business Pain (Starting Point)
+## 2. What Has Been Achieved (States 1–2)
 
-Manual event publishing:
-- Consumes staff time
-- Introduces inconsistency and delay
-- Creates cognitive overhead
-- Does not scale
+These are shipped, working, and not to be re-built:
 
-**If work does not reduce this pain immediately, it is out of scope.**
+- Public PWA at `events.performanceinterpreting.co.uk`
+- Auto-publish pipeline: Scrapers → PRE_APPROVED → CURATED → PUBLISHED → Frontend
+- Daily GitHub Actions (O2, Wembley scrapers at 6 AM UTC)
+- Apps Script auto-publish with email digest
+- Three user flows: Browse, Search, Request interpretation
+- Access-first modal system (email templates, VRS, official site links)
+- Category filtering, region filtering, 3 display modes
+- Know Your Rights, rights ticker, festival checklist
+- Service worker with offline support
+- Image enrichment (artist match + venue og:image scraping)
+- 200+ published events, 11 venue email lookups
 
----
-
-## 3. Success Metric (Mandatory)
-
-**Primary metric:** Percentage of events auto-published with zero manual intervention.
-
-| Measure | Value |
-|---------|-------|
-| Baseline | ~0% |
-| Target | ≥80% |
-| Timeline | First production deployment |
-
-**Any work that does not advance this metric is invalid.**
+**Do not rebuild or refactor any of the above unless fixing a bug.**
 
 ---
 
-## 4. Project State Discipline
+## 3. Current State: State 3 — Production Hardening & Data Quality
 
-The project must be in exactly one state at all times.
+The core pipeline works. The app serves real users. The focus now shifts to **reliability, data quality, and user experience** — making what exists work better, not building new features.
 
-**Current State:** State 2 — Prototype proving value with real data
+### Success Metrics
 
-**Exit Condition (must be satisfied to advance):**
+| Metric | Current | Target |
+|--------|---------|--------|
+| Auto-publish rate | ≥80% | Maintain ≥80% |
+| Data completeness (images) | 90% | ≥95% |
+| Data completeness (event links) | 86% | ≥95% |
+| Duplicate events in PUBLISHED | Present | Zero |
+| WCAG accessibility compliance | Partial | All modals keyboard/screen-reader accessible |
 
-A public PI Events page that:
-- Auto-updates from one real Google Sheet
-- Uses Apps Script as the data source
-- Requires zero manual copy-paste
-- Runs successfully for 7 consecutive days
+### Exit Condition (must be satisfied to advance to State 4)
 
-**Until this exit condition is met, no other work is permitted.**
-
----
-
-## 5. First Irreversible Win (Your Only Goal)
-
-Ship a public PI Events page that renders live event data automatically from one Google Sheet via Apps Script.
-
-This page must be:
-- Publicly accessible via URL
-- Automatically updated
-- Verifiable in seconds by editing the sheet
-
-**If a human touches the output, it failed.**
+- Zero duplicate events in PUBLISHED sheet (automated dedup working)
+- ≥95% data completeness across images, links, and cities
+- All modals pass basic WCAG 2.1 AA (focus trap, keyboard nav, aria labels)
+- Form validation on request flow
+- 14 consecutive days with zero manual fixes needed to published data
 
 ---
 
-## 6. Hard Scope Boundaries (Do Not Exceed)
+## 4. Scope Boundaries — State 3
 
 ### Allowed
-- One canonical Google Sheet as the public feed
-- One Apps Script endpoint outputting clean JSON
-- One public static page (HTML/JS is sufficient)
-- Minimal required fields (e.g. title, date, venue, access note)
-- A visible "Last updated" timestamp
+
+- Pipeline quality improvements (deduplication, category detection, data enrichment)
+- Bug fixes to existing features
+- Accessibility improvements (WCAG compliance on existing UI)
+- Form validation on existing flows
+- Push notification delivery (Cloudflare Workers — documented, ready to deploy)
+- Sheet hygiene (removing stale/migrated sheets)
+- Date parsing edge case fixes
+- Digest improvements (flagging duplicates, better quality reporting)
 
 ### Explicitly Forbidden
-- Multiple ingestion sources
-- Status badges
-- Filters
-- Language toggles
-- Venue enrichment
-- Auth or admin UIs
-- PI OS / booking / email logic
-- Refactors for "later"
-- Future-proofing
-- Architectural elegance that delays deployment
 
-**If it does not advance sheet → script → public page, it is out.**
+- New user flows or pages
+- New data sources or scrapers (beyond O2 + Wembley + monthly tabs)
+- PI OS integration
+- User accounts, auth, or personalisation
+- Analytics dashboards
+- Redesigns or UI overhauls
+- Refactors for architectural elegance
+- Any work that doesn't improve quality, reliability, or accessibility of what exists
+
+**If it doesn't make the existing app more reliable, more accessible, or more complete — it is out of scope.**
 
 ---
 
-## 7. Anti-Drift Enforcement
+## 5. Anti-Drift Enforcement
 
 The following phrases are forbidden and indicate drift:
+
 - "Eventually we could…"
 - "Later we might…"
 - "Down the line…"
 - "Once this is refactored…"
+- "While we're at it, let's also…"
+- "It would be nice to add…"
 
 **If drift is detected:**
 1. Stop
-2. Re-anchor to what ships now
-3. Proceed only with deployable work
+2. Check: does this improve data quality, accessibility, or reliability?
+3. If no, drop it
+4. Proceed only with deployable work
 
 ---
 
-## 8. Deployable Step Enforcement
+## 6. Deployable Step Enforcement
 
 Every session must result in:
-1. One concrete deployable artefact (live page, running script, or both)
+1. One concrete deployable artefact (script fix, UI improvement, pipeline change)
 2. One explicit next deployable step
 
 **If this is not achieved, the work is considered a failure.**
 
 ---
 
-## 9. Canonical Data Source
+## 7. Canonical Data Source
 
-**Sheet:** PUBLIC_EVENTS_FEED (or designated canonical sheet)
+**Sheet:** Public Events Feed (`1JyyEYBc9iliYw7q4lbNqcLEOHwZV64WUYwce87JaBk8`)
 
-**Required Columns:**
-- `title` — Event name
-- `date` — Event date
-- `venue` — Location
-- `access_note` — Interpreter/accessibility information
+**Published Columns:**
+`DATE`, `EVENT`, `VENUE`, `CITY`, `TIME`, `INTERPRETERS`, `INTERPRETATION`, `CATEGORY`, `IMAGE URL`, `EVENT URL`, `STATUS`
 
-**Publishable criteria:** Row has non-empty title, date, and venue.
+**Valid Categories:**
+Concert, Sports, Festival, Comedy, Theatre, Cultural, Family, Literature, Dance, Talks & Discussions, Other
+
+**Publishable criteria:** Row has non-empty date, event name, and venue.
 
 ---
 
-## 10. Verification Protocol
+## 8. Pipeline Architecture (Reference)
+
+```
+Scrapers (O2, Wembley)          Monthly Tabs (PI Work Flow)
+         ↓                                ↓
+   PRE_APPROVED EVENTS          "Public App" = Yes
+         ↓                                ↓
+         └──────── merge_events.py ────────┘
+                         ↓
+              AutoPublish.gs (daily trigger)
+                         ↓
+              PUBLISHED sheet (deduped, enriched)
+                         ↓
+              Frontend fetches CSV (15-min cache)
+```
+
+---
+
+## 9. Verification Protocol
 
 To verify the system works:
-1. Edit a row in the canonical Google Sheet
-2. Refresh the public page
-3. Observe the automatic update within seconds
+1. Edit a row in the PUBLISHED sheet
+2. Wait up to 15 minutes (cache TTL)
+3. Observe the change on the live app
 
-**No manual intervention permitted in this flow.**
+**No manual intervention permitted in the publish flow.**

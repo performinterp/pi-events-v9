@@ -1,3 +1,30 @@
+// ==================== MENU ====================
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('⚙️ Automation')
+    .addItem('▶ Run Auto-Publish', 'dailyAutoPublish')
+    .addItem('🧪 Dry Run', 'dryRunAutoPublish')
+    .addSeparator()
+    .addItem('🔍 Dedup Check (exact)', 'deduplicatePublished')
+    .addItem('🔍 Dedup Check (date-varying)', 'deduplicateDateVarying')
+    .addToUi();
+}
+
+// Run once to install the onOpen menu trigger for the Public Events Feed
+function installOpenTrigger() {
+  // Remove any existing onOpen triggers to avoid duplicates
+  const triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(function(t) {
+    if (t.getHandlerFunction() === 'onOpen') ScriptApp.deleteTrigger(t);
+  });
+  // Create installable onOpen trigger for the Public Events Feed
+  ScriptApp.newTrigger('onOpen')
+    .forSpreadsheet(PUBLIC_FEED_ID)
+    .onOpen()
+    .create();
+  Logger.log('Installable onOpen trigger created for Public Events Feed');
+}
+
 // ==================== PI EVENTS - AUTO-PUBLISH + EMAIL DIGEST ====================
 // Runs daily on a time-driven trigger. Zero manual intervention.
 // Reads from PRE_APPROVED EVENTS + monthly tabs → publishes to PUBLISHED sheet.
@@ -5,30 +32,13 @@
 // ================================================================================
 
 // ==================== CONFIGURATION ====================
-const PI_WORKFLOW_ID = '1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU';
-const PUBLIC_FEED_ID = '1JyyEYBc9iliYw7q4lbNqcLEOHwZV64WUYwce87JaBk8';
+// PI_WORKFLOW_ID, PUBLIC_FEED_ID, PRE_APPROVED_SHEET, PUBLISHED_SHEET,
+// CANCELLED_SHEET, MONTH_NAMES, PUBLISHED_HEADERS are declared in Code.gs
+// (Apps Script shares namespace across all .gs files)
 
-const PRE_APPROVED_SHEET = 'PRE_APPROVED EVENTS';
-const PUBLISHED_SHEET = 'PUBLISHED';
-
-const DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
-
-var DRY_RUN = false; // Set true to test without writing
-
-const CANCELLED_SHEET = 'CANCELLED';
-
-const PUBLISHED_HEADERS = [
-  'DATE', 'EVENT', 'VENUE', 'CITY', 'TIME',
-  'INTERPRETERS', 'INTERPRETATION', 'CATEGORY',
-  'IMAGE URL', 'EVENT URL', 'STATUS'
-];
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-// CATEGORY_KEYWORDS defined in Code.gs (shared namespace)
+// AutoPublish-specific defaults (no var/const/let to avoid V8 redeclaration errors)
+if (typeof DIGEST_EMAIL === 'undefined') DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
+if (typeof DRY_RUN === 'undefined') DRY_RUN = false;
 
 // ==================== MAIN ENTRY POINT ====================
 
@@ -50,7 +60,7 @@ function dailyAutoPublish() {
       return;
     }
 
-    const existingData = publishedSheet.getDataRange().getValues();
+    var existingData = publishedSheet.getDataRange().getValues();
     const existingKeys = buildDedupKeys(existingData);
 
     // 1b. Load cancelled events blocklist
@@ -82,11 +92,18 @@ function dailyAutoPublish() {
       log.warnings.push('Removed ' + cancelRemoved.length + ' cancelled event(s) from PUBLISHED: ' + cancelRemoved.join(', '));
     }
 
-    // 5. Remove past events from PUBLISHED
+    // 5. Deduplicate existing PUBLISHED rows (fuzzy match, keep best data)
+    const dedupResult = deduplicatePublished(publishedSheet);
+    if (dedupResult.removed > 0) {
+      log.warnings.push('Dedup: merged ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
+      existingData = publishedSheet.getDataRange().getValues();
+    }
+
+    // 6. Remove past events from PUBLISHED
     const removeResult = removePastEvents(publishedSheet, existingData);
     log.removed = removeResult.removed;
 
-    // 6. Append new events
+    // 7. Append new events
     if (newEvents.length > 0 && !DRY_RUN) {
       appendNewEvents(publishedSheet, newEvents);
     }
@@ -101,16 +118,23 @@ function dailyAutoPublish() {
       categoryAssumed: e.categoryAssumed
     }));
 
+    // 7b. Date-varying dedup: same event+venue with dates within 7 days
+    // Runs AFTER append so it catches duplicates between existing and newly-added rows
+    const dateVaryResult = deduplicateDateVarying(publishedSheet);
+    if (dateVaryResult.removed > 0) {
+      log.warnings.push('Date-varying dedup: merged ' + dateVaryResult.removed + ' row(s): ' + dateVaryResult.merged.join('; '));
+    }
+
     // Track all events with assumed categories (from all sources, not just new)
     log.assumedCategories = mergedEvents
       .filter(e => e.categoryAssumed)
       .map(e => ({ date: e.row[0], event: e.row[1], venue: e.row[2], category: e.row[7] }));
 
-    // 7. Enrich missing images via artist name matching
+    // 8. Enrich missing images via artist name matching
     const enrichResult = enrichMissingImages(publishedSheet);
     log.enriched = enrichResult;
 
-    // 8. Audit ALL published events for data quality
+    // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
 
@@ -121,7 +145,7 @@ function dailyAutoPublish() {
     Logger.log('Auto-publish error: ' + error.toString());
   }
 
-  // 8. Send digest email
+  // 10. Send digest email
   sendDigestEmail(log);
 }
 
@@ -349,6 +373,245 @@ function mergeEvents(preApproved, monthly) {
   }
 
   return Array.from(eventMap.values());
+}
+
+// ==================== DEDUPLICATE PUBLISHED ====================
+
+/**
+ * Scan PUBLISHED sheet for duplicate events using fuzzy matching.
+ * When duplicates are found, merge into the best row:
+ *   - Prefer row with real interpreter names (not "TBC" or "Request Interpreter")
+ *   - Prefer row with image URL
+ *   - Prefer row with event URL
+ *   - Prefer row with city
+ *   - Prefer row with non-default category (not "Concert" if the other has something specific)
+ * Removes duplicate rows, keeps the merged winner.
+ */
+function deduplicatePublished(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 3) return { removed: 0, merged: [] }; // need header + at least 2 rows
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var col = {
+    date: headers.indexOf('DATE'),
+    event: headers.indexOf('EVENT'),
+    venue: headers.indexOf('VENUE'),
+    city: headers.indexOf('CITY'),
+    time: headers.indexOf('TIME'),
+    interpreters: headers.indexOf('INTERPRETERS'),
+    interpretation: headers.indexOf('INTERPRETATION'),
+    category: headers.indexOf('CATEGORY'),
+    imageUrl: headers.indexOf('IMAGE URL'),
+    eventUrl: headers.indexOf('EVENT URL'),
+    status: headers.indexOf('STATUS')
+  };
+
+  if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
+
+  // Group rows by dedup key
+  var groups = {};
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var dateStr = (row[col.date] || '').toString().trim();
+    var eventName = (row[col.event] || '').toString().trim();
+    var venue = (row[col.venue] || '').toString().trim();
+    if (!dateStr || !eventName) continue;
+
+    var key = makeDedupKey(dateStr, eventName, venue);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push({ index: i, row: row });
+  }
+
+  // Find groups with more than one row
+  var mergedDescriptions = [];
+  var indicesToRemove = {};
+
+  for (var key in groups) {
+    var group = groups[key];
+    if (group.length < 2) continue;
+
+    // Score each row: higher = better data
+    for (var g = 0; g < group.length; g++) {
+      var r = group[g].row;
+      var score = 0;
+      var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
+      if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
+      if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
+      if (col.eventUrl >= 0 && (r[col.eventUrl] || '').toString().trim()) score += 5;
+      if (col.city >= 0 && (r[col.city] || '').toString().trim()) score += 3;
+      if (col.time >= 0) {
+        var time = (r[col.time] || '').toString().trim();
+        if (time && time !== 'TBC') score += 2;
+      }
+      if (col.category >= 0) {
+        var cat = (r[col.category] || '').toString().trim();
+        if (cat && cat !== 'Concert') score += 1; // specific category is better than default
+      }
+      group[g].score = score;
+    }
+
+    // Sort: highest score first
+    group.sort(function(a, b) { return b.score - a.score; });
+
+    // Winner is first; merge missing fields from losers into winner
+    var winner = group[0];
+    for (var g = 1; g < group.length; g++) {
+      var loser = group[g];
+      // Fill in any blanks in winner from loser
+      for (var c = 0; c < winner.row.length; c++) {
+        var winVal = (winner.row[c] || '').toString().trim();
+        var loseVal = (loser.row[c] || '').toString().trim();
+        if ((!winVal || winVal === 'TBC' || winVal === 'Request Interpreter') && loseVal && loseVal !== 'TBC' && loseVal !== 'Request Interpreter') {
+          winner.row[c] = loser.row[c];
+        }
+      }
+      indicesToRemove[loser.index] = true;
+    }
+
+    // Write merged winner back
+    if (!DRY_RUN) {
+      sheet.getRange(winner.index + 1, 1, 1, winner.row.length).setValues([winner.row]);
+    }
+
+    var eventLabel = (winner.row[col.event] || '').toString().trim();
+    mergedDescriptions.push(eventLabel + ' (' + group.length + ' rows → 1)');
+  }
+
+  // Remove loser rows (bottom-up to preserve indices)
+  if (!DRY_RUN && Object.keys(indicesToRemove).length > 0) {
+    var sortedIndices = Object.keys(indicesToRemove).map(Number).sort(function(a, b) { return b - a; });
+    for (var d = 0; d < sortedIndices.length; d++) {
+      sheet.deleteRow(sortedIndices[d] + 1); // +1 for 1-based sheet rows
+    }
+  }
+
+  return { removed: Object.keys(indicesToRemove).length, merged: mergedDescriptions };
+}
+
+/**
+ * Second dedup pass: catch same event at same venue with different dates.
+ * Handles cases where the O2 scraper returns updated dates between runs,
+ * creating near-duplicate rows (e.g., RAYE on 26.02 vs 27.02).
+ *
+ * Only merges groups of exactly 2 entries with dates within 7 days.
+ * Groups of 3+ entries are assumed to be legitimate multi-show events
+ * (like Strictly Come Dancing with 3 nights at the same venue).
+ */
+function deduplicateDateVarying(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 3) return { removed: 0, merged: [] };
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var col = {
+    date: headers.indexOf('DATE'),
+    event: headers.indexOf('EVENT'),
+    venue: headers.indexOf('VENUE'),
+    city: headers.indexOf('CITY'),
+    time: headers.indexOf('TIME'),
+    interpreters: headers.indexOf('INTERPRETERS'),
+    category: headers.indexOf('CATEGORY'),
+    imageUrl: headers.indexOf('IMAGE URL'),
+    eventUrl: headers.indexOf('EVENT URL')
+  };
+
+  if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
+
+  // Group by event+venue key (ignoring date)
+  var groups = {};
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var eventName = (row[col.event] || '').toString().trim();
+    var venue = (row[col.venue] || '').toString().trim();
+    if (!eventName) continue;
+    var key = normalizeEventForDedup(eventName) + '|' + normalizeVenueFamily(venue);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push({ index: i, row: row });
+  }
+
+  var mergedDescriptions = [];
+  var indicesToRemove = {};
+
+  for (var key in groups) {
+    var group = groups[key];
+    // Only handle exactly 2 entries — 3+ is likely multi-show (Strictly, Bruno Mars)
+    if (group.length !== 2) continue;
+
+    // Parse dates and check proximity
+    var date0 = parseDateForDedup_(group[0].row[col.date]);
+    var date1 = parseDateForDedup_(group[1].row[col.date]);
+    if (!date0 || !date1) continue;
+
+    var diffDays = Math.abs((date0 - date1) / (1000 * 60 * 60 * 24));
+    if (diffDays > 7) continue; // Too far apart — could be two separate shows
+
+    // Score each row by data quality (same logic as exact dedup)
+    for (var g = 0; g < group.length; g++) {
+      var r = group[g].row;
+      var score = 0;
+      var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
+      if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
+      if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
+      if (col.eventUrl >= 0 && (r[col.eventUrl] || '').toString().trim()) score += 5;
+      if (col.city >= 0 && (r[col.city] || '').toString().trim()) score += 3;
+      if (col.time >= 0) {
+        var time = (r[col.time] || '').toString().trim();
+        if (time && time !== 'TBC' && !/^\d+\/\d+\/\d+$/.test(time)) score += 2; // exclude malformed date-as-time
+      }
+      if (col.category >= 0) {
+        var cat = (r[col.category] || '').toString().trim();
+        if (cat && cat !== 'Concert') score += 1;
+      }
+      group[g].score = score;
+    }
+
+    group.sort(function(a, b) { return b.score - a.score; });
+    var winner = group[0];
+    var loser = group[1];
+
+    // Fill blanks in winner from loser
+    for (var c = 0; c < winner.row.length; c++) {
+      var winVal = (winner.row[c] || '').toString().trim();
+      var loseVal = (loser.row[c] || '').toString().trim();
+      if ((!winVal || winVal === 'TBC' || winVal === 'Request Interpreter') && loseVal && loseVal !== 'TBC' && loseVal !== 'Request Interpreter') {
+        winner.row[c] = loser.row[c];
+      }
+    }
+    indicesToRemove[loser.index] = true;
+
+    if (!DRY_RUN) {
+      sheet.getRange(winner.index + 1, 1, 1, winner.row.length).setValues([winner.row]);
+    }
+
+    var eventLabel = (winner.row[col.event] || '').toString().trim();
+    var dateA = (group[0].row[col.date] || '').toString().trim();
+    var dateB = (group[1].row[col.date] || '').toString().trim();
+    mergedDescriptions.push(eventLabel + ' (dates ' + dateA + ' & ' + dateB + ')');
+  }
+
+  // Remove loser rows bottom-up
+  if (!DRY_RUN && Object.keys(indicesToRemove).length > 0) {
+    var sortedIndices = Object.keys(indicesToRemove).map(Number).sort(function(a, b) { return b - a; });
+    for (var d = 0; d < sortedIndices.length; d++) {
+      sheet.deleteRow(sortedIndices[d] + 1);
+    }
+  }
+
+  return { removed: Object.keys(indicesToRemove).length, merged: mergedDescriptions };
+}
+
+/**
+ * Parse date value for dedup comparison. Returns Date object or null.
+ */
+function parseDateForDedup_(dateVal) {
+  if (dateVal instanceof Date) return dateVal;
+  var str = (dateVal || '').toString().trim();
+  var parts = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if (parts) {
+    var year = parseInt(parts[3]);
+    if (year < 100) year += 2000;
+    return new Date(year, parseInt(parts[2]) - 1, parseInt(parts[1]));
+  }
+  return null;
 }
 
 // ==================== CANCELLATION CHECK ====================
@@ -757,7 +1020,8 @@ function auditPublishedData(data) {
 // ==================== IMAGE ENRICHMENT ====================
 
 // Venue configs for og:image scraping (slug-based URL construction)
-var VENUE_SCRAPE_CONFIGS = [
+// Venue scrape configs (only define if not already in Code.gs)
+VENUE_SCRAPE_CONFIGS = typeof VENUE_SCRAPE_CONFIGS !== 'undefined' ? VENUE_SCRAPE_CONFIGS : [
   { matcher: /motorpoint.*nottingham|nottingham.*(motorpoint|arena)/i, baseUrl: 'https://www.motorpointarenanottingham.com/whats-on/' },
   { matcher: /southbank|south\s*bank|rfh|qeh|purcell|royal\s*festival/i, baseUrl: 'https://www.southbankcentre.co.uk/whats-on/', trailingSlash: true },
   { matcher: /alexandra\s*palace/i, baseUrl: 'https://www.alexandrapalace.com/whats-on/' },
@@ -1029,13 +1293,41 @@ function normalizeForImageMatch(str) {
 // ==================== HELPER FUNCTIONS ====================
 
 /**
- * Create normalized dedup key from date + event name + venue
+ * Create normalized dedup key from date + event name + venue.
+ * Uses fuzzy matching: venue family normalization + artist name extraction
+ * so "National Television Awards 2026 | The O2 Arena, London" matches
+ * "National TV Awards | The O2, London".
  */
 function makeDedupKey(dateStr, eventName, venue) {
   const dateNorm = normalizeDateForKey(dateStr);
-  const eventNorm = normalizeForKey(eventName);
-  const venueNorm = normalizeForKey(venue);
+  const venueNorm = normalizeVenueFamily(venue);
+  const eventNorm = normalizeEventForDedup(eventName);
   return `${dateNorm}|${eventNorm}|${venueNorm}`;
+}
+
+/**
+ * Normalize event name for dedup: strip suffixes, year, "concert", "& Support Acts", etc.
+ * Produces a stable key that matches across scraper and manual entry variations.
+ */
+function normalizeEventForDedup(eventName) {
+  var name = (eventName || '').toString().trim();
+
+  // Strip parenthetical/bracketed content
+  name = name.replace(/\s*[\(\[].*?[\)\]]/g, '');
+
+  // Strip common suffixes
+  name = name.replace(/\s*[&+]\s*Support\s*Acts?\s*(tbc)?/gi, '');
+  name = name.replace(/\s*concerts?$/gi, '');
+  name = name.replace(/\s*\blive\b$/gi, '');
+  name = name.replace(/\s*\btour\b$/gi, '');
+  name = name.replace(/\s*\bshow\b$/gi, '');
+  name = name.replace(/\s*\b(20\d{2})\b/g, ''); // Strip year (2024-2099)
+
+  // Normalize "Television" ↔ "TV"
+  name = name.replace(/\btelevision\b/gi, 'tv');
+
+  // Lowercase + strip non-alphanumeric
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 /**
@@ -1192,13 +1484,45 @@ function isTruthyValue(val) {
   return ['yes', 'true', '1', 'x', 'y'].includes(str);
 }
 
-// detectCategory() defined in Code.gs (shared namespace)
+// Category detection keywords (mapped to current valid categories)
+CATEGORY_KEYWORDS = typeof CATEGORY_KEYWORDS !== 'undefined' ? CATEGORY_KEYWORDS : {
+  'Concert': ['concert', 'gig', 'live music', 'band', 'singer', 'orchestra', 'symphony'],
+  'Comedy': ['comedy', 'stand-up', 'comedian', 'comedians'],
+  'Theatre': ['theatre', 'play', 'musical', 'opera', 'ballet', 'pantomime', 'panto'],
+  'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi'],
+  'Family': ['family', 'kids', 'children', 'circus', 'dollhouse', 'cbeebies', 'peppa', 'paw patrol', 'bluey'],
+  'Festival': ['festival', 'pride', 'fest'],
+  'Cultural': ['cultural', 'heritage', 'parade', 'st patrick', 'book launch', 'exhibition'],
+  'Dance': ['dance', 'dancing'],
+  'Talks & Discussions': ['conversation', 'talk', 'discussion', 'lecture', 'in conversation', 'q&a', 'spoken word'],
+  'Literature': ['book', 'author', 'literary', 'reading', 'poetry']
+};
+
+/**
+ * Detect category from event name and venue using keyword matching.
+ * Returns the first matching category, or 'Other' if none match.
+ */
+function detectCategory(event, venue) {
+  var text = ((event || '') + ' ' + (venue || '')).toLowerCase();
+
+  for (var category in CATEGORY_KEYWORDS) {
+    var keywords = CATEGORY_KEYWORDS[category];
+    for (var i = 0; i < keywords.length; i++) {
+      if (text.indexOf(keywords[i]) >= 0) {
+        return category;
+      }
+    }
+  }
+
+  return 'Other';
+}
 
 /**
  * Normalize category to proper case. Handles lowercase from O2 scraper/PRE_APPROVED
  * and strips multi-category values down to the first one.
  */
-var VALID_CATEGORIES = {
+// Valid categories (only define if not already in Code.gs)
+VALID_CATEGORIES = typeof VALID_CATEGORIES !== 'undefined' ? VALID_CATEGORIES : {
   'concert': 'Concert', 'sports': 'Sports', 'festival': 'Festival',
   'comedy': 'Comedy', 'theatre': 'Theatre', 'cultural': 'Cultural',
   'family': 'Family', 'literature': 'Literature', 'dance': 'Dance',
@@ -1287,6 +1611,18 @@ function dailyAutoPublishDryRun_() {
           source: evt.source
         });
       }
+    }
+
+    // Dry-run dedup check
+    const dedupResult = deduplicatePublished(publishedSheet);
+    if (dedupResult.removed > 0) {
+      log.warnings.push('Dedup (dry run): would merge ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
+    }
+
+    // Dry-run date-varying dedup check
+    const dateVaryResult = deduplicateDateVarying(publishedSheet);
+    if (dateVaryResult.removed > 0) {
+      log.warnings.push('Date-varying dedup (dry run): would merge ' + dateVaryResult.removed + ' row(s): ' + dateVaryResult.merged.join('; '));
     }
 
     // Count past events (without removing)
