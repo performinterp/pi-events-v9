@@ -8,7 +8,8 @@ const PUBLIC_FEED_ID = '1JyyEYBc9iliYw7q4lbNqcLEOHwZV64WUYwce87JaBk8';
 const PRE_APPROVED_SHEET = 'PRE_APPROVED EVENTS';
 const PUBLISHED_SHEET = 'PUBLISHED';
 
-const DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
+// DIGEST_EMAIL: Set in Script Properties for security, or uses this default
+const DIGEST_EMAIL = PropertiesService.getScriptProperties().getProperty('DIGEST_EMAIL') || 'admin@performanceinterpreting.co.uk';
 
 var DRY_RUN = false; // Set true to test without writing
 

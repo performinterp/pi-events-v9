@@ -1,6 +1,35 @@
 // ==================== CONFIG SHEET API ====================
 // Web service API for admin panel to read/write CONFIG sheet
 // Deploy this as a Web App with "Anyone" access
+//
+// SECURITY: Write operations require API key.
+// Set the key in Script Properties: PI_API_KEY = <your-secret>
+
+// ==================== AUTH HELPER ====================
+
+/**
+ * Validate API key for write operations.
+ * Key must be set in Script Properties as PI_API_KEY.
+ */
+function validateApiKey(e) {
+  const providedKey = e.parameter.key || '';
+  const storedKey = PropertiesService.getScriptProperties().getProperty('PI_API_KEY');
+
+  if (!storedKey) {
+    // No key configured = API is disabled for writes
+    return { valid: false, error: 'API not configured. Set PI_API_KEY in Script Properties.' };
+  }
+
+  if (!providedKey) {
+    return { valid: false, error: 'Missing API key. Include ?key=YOUR_KEY in request.' };
+  }
+
+  if (providedKey !== storedKey) {
+    return { valid: false, error: 'Invalid API key.' };
+  }
+
+  return { valid: true };
+}
 
 // ==================== WEB APP ENTRY POINT ====================
 function doGet(e) {
@@ -22,6 +51,12 @@ function doGet(e) {
 
 function doPost(e) {
   const action = e.parameter.action;
+
+  // All POST (write) operations require API key
+  const auth = validateApiKey(e);
+  if (!auth.valid) {
+    return jsonResponse({ error: auth.error }, 401);
+  }
 
   try {
     const data = JSON.parse(e.postData.contents);

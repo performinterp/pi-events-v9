@@ -37,7 +37,10 @@ function installOpenTrigger() {
 // (Apps Script shares namespace across all .gs files)
 
 // AutoPublish-specific defaults (no var/const/let to avoid V8 redeclaration errors)
-if (typeof DIGEST_EMAIL === 'undefined') DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
+// DIGEST_EMAIL: prefer Script Properties, fall back to default
+if (typeof DIGEST_EMAIL === 'undefined') {
+  DIGEST_EMAIL = PropertiesService.getScriptProperties().getProperty('DIGEST_EMAIL') || 'admin@performanceinterpreting.co.uk';
+}
 if (typeof DRY_RUN === 'undefined') DRY_RUN = false;
 
 // ==================== MAIN ENTRY POINT ====================
