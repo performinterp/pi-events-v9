@@ -1308,12 +1308,16 @@ function updateResultsTitle(count) {
  * Create a large category card for the selection view
  */
 function createCategoryCard(category, count, icon) {
+    const escaped = category.replace(/'/g, "\\'");
     return `
-        <div class="category-card" onclick="openCategory('${category.replace(/'/g, "\\'")}')">
-            <div class="category-card-icon">${icon}</div>
+        <div class="category-card" role="button" tabindex="0"
+             aria-label="${category}, ${count} ${count === 1 ? 'event' : 'events'}"
+             onclick="openCategory('${escaped}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCategory('${escaped}')}">
+            <div class="category-card-icon" aria-hidden="true">${icon}</div>
             <h3 class="category-card-title">${category}</h3>
             <p class="category-card-count">${count} ${count === 1 ? 'event' : 'events'}</p>
-            <div class="category-card-arrow">→</div>
+            <div class="category-card-arrow" aria-hidden="true">→</div>
         </div>
     `;
 }
