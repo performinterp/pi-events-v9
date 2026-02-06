@@ -64,7 +64,9 @@ function dailyAutoPublish() {
     }
 
     var existingData = publishedSheet.getDataRange().getValues();
-    const existingKeys = buildDedupKeys(existingData);
+    const dedupResult = buildDedupKeys(existingData);
+    const existingKeys = dedupResult.keys;
+    const piOsKeys = dedupResult.piOsKeys;
 
     // 1b. Load cancelled events blocklist
     const cancelledKeys = getCancelledKeys(publishedSS);
@@ -74,14 +76,19 @@ function dailyAutoPublish() {
     const monthlyEvents = getEventsFromMonthlyTabs();
 
     // 3. Merge (monthly wins over pre-approved for same event)
-    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
+    // PI_OS events are protected - scrapers/manual cannot overwrite them
+    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents, piOsKeys);
 
     // 4. Filter: new events only (not already in PUBLISHED, not cancelled)
     const newEvents = [];
     log.cancelledSkipped = 0;
+    log.piOsProtected = 0;
     for (const evt of mergedEvents) {
       if (cancelledKeys.has(evt.key)) {
         log.cancelledSkipped++;
+      } else if (piOsKeys.has(evt.key)) {
+        // PI_OS events are protected - don't add duplicate from scraper/manual
+        log.piOsProtected++;
       } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
@@ -231,7 +238,8 @@ function getEventsFromPreApproved() {
         category,          // CATEGORY
         imageUrl,          // IMAGE URL
         eventUrl,          // EVENT URL
-        ''                 // STATUS
+        '',                // STATUS
+        'SCRAPER'          // SOURCE
       ];
 
       const key = makeDedupKey(dateRaw, eventName, venue);
@@ -315,7 +323,8 @@ function getEventsFromMonthlyTabs() {
           catResult.category,      // CATEGORY
           '',                      // IMAGE URL (not available from monthly tabs)
           '',                      // EVENT URL (not available from monthly tabs)
-          ''                       // STATUS
+          '',                      // STATUS
+          'MANUAL'                 // SOURCE (PI Work Flow monthly tabs)
         ];
 
         const key = makeDedupKey(dateRaw, eventName, venue);
@@ -332,47 +341,67 @@ function getEventsFromMonthlyTabs() {
 // ==================== MERGE & DEDUP ====================
 
 /**
- * Build dedup key set from existing PUBLISHED data
+ * Build dedup key set from existing PUBLISHED data.
+ * Returns { keys: Set, piOsKeys: Set } where piOsKeys contains events from PI_OS
+ * that should never be overwritten by scrapers.
  */
 function buildDedupKeys(data) {
   const keys = new Set();
-  if (!data || data.length < 2) return keys;
+  const piOsKeys = new Set();
+  if (!data || data.length < 2) return { keys, piOsKeys };
 
   // Find column indices from header row
   const headers = data[0].map(h => (h || '').toString().trim().toUpperCase());
   const dateIdx = headers.indexOf('DATE');
   const eventIdx = headers.indexOf('EVENT');
   const venueIdx = headers.indexOf('VENUE');
+  const sourceIdx = headers.indexOf('SOURCE');
 
-  if (dateIdx === -1 || eventIdx === -1 || venueIdx === -1) return keys;
+  if (dateIdx === -1 || eventIdx === -1 || venueIdx === -1) return { keys, piOsKeys };
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const date = (row[dateIdx] || '').toString().trim();
     const event = (row[eventIdx] || '').toString().trim();
     const venue = (row[venueIdx] || '').toString().trim();
+    const source = sourceIdx >= 0 ? (row[sourceIdx] || '').toString().trim().toUpperCase() : '';
+
     if (date && event) {
-      keys.add(makeDedupKey(date, event, venue));
+      const key = makeDedupKey(date, event, venue);
+      keys.add(key);
+
+      // Track PI_OS events separately - these take priority over everything
+      if (source === 'PI_OS') {
+        piOsKeys.add(key);
+      }
     }
   }
 
-  return keys;
+  return { keys, piOsKeys };
 }
 
 /**
  * Merge pre-approved and monthly events. Monthly wins on conflict.
+ * Events in piOsKeys are excluded - they're already in PUBLISHED from PI OS
+ * and should not be duplicated or overwritten.
  */
-function mergeEvents(preApproved, monthly) {
+function mergeEvents(preApproved, monthly, piOsKeys) {
   const eventMap = new Map();
+  piOsKeys = piOsKeys || new Set();
 
-  // Add pre-approved first
+  // Add pre-approved first (skip if already in PI OS)
   for (const evt of preApproved) {
-    eventMap.set(evt.key, evt);
+    if (!piOsKeys.has(evt.key)) {
+      eventMap.set(evt.key, evt);
+    }
   }
 
-  // Monthly overwrites (has better data: real interpreter names, confirmed times)
+  // Monthly overwrites pre-approved (has better data: real interpreter names, confirmed times)
+  // But never overwrites PI OS events
   for (const evt of monthly) {
-    eventMap.set(evt.key, evt);
+    if (!piOsKeys.has(evt.key)) {
+      eventMap.set(evt.key, evt);
+    }
   }
 
   return Array.from(eventMap.values());
@@ -406,7 +435,8 @@ function deduplicatePublished(sheet) {
     category: headers.indexOf('CATEGORY'),
     imageUrl: headers.indexOf('IMAGE URL'),
     eventUrl: headers.indexOf('EVENT URL'),
-    status: headers.indexOf('STATUS')
+    status: headers.indexOf('STATUS'),
+    source: headers.indexOf('SOURCE')
   };
 
   if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
@@ -434,9 +464,17 @@ function deduplicatePublished(sheet) {
     if (group.length < 2) continue;
 
     // Score each row: higher = better data
+    // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
       var r = group[g].row;
       var score = 0;
+
+      // SOURCE priority: PI_OS > MANUAL > SCRAPER
+      var source = col.source >= 0 ? (r[col.source] || '').toString().trim().toUpperCase() : '';
+      if (source === 'PI_OS') score += 100; // PI OS always wins
+      else if (source === 'MANUAL') score += 50; // Manual entry from PI Work Flow
+      // SCRAPER gets no bonus
+
       var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
       if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
       if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
@@ -514,7 +552,8 @@ function deduplicateDateVarying(sheet) {
     interpreters: headers.indexOf('INTERPRETERS'),
     category: headers.indexOf('CATEGORY'),
     imageUrl: headers.indexOf('IMAGE URL'),
-    eventUrl: headers.indexOf('EVENT URL')
+    eventUrl: headers.indexOf('EVENT URL'),
+    source: headers.indexOf('SOURCE')
   };
 
   if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
@@ -548,9 +587,16 @@ function deduplicateDateVarying(sheet) {
     if (diffDays > 7) continue; // Too far apart — could be two separate shows
 
     // Score each row by data quality (same logic as exact dedup)
+    // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
       var r = group[g].row;
       var score = 0;
+
+      // SOURCE priority: PI_OS > MANUAL > SCRAPER
+      var source = col.source >= 0 ? (r[col.source] || '').toString().trim().toUpperCase() : '';
+      if (source === 'PI_OS') score += 100; // PI OS always wins
+      else if (source === 'MANUAL') score += 50; // Manual entry from PI Work Flow
+
       var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
       if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
       if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
@@ -1590,17 +1636,22 @@ function dailyAutoPublishDryRun_() {
     }
 
     const existingData = publishedSheet.getDataRange().getValues();
-    const existingKeys = buildDedupKeys(existingData);
+    const dedupResult = buildDedupKeys(existingData);
+    const existingKeys = dedupResult.keys;
+    const piOsKeys = dedupResult.piOsKeys;
     const cancelledKeys = getCancelledKeys(publishedSS);
 
     const preApprovedEvents = getEventsFromPreApproved();
     const monthlyEvents = getEventsFromMonthlyTabs();
-    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
+    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents, piOsKeys);
 
     log.cancelledSkipped = 0;
+    log.piOsProtected = 0;
     for (const evt of mergedEvents) {
       if (cancelledKeys.has(evt.key)) {
         log.cancelledSkipped++;
+      } else if (piOsKeys.has(evt.key)) {
+        log.piOsProtected++;
       } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
