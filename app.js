@@ -1083,6 +1083,26 @@ Thank you`
                 <div class="event-actions">
                     ${primaryButton}
                 </div>
+
+                <div class="event-utility-actions">
+                    <button class="utility-btn" onclick='addToCalendar(${JSON.stringify(event).replace(/'/g, "&apos;")})' aria-label="Add to calendar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Calendar</span>
+                    </button>
+                    <button class="utility-btn" onclick='shareEvent(${JSON.stringify(event).replace(/'/g, "&apos;")})' aria-label="Share event">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                            <polyline points="16 6 12 2 8 6"></polyline>
+                            <line x1="12" y1="2" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Share</span>
+                    </button>
+                </div>
             </div>
         </article>
     `;
@@ -3735,7 +3755,165 @@ function openOfficialSite() {
     window.open(currentAccessEvent['OFFICIAL_SITE_URL'], '_blank', 'noopener,noreferrer');
 }
 
+// ========================================
+// CALENDAR & SHARE FUNCTIONS
+// ========================================
+
+/**
+ * Add event to calendar (generates ICS file download)
+ */
+function addToCalendar(event) {
+    const eventName = event['EVENT'] || 'BSL Interpreted Event';
+    const venue = event['VENUE'] || '';
+    const dateStr = event['DATE'] || '';
+    const timeStr = event['TIME'] || '';
+    const interpretation = event['INTERPRETATION'] || 'BSL';
+
+    // Parse date (DD.MM.YY format)
+    const dateParts = dateStr.split('.');
+    if (dateParts.length !== 3) {
+        alert('Could not parse event date');
+        return;
+    }
+
+    let [day, month, year] = dateParts;
+    if (year.length === 2) year = '20' + year;
+
+    // Parse time if available
+    let startHour = 19, startMin = 0, endHour = 22, endMin = 0;
+    if (timeStr && timeStr !== 'TBC') {
+        const timeParts = timeStr.split(' - ');
+        const startTime = timeParts[0];
+        const endTime = timeParts[1] || null;
+
+        const startMatch = startTime.match(/(\d{1,2}):(\d{2})/);
+        if (startMatch) {
+            startHour = parseInt(startMatch[1]);
+            startMin = parseInt(startMatch[2]);
+        }
+
+        if (endTime) {
+            const endMatch = endTime.match(/(\d{1,2}):(\d{2})/);
+            if (endMatch) {
+                endHour = parseInt(endMatch[1]);
+                endMin = parseInt(endMatch[2]);
+            }
+        } else {
+            // Default to 3 hours after start
+            endHour = startHour + 3;
+            endMin = startMin;
+        }
+    }
+
+    // Format dates for ICS (YYYYMMDDTHHMMSS)
+    const pad = n => n.toString().padStart(2, '0');
+    const startDate = `${year}${pad(month)}${pad(day)}T${pad(startHour)}${pad(startMin)}00`;
+    const endDate = `${year}${pad(month)}${pad(day)}T${pad(endHour)}${pad(endMin)}00`;
+    const now = new Date();
+    const created = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}T${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+    // Build ICS content
+    const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Performance Interpreting//Events App//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `DTSTART:${startDate}`,
+        `DTEND:${endDate}`,
+        `DTSTAMP:${created}`,
+        `UID:${Date.now()}@performanceinterpreting.co.uk`,
+        `SUMMARY:${eventName} (${interpretation} Interpreted)`,
+        `LOCATION:${venue}`,
+        `DESCRIPTION:${interpretation} interpreted event.\\n\\nVenue: ${venue}\\n\\nFor accessible booking info visit: https://events.performanceinterpreting.co.uk`,
+        'STATUS:CONFIRMED',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\r\n');
+
+    // Download ICS file
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${eventName.replace(/[^a-z0-9]/gi, '_')}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Share event using Web Share API (with clipboard fallback)
+ */
+async function shareEvent(event) {
+    const eventName = event['EVENT'] || 'BSL Interpreted Event';
+    const venue = event['VENUE'] || '';
+    const dateStr = event['DATE'] || '';
+    const interpretation = event['INTERPRETATION'] || 'BSL';
+    const eventUrl = event['EVENT URL'] || 'https://events.performanceinterpreting.co.uk';
+
+    const shareText = `${eventName} - ${interpretation} Interpreted\n📍 ${venue}\n📅 ${dateStr}\n\nFind more accessible events: https://events.performanceinterpreting.co.uk`;
+
+    const shareData = {
+        title: `${eventName} (${interpretation} Interpreted)`,
+        text: shareText,
+        url: 'https://events.performanceinterpreting.co.uk'
+    };
+
+    // Try Web Share API first (works on mobile)
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        try {
+            await navigator.share(shareData);
+            return;
+        } catch (err) {
+            // User cancelled or share failed, fall through to clipboard
+            if (err.name === 'AbortError') return;
+        }
+    }
+
+    // Fallback: copy to clipboard
+    try {
+        await navigator.clipboard.writeText(shareText);
+        showToast('Event details copied to clipboard!');
+    } catch (err) {
+        // Final fallback: show text in prompt
+        prompt('Copy this text to share:', shareText);
+    }
+}
+
+/**
+ * Show a toast notification
+ */
+function showToast(message, duration = 3000) {
+    // Remove existing toast if any
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // Remove after duration
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
 // Make functions global
+window.addToCalendar = addToCalendar;
+window.shareEvent = shareEvent;
+window.showToast = showToast;
 window.openAccessFirstModal = openAccessFirstModal;
 window.closeAccessFirstModal = closeAccessFirstModal;
 window.generateAccessEmail = generateAccessEmail;

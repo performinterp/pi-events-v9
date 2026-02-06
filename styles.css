@@ -2065,6 +2065,70 @@ a {
     margin-top: auto;
 }
 
+/* Event Utility Actions (Calendar & Share) */
+.event-utility-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-200);
+}
+
+.utility-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--gray-50);
+    color: var(--gray-600);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.utility-btn:hover {
+    background: var(--gray-100);
+    color: var(--gray-800);
+    border-color: var(--gray-300);
+}
+
+.utility-btn:active {
+    transform: scale(0.98);
+}
+
+.utility-btn svg {
+    flex-shrink: 0;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gray-900);
+    color: white;
+    padding: 14px 24px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+    opacity: 0;
+    transition: all var(--transition-base);
+    pointer-events: none;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 /* Primary Action Buttons (Premium) */
 .btn-primary,
 .btn-secondary {
