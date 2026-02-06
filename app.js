@@ -10,6 +10,7 @@ const CONFIG = {
     csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTVxv88y3c-1VMujoz2bupvSCnUkoC-r0W-QogbkhivAAvY-EBff7-vp76b7NxYeSQMK43rOb7PI830/pub?gid=57149695&single=true&output=csv',
     defaultImage: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&h=400&fit=crop',
     cacheDuration: 15 * 60 * 1000, // 15 minutes
+    maxCacheAge: 7 * 24 * 60 * 60 * 1000, // 7 days - discard stale cache after this
     localStorageKey: 'pi-events-cache',
     localStorageTimestampKey: 'pi-events-cache-timestamp'
 };
@@ -589,7 +590,7 @@ function setLoadingState(isLoading) {
 // LAST UPDATED TIMESTAMP
 // ========================================
 
-function updateLastUpdatedTimestamp(timestamp) {
+function updateLastUpdatedTimestamp(timestamp, isStale = false) {
     const element = document.getElementById('lastUpdatedTimestamp');
     if (!element) return;
 
@@ -602,7 +603,15 @@ function updateLastUpdatedTimestamp(timestamp) {
         minute: '2-digit'
     };
     const formattedDate = date.toLocaleDateString('en-GB', options);
-    element.textContent = `Events data last updated: ${formattedDate}`;
+
+    if (isStale) {
+        // Show stale cache indicator with relative time
+        const hoursAgo = Math.round((Date.now() - timestamp) / (1000 * 60 * 60));
+        const timeAgo = hoursAgo < 24 ? `${hoursAgo}h ago` : `${Math.round(hoursAgo / 24)}d ago`;
+        element.innerHTML = `<span class="stale-badge">Cached data from ${timeAgo}</span> (${formattedDate})`;
+    } else {
+        element.textContent = `Events data last updated: ${formattedDate}`;
+    }
 }
 
 // ========================================
@@ -1703,6 +1712,7 @@ window.backToFestivalSubcategories = backToFestivalSubcategories;
 
 /**
  * Load cached events from localStorage
+ * Returns { events, isStale } or null if no valid cache
  */
 function loadCachedEvents() {
     try {
@@ -1711,16 +1721,26 @@ function loadCachedEvents() {
 
         if (cached && timestamp) {
             const age = Date.now() - parseInt(timestamp);
-            if (age < CONFIG.cacheDuration) {
-                const events = JSON.parse(cached);
-                AppState.allEvents = events;
-                AppState.lastFetch = parseInt(timestamp);
-                // Build search vocabulary for "Did you mean?" suggestions
-                buildSearchVocabulary(events);
-                // Update timestamp display from cache
-                updateLastUpdatedTimestamp(parseInt(timestamp));
-                return events;
+
+            // Discard cache if older than 7 days (likely too stale to be useful)
+            if (age > CONFIG.maxCacheAge) {
+                console.log('Cache too old (>7 days), discarding');
+                localStorage.removeItem(CONFIG.localStorageKey);
+                localStorage.removeItem(CONFIG.localStorageTimestampKey);
+                return null;
             }
+
+            const events = JSON.parse(cached);
+            AppState.allEvents = events;
+            AppState.lastFetch = parseInt(timestamp);
+            // Build search vocabulary for "Did you mean?" suggestions
+            buildSearchVocabulary(events);
+            // Update timestamp display from cache
+            updateLastUpdatedTimestamp(parseInt(timestamp));
+
+            // Return with staleness indicator
+            const isStale = age >= CONFIG.cacheDuration;
+            return { events, isStale, cacheAge: age };
         }
     } catch (error) {
         console.error('Error loading cached events:', error);
@@ -1786,10 +1806,12 @@ async function fetchEvents(skipCache = false) {
         console.error('Error fetching events:', error);
 
         // If fetch fails, try to use stale cache
-        const cachedEvents = loadCachedEvents();
-        if (cachedEvents && cachedEvents.length > 0) {
+        const cacheResult = loadCachedEvents();
+        if (cacheResult && cacheResult.events && cacheResult.events.length > 0) {
             console.log('Using stale cache due to fetch error');
-            return cachedEvents;
+            // Show stale indicator since we're offline/having network issues
+            updateLastUpdatedTimestamp(AppState.lastFetch, true);
+            return cacheResult.events;
         }
 
         showErrorState(error.message);
@@ -2681,11 +2703,16 @@ async function init() {
         AppState.filters.category = 'all';
 
         // INSTANT LOAD: Try to load from localStorage cache first
-        const cachedEvents = loadCachedEvents();
+        const cacheResult = loadCachedEvents();
 
-        if (cachedEvents && cachedEvents.length > 0) {
+        if (cacheResult && cacheResult.events && cacheResult.events.length > 0) {
             // Show cached data IMMEDIATELY for instant load
             switchToCategoryView();
+
+            // If serving stale cache, update timestamp display to show it
+            if (cacheResult.isStale) {
+                updateLastUpdatedTimestamp(AppState.lastFetch, true);
+            }
 
             // Populate filters with cached data
             populateFilters();
@@ -2694,7 +2721,7 @@ async function init() {
             fetchEvents(true).then(freshEvents => {
                 if (freshEvents && freshEvents.length > 0) {
                     // Check if data changed
-                    const dataChanged = JSON.stringify(freshEvents) !== JSON.stringify(cachedEvents);
+                    const dataChanged = JSON.stringify(freshEvents) !== JSON.stringify(cacheResult.events);
                     if (dataChanged) {
                         // Silently update the view with fresh data
                         populateFilters();

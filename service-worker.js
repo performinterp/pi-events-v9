@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.5-exploration-fixes'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.6-backend-hardening'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 
@@ -11,8 +11,8 @@ const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.5',
-    '/app.js?v=1.9.5',
+    '/styles.css?v=1.9.6',
+    '/app.js?v=1.9.6',
     '/manifest.json'
 ];
 
@@ -113,9 +113,9 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Handle Google Sheets CSV requests with timeout for better offline UX
-    // Try network first, but fall back to cache after 3 seconds
+    // Try network first, but fall back to cache after 8 seconds (increased for slow connections)
     if (requestUrl.hostname === 'docs.google.com' && requestUrl.pathname.includes('/pub')) {
-        const NETWORK_TIMEOUT = 3000; // 3 seconds
+        const NETWORK_TIMEOUT = 8000; // 8 seconds
 
         event.respondWith(
             Promise.race([

@@ -2144,6 +2144,18 @@ a {
     transform: translateX(-50%) translateY(0);
 }
 
+/* Stale Cache Indicator */
+.stale-badge {
+    display: inline-block;
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 6px;
+}
+
 /* Primary Action Buttons (Premium) */
 .btn-primary,
 .btn-secondary {

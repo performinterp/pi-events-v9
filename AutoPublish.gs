@@ -48,9 +48,19 @@ if (typeof DRY_RUN === 'undefined') DRY_RUN = false;
 /**
  * Daily auto-publish trigger target.
  * Reads from sources, deduplicates, validates, publishes, emails digest.
+ * Uses LockService to prevent concurrent execution.
  */
 function dailyAutoPublish() {
   const log = { added: [], removed: [], warnings: [], skipped: 0 };
+
+  // Prevent concurrent execution (e.g., trigger fires while previous run still in progress)
+  const lock = LockService.getScriptLock();
+  const hasLock = lock.tryLock(30000); // Wait up to 30 seconds for lock
+
+  if (!hasLock) {
+    Logger.log('AutoPublish: Another instance is already running, skipping this run');
+    return;
+  }
 
   try {
     // 1. Get existing PUBLISHED data and build dedup keys
@@ -153,6 +163,9 @@ function dailyAutoPublish() {
   } catch (error) {
     log.warnings.push('Script error: ' + error.toString());
     Logger.log('Auto-publish error: ' + error.toString());
+  } finally {
+    // Always release the lock
+    lock.releaseLock();
   }
 
   // 10. Send digest email
