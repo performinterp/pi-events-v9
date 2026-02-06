@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.6">
+    <link rel="stylesheet" href="styles.css?v=1.9.7">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -218,7 +218,7 @@
         </div>
 
         <!-- Did You Mean? Suggestions -->
-        <div id="searchSuggestions" class="search-suggestions" style="display: none;">
+        <div id="searchSuggestions" class="search-suggestions" style="display: none;" role="status" aria-live="polite">
             <span class="suggestion-label">Did you mean:</span>
             <div class="suggestion-items" id="suggestionItems"></div>
         </div>
@@ -377,12 +377,14 @@
                    <form id="requestBSLForm" class="request-form">
                        <div class="form-group">
                            <label for="eventName">Event Name</label>
-                           <input type="text" id="eventName" required placeholder="e.g. Ed Sheeran">
+                           <input type="text" id="eventName" required placeholder="e.g. Ed Sheeran" aria-describedby="eventNameError">
+                           <span id="eventNameError" class="form-error" role="alert" aria-live="assertive"></span>
                        </div>
 
                        <div class="form-group">
                            <label for="venueName">Venue</label>
-                           <input type="text" id="venueName" required placeholder="e.g. Wembley Stadium">
+                           <input type="text" id="venueName" required placeholder="e.g. Wembley Stadium" aria-describedby="venueNameError">
+                           <span id="venueNameError" class="form-error" role="alert" aria-live="assertive"></span>
                        </div>
 
                        <div class="form-group">
@@ -392,7 +394,8 @@
 
                        <div class="form-group">
                            <label for="venueEmail">Venue's Access Email</label>
-                           <input type="email" id="venueEmail" placeholder="Auto-filled or type your own...">
+                           <input type="email" id="venueEmail" placeholder="Auto-filled or type your own..." aria-describedby="venueEmailError">
+                           <span id="venueEmailError" class="form-error" role="alert" aria-live="assertive"></span>
                            <div id="venueMatches" class="venue-matches" style="display: none;"></div>
                            <div id="venueEmailStatus" class="venue-email-status"></div>
                        </div>
@@ -509,12 +512,12 @@
         </section>
 
         <!-- GET ACCESS MODAL (NEW) -->
-        <div id="getAccessModal" class="access-modal" style="display: none;">
+        <div id="getAccessModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="getAccessModalTitle">
             <div class="access-modal-overlay" onclick="closeGetAccessModal()"></div>
             <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeGetAccessModal()">✕</button>
+                <button class="access-modal-close" onclick="closeGetAccessModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title">How to Book Accessible Tickets</h2>
+                <h2 class="access-modal-title" id="getAccessModalTitle">How to Book Accessible Tickets</h2>
                 <p class="access-modal-subtitle">Follow these 3 simple steps</p>
 
                 <div class="access-steps-grid">
@@ -561,12 +564,12 @@
         </div>
 
         <!-- ACCESS FIRST MODAL (Primary booking modal for green badge events) -->
-        <div id="accessFirstModal" class="access-modal" style="display: none;">
+        <div id="accessFirstModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="accessFirstModalTitle">
             <div class="access-modal-overlay" onclick="closeAccessFirstModal()"></div>
             <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeAccessFirstModal()">✕</button>
+                <button class="access-modal-close" onclick="closeAccessFirstModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title">How to Get BSL/ISL Access</h2>
+                <h2 class="access-modal-title" id="accessFirstModalTitle">How to Get BSL/ISL Access</h2>
                 <p class="access-modal-subtitle" id="accessFirstEventName">Booking accessible tickets</p>
 
                 <div class="access-first-info" id="accessFirstInfo">
@@ -600,12 +603,12 @@
         </div>
 
         <!-- GET TICKETS MODAL (Interception for accessible booking) -->
-        <div id="getTicketsModal" class="access-modal" style="display: none;">
+        <div id="getTicketsModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="getTicketsModalTitle">
             <div class="access-modal-overlay" onclick="closeGetTicketsModal()"></div>
             <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeGetTicketsModal()">✕</button>
+                <button class="access-modal-close" onclick="closeGetTicketsModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title">How to book accessible tickets</h2>
+                <h2 class="access-modal-title" id="getTicketsModalTitle">How to book accessible tickets</h2>
                 <p class="access-modal-subtitle">Before you buy tickets</p>
 
                 <div class="access-steps-grid">
@@ -655,10 +658,10 @@
         </div>
 
         <!-- VENUE BOOKING GUIDE MODAL (Venue-specific instructions) -->
-        <div id="venueBookingModal" class="access-modal" style="display: none;">
+        <div id="venueBookingModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="venueBookingTitle">
             <div class="access-modal-overlay" onclick="closeVenueBookingModal()"></div>
             <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeVenueBookingModal()">✕</button>
+                <button class="access-modal-close" onclick="closeVenueBookingModal()" aria-label="Close dialog">✕</button>
 
                 <h2 class="access-modal-title" id="venueBookingTitle">How to Book</h2>
                 <p class="access-modal-subtitle" id="venueBookingVenue"></p>
@@ -728,11 +731,11 @@
     </footer>
 
     <!-- Feedback Modal -->
-    <div class="feedback-modal-overlay" id="feedbackModal" onclick="closeFeedbackModalOnOverlay(event)">
+    <div class="feedback-modal-overlay" id="feedbackModal" onclick="closeFeedbackModalOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle">
         <div class="feedback-modal-container">
             <div class="feedback-modal-header">
-                <h2>Share Your Thoughts</h2>
-                <button class="feedback-modal-close" onclick="closeFeedbackModal()" aria-label="Close">
+                <h2 id="feedbackModalTitle">Share Your Thoughts</h2>
+                <button class="feedback-modal-close" onclick="closeFeedbackModal()" aria-label="Close dialog">
                     &#10005;
                 </button>
             </div>
@@ -752,7 +755,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.9"></script>
+    <script src="app.js?v=1.9.10"></script>
     
     <!-- Tally Embed Script -->
     <script>
@@ -793,11 +796,11 @@
         });
     </script>
     <!-- Install App Modal -->
-    <div class="install-prompt" id="installPrompt">
+    <div class="install-prompt" id="installPrompt" role="dialog" aria-modal="true" aria-labelledby="installPromptTitle">
         <div class="install-prompt-container">
             <div class="install-prompt-header">
-                <h2 class="install-prompt-title">Install PI Events</h2>
-                <button class="install-prompt-close" onclick="closeInstallPrompt()" aria-label="Close">
+                <h2 class="install-prompt-title" id="installPromptTitle">Install PI Events</h2>
+                <button class="install-prompt-close" onclick="closeInstallPrompt()" aria-label="Close dialog">
                     ✕
                 </button>
             </div>
@@ -839,11 +842,11 @@
     </div>
 
     <!-- Festival Checklist Modal -->
-    <div class="festival-modal-overlay" id="festivalChecklistModal" onclick="closeFestivalChecklistModalOnOverlay(event)">
+    <div class="festival-modal-overlay" id="festivalChecklistModal" onclick="closeFestivalChecklistModalOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="festivalChecklistTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2>🎪 Festival Checklist</h2>
-                <button class="festival-modal-close" onclick="closeFestivalChecklistModal()" aria-label="Close">✕</button>
+                <h2 id="festivalChecklistTitle">Festival Checklist</h2>
+                <button class="festival-modal-close" onclick="closeFestivalChecklistModal()" aria-label="Close dialog">✕</button>
             </div>
             <div class="festival-modal-body">
                 <div class="festival-hero-statement">
@@ -898,11 +901,11 @@
     </div>
 
     <!-- Know Your Rights Modal -->
-    <div class="festival-modal-overlay" id="knowYourRightsModal" onclick="closeKnowYourRightsModalOnOverlay(event)">
+    <div class="festival-modal-overlay" id="knowYourRightsModal" onclick="closeKnowYourRightsModalOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="knowYourRightsTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2>⚖️ Know Your Rights</h2>
-                <button class="festival-modal-close" onclick="closeKnowYourRightsModal()" aria-label="Close">✕</button>
+                <h2 id="knowYourRightsTitle">Know Your Rights</h2>
+                <button class="festival-modal-close" onclick="closeKnowYourRightsModal()" aria-label="Close dialog">✕</button>
             </div>
             <div class="festival-modal-body">
                 <div class="rights-hero-statement">
@@ -982,11 +985,11 @@
     </script>
 
     <!-- Notification Preferences Modal -->
-    <div class="festival-modal-overlay" id="notificationPreferencesModal" onclick="closeNotificationPreferencesOnOverlay(event)">
+    <div class="festival-modal-overlay" id="notificationPreferencesModal" onclick="closeNotificationPreferencesOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="notificationPreferencesTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2>🔔 Get Event Notifications</h2>
-                <button class="festival-modal-close" onclick="closeNotificationPreferences()" aria-label="Close">✕</button>
+                <h2 id="notificationPreferencesTitle">Get Event Notifications</h2>
+                <button class="festival-modal-close" onclick="closeNotificationPreferences()" aria-label="Close dialog">✕</button>
             </div>
             <div class="festival-modal-body">
                 <p class="festival-subtitle" style="margin-bottom: 24px;">

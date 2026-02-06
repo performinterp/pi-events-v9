@@ -2970,28 +2970,26 @@ function handleRequestBSLForm() {
         const eventDate = document.getElementById('eventDate').value.trim();
         const venueEmail = document.getElementById('venueEmail')?.value.trim() || '';
 
+        // Clear previous errors
+        clearFormErrors();
+
         // Validate required fields
         if (!eventName || !venueName) {
-            const missing = [];
-            if (!eventName) missing.push('Event Name');
-            if (!venueName) missing.push('Venue');
-            const msg = 'Please fill in: ' + missing.join(' and ');
+            if (!eventName) {
+                showFormError('eventName', 'Please enter the event name');
+            }
+            if (!venueName) {
+                showFormError('venueName', 'Please enter the venue name');
+            }
             const firstEmpty = !eventName ? document.getElementById('eventName') : document.getElementById('venueName');
             firstEmpty.focus();
-            firstEmpty.setAttribute('aria-invalid', 'true');
-            // Brief visual feedback
-            firstEmpty.style.borderColor = '#ef4444';
-            setTimeout(() => { firstEmpty.style.borderColor = ''; firstEmpty.removeAttribute('aria-invalid'); }, 3000);
             return;
         }
 
         // Validate email format if provided
         if (venueEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(venueEmail)) {
-            const emailField = document.getElementById('venueEmail');
-            emailField.focus();
-            emailField.setAttribute('aria-invalid', 'true');
-            emailField.style.borderColor = '#ef4444';
-            setTimeout(() => { emailField.style.borderColor = ''; emailField.removeAttribute('aria-invalid'); }, 3000);
+            showFormError('venueEmail', 'Please enter a valid email address');
+            document.getElementById('venueEmail').focus();
             return;
         }
 
@@ -3035,6 +3033,32 @@ function handleRequestBSLForm() {
 
         // Scroll to message
         messageTemplate.scrollIntoView({ behavior: 'smooth' });
+    });
+}
+
+// Form error helper functions for accessibility
+function showFormError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorSpan = document.getElementById(fieldId + 'Error');
+    if (field) {
+        field.setAttribute('aria-invalid', 'true');
+    }
+    if (errorSpan) {
+        errorSpan.textContent = message;
+    }
+}
+
+function clearFormErrors() {
+    const fields = ['eventName', 'venueName', 'venueEmail'];
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        const errorSpan = document.getElementById(fieldId + 'Error');
+        if (field) {
+            field.removeAttribute('aria-invalid');
+        }
+        if (errorSpan) {
+            errorSpan.textContent = '';
+        }
     });
 }
 

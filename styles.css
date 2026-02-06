@@ -3568,6 +3568,24 @@ select:focus-visible {
     border-color: #2563EB;
 }
 
+/* Form Error States - Accessibility */
+.form-group input[aria-invalid="true"] {
+    border-color: #EF4444;
+}
+
+.form-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #DC2626;
+    font-weight: 500;
+    min-height: 20px;
+}
+
+.form-error:empty {
+    display: none;
+}
+
 .form-hint {
     display: block;
     margin-top: 6px;
