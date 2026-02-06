@@ -3709,16 +3709,32 @@ function openAccessFirstModal(event) {
     const vrsButton = document.getElementById('vrsButton');
     const vrsButtonText = document.getElementById('vrsButtonText');
     const emailButton = document.getElementById('generateEmailBtn');
-    const hasVRS = event['VRS_URL'] && event['VRS_URL'].trim();
+
+    // Check for VRS: first from spreadsheet, then from VENUE_CONTACTS lookup
+    let vrsUrl = event['VRS_URL'] && event['VRS_URL'].trim();
+    let vrsProvider = event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim();
+
+    // If no VRS in spreadsheet data, try VENUE_CONTACTS lookup
+    if (!vrsUrl && event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].vrs) {
+            vrsUrl = venueMatches[0].vrs;
+            vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
+        }
+    }
+
+    const hasVRS = !!vrsUrl;
 
     if (vrsButton && hasVRS) {
         vrsButton.style.display = 'block';
         vrsButton.className = 'btn-primary btn-large'; // VRS is primary when available
 
-        // Update button text if provider name available
-        if (vrsButtonText && event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim()) {
-            const provider = event['VRS_PROVIDER'];
-            vrsButtonText.textContent = `📹 Use ${provider} (Recommended)`;
+        // Store VRS URL for openVRSLink function
+        vrsButton.dataset.vrsUrl = vrsUrl;
+
+        // Update button text with provider name
+        if (vrsButtonText && vrsProvider) {
+            vrsButtonText.textContent = `📹 Use ${vrsProvider} (Recommended)`;
         } else if (vrsButtonText) {
             vrsButtonText.textContent = '📹 Use SignVideo (Recommended)';
         }
@@ -3820,12 +3836,22 @@ Thank you.`;
  * Open VRS (Video Relay Service) link
  */
 function openVRSLink() {
-    if (!currentAccessEvent || !currentAccessEvent['VRS_URL']) {
+    // Try to get VRS URL from event data first, then from button dataset (VENUE_CONTACTS lookup)
+    let vrsUrl = currentAccessEvent && currentAccessEvent['VRS_URL'];
+
+    if (!vrsUrl) {
+        const vrsButton = document.getElementById('vrsButton');
+        if (vrsButton && vrsButton.dataset.vrsUrl) {
+            vrsUrl = vrsButton.dataset.vrsUrl;
+        }
+    }
+
+    if (!vrsUrl) {
         alert('Video Relay Service link not available for this venue');
         return;
     }
 
-    window.open(currentAccessEvent['VRS_URL'], '_blank', 'noopener,noreferrer');
+    window.open(vrsUrl, '_blank', 'noopener,noreferrer');
 }
 
 /**
