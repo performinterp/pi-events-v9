@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.6-backend-hardening'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.7-vrs-priority'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 
@@ -11,8 +11,8 @@ const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.6',
-    '/app.js?v=1.9.6',
+    '/styles.css?v=1.9.7',
+    '/app.js?v=1.9.7',
     '/manifest.json'
 ];
 

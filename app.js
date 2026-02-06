@@ -16,57 +16,68 @@ const CONFIG = {
 };
 
 // ========================================
-// VENUE EMAIL DATABASE
+// VENUE CONTACT DATABASE
 // ========================================
-// Add venue access emails here as we collect them
-// Keys are lowercase venue names (or aliases), values are email addresses
-const VENUE_EMAILS = {
-    // London
-    'the o2': 'access@theo2.co.uk',
-    'o2 arena': 'access@theo2.co.uk',
-    'the o2 arena': 'access@theo2.co.uk',
-    'the o2 arena, london': 'access@theo2.co.uk',
-    'wembley stadium': 'accessforall@wembleystadium.com',
-    'wembley': 'accessforall@wembleystadium.com',
-    'wembley stadium, london': 'accessforall@wembleystadium.com',
-    'southbank centre': 'accesslist@southbankcentre.co.uk',
-    'southbank centre, london': 'accesslist@southbankcentre.co.uk',
+// Venue contact details with VRS (Video Relay Service) as primary contact method
+// BSL is users' main language, so VRS should be the default where available
+const VENUE_CONTACTS = {
+    // London - The O2
+    'the o2': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+    'o2 arena': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+    'the o2 arena': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+    'the o2 arena, london': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+    'indigo at the o2': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+    'indigo at the o2, london': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
+
+    // London - Wembley
+    'wembley stadium': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
+    'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
+    'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
+
+    // London - Southbank
+    'southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
+    'southbank centre, london': { email: 'accesslist@southbankcentre.co.uk' },
 
     // Birmingham
-    'utilita arena birmingham': 'boxoffice@utilitaarenabham.co.uk',
-    'utilita arena': 'boxoffice@utilitaarenabham.co.uk',
+    'utilita arena birmingham': { email: 'boxoffice@utilitaarenabham.co.uk' },
+    'utilita arena': { email: 'boxoffice@utilitaarenabham.co.uk' },
 
     // Newcastle
-    'utilita arena newcastle': 'access@utilitarena.co.uk',
+    'utilita arena newcastle': { email: 'access@utilitarena.co.uk' },
 
     // Leeds
-    'first direct arena': 'accessibility@firstdirectarena.com',
-    'first direct arena leeds': 'accessibility@firstdirectarena.com',
+    'first direct arena': { email: 'accessibility@firstdirectarena.com' },
+    'first direct arena leeds': { email: 'accessibility@firstdirectarena.com' },
 
     // Manchester
-    'ao arena': 'accessibility@ao-arena.com',
-    'ao arena manchester': 'accessibility@ao-arena.com',
+    'ao arena': { email: 'accessibility@ao-arena.com' },
+    'ao arena manchester': { email: 'accessibility@ao-arena.com' },
 
     // Sheffield
-    'utilita arena sheffield': 'boxoffice@sheffieldarena.co.uk',
+    'utilita arena sheffield': { email: 'boxoffice@sheffieldarena.co.uk' },
 
     // Liverpool
-    'm&s bank arena': 'accessibility@accliverpool.com',
-    'm&s bank arena liverpool': 'accessibility@accliverpool.com',
+    'm&s bank arena': { email: 'accessibility@accliverpool.com' },
+    'm&s bank arena liverpool': { email: 'accessibility@accliverpool.com' },
 
     // Glasgow
-    'ovo hydro': 'accessibility@ovo-hydro.com',
-    'ovo hydro glasgow': 'accessibility@ovo-hydro.com',
-    'the ovo hydro': 'accessibility@ovo-hydro.com',
+    'ovo hydro': { email: 'accessibility@ovo-hydro.com' },
+    'ovo hydro glasgow': { email: 'accessibility@ovo-hydro.com' },
+    'the ovo hydro': { email: 'accessibility@ovo-hydro.com' },
 
     // Nottingham
-    'motorpoint arena': 'accessibility@motorpointarenanottingham.com',
-    'motorpoint arena nottingham': 'accessibility@motorpointarenanottingham.com',
+    'motorpoint arena': { email: 'accessibility@motorpointarenanottingham.com' },
+    'motorpoint arena nottingham': { email: 'accessibility@motorpointarenanottingham.com' },
 };
+
+// Legacy compatibility - flat email lookup
+const VENUE_EMAILS = Object.fromEntries(
+    Object.entries(VENUE_CONTACTS).map(([key, val]) => [key, val.email])
+);
 
 /**
  * Find all matching venues from database
- * Returns array of { venueName, email } objects
+ * Returns array of { venueName, email, vrs, vrsLabel } objects
  */
 function findMatchingVenues(query) {
     if (!query || query.trim() === '') return [];
@@ -76,15 +87,16 @@ function findMatchingVenues(query) {
     const seenEmails = new Set(); // Avoid duplicates (same venue, different aliases)
 
     // Exact match first
-    if (VENUE_EMAILS[queryLower]) {
-        return [{ venueName: queryLower, email: VENUE_EMAILS[queryLower] }];
+    if (VENUE_CONTACTS[queryLower]) {
+        const contact = VENUE_CONTACTS[queryLower];
+        return [{ venueName: queryLower, email: contact.email, vrs: contact.vrs, vrsLabel: contact.vrsLabel }];
     }
 
     // Fuzzy match - find all venues that contain the query or vice versa
-    for (const [key, email] of Object.entries(VENUE_EMAILS)) {
-        if ((queryLower.includes(key) || key.includes(queryLower)) && !seenEmails.has(email)) {
-            matches.push({ venueName: key, email });
-            seenEmails.add(email);
+    for (const [key, contact] of Object.entries(VENUE_CONTACTS)) {
+        if ((queryLower.includes(key) || key.includes(queryLower)) && !seenEmails.has(contact.email)) {
+            matches.push({ venueName: key, email: contact.email, vrs: contact.vrs, vrsLabel: contact.vrsLabel });
+            seenEmails.add(contact.email);
         }
     }
 
@@ -122,8 +134,23 @@ function setupVenueEmailLookup() {
                 // Single match - auto-fill
                 venueEmailInput.value = matches[0].email;
                 wasAutoFilled = true;
-                venueEmailStatus.innerHTML = '<span class="status-found">We have this venue\'s access email</span>';
-                venueEmailStatus.className = 'venue-email-status found';
+
+                // Show VRS as primary option if available (BSL is user's main language)
+                if (matches[0].vrs) {
+                    const vrsLabel = matches[0].vrsLabel || 'SignVideo';
+                    venueEmailStatus.innerHTML = `
+                        <div class="status-found-vrs">
+                            <span class="status-found">✅ We have contact info for this venue</span>
+                            <a href="${matches[0].vrs}" target="_blank" rel="noopener" class="vrs-link-primary">
+                                📹 Use ${vrsLabel} (Recommended for BSL users)
+                            </a>
+                            <span class="status-or">or continue below for email</span>
+                        </div>`;
+                    venueEmailStatus.className = 'venue-email-status found has-vrs';
+                } else {
+                    venueEmailStatus.innerHTML = '<span class="status-found">✅ We have this venue\'s access email</span>';
+                    venueEmailStatus.className = 'venue-email-status found';
+                }
             } else if (matches.length > 1) {
                 // Multiple matches - show picker
                 showVenuePicker(matches);
@@ -157,13 +184,14 @@ function setupVenueEmailLookup() {
     function showVenuePicker(matches) {
         if (!venueMatches) return;
 
-        // Build picker HTML
+        // Build picker HTML - include VRS info
         const html = matches.map(m => {
             // Capitalize venue name for display
             const displayName = m.venueName.split(' ')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ');
-            return `<button type="button" class="venue-match-btn" data-email="${m.email}" data-venue="${displayName}">${displayName}</button>`;
+            const vrsIndicator = m.vrs ? ' 📹' : '';
+            return `<button type="button" class="venue-match-btn" data-email="${m.email}" data-venue="${displayName}" data-vrs="${m.vrs || ''}" data-vrs-label="${m.vrsLabel || ''}">${displayName}${vrsIndicator}</button>`;
         }).join('');
 
         venueMatches.innerHTML = html;
@@ -176,8 +204,24 @@ function setupVenueEmailLookup() {
                 venueNameInput.value = btn.dataset.venue;
                 wasAutoFilled = true;
                 venueMatches.style.display = 'none';
-                venueEmailStatus.innerHTML = '<span class="status-found">We have this venue\'s access email</span>';
-                venueEmailStatus.className = 'venue-email-status found';
+
+                // Show VRS as primary if available
+                const vrs = btn.dataset.vrs;
+                const vrsLabel = btn.dataset.vrsLabel || 'SignVideo';
+                if (vrs) {
+                    venueEmailStatus.innerHTML = `
+                        <div class="status-found-vrs">
+                            <span class="status-found">✅ We have contact info for this venue</span>
+                            <a href="${vrs}" target="_blank" rel="noopener" class="vrs-link-primary">
+                                📹 Use ${vrsLabel} (Recommended for BSL users)
+                            </a>
+                            <span class="status-or">or continue below for email</span>
+                        </div>`;
+                    venueEmailStatus.className = 'venue-email-status found has-vrs';
+                } else {
+                    venueEmailStatus.innerHTML = '<span class="status-found">✅ We have this venue\'s access email</span>';
+                    venueEmailStatus.className = 'venue-email-status found';
+                }
             });
         });
     }
@@ -3661,20 +3705,34 @@ function openAccessFirstModal(event) {
         accessNotesEl.style.display = 'none';
     }
 
-    // Handle VRS button
+    // Handle VRS button - VRS is primary contact method for BSL users
     const vrsButton = document.getElementById('vrsButton');
     const vrsButtonText = document.getElementById('vrsButtonText');
-    if (vrsButton && event['VRS_URL'] && event['VRS_URL'].trim()) {
+    const emailButton = document.getElementById('generateEmailBtn');
+    const hasVRS = event['VRS_URL'] && event['VRS_URL'].trim();
+
+    if (vrsButton && hasVRS) {
         vrsButton.style.display = 'block';
+        vrsButton.className = 'btn-primary btn-large'; // VRS is primary when available
+
         // Update button text if provider name available
         if (vrsButtonText && event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim()) {
             const provider = event['VRS_PROVIDER'];
-            vrsButtonText.textContent = `📹 Use ${provider}`;
+            vrsButtonText.textContent = `📹 Use ${provider} (Recommended)`;
         } else if (vrsButtonText) {
-            vrsButtonText.textContent = '📹 Use Video Relay';
+            vrsButtonText.textContent = '📹 Use SignVideo (Recommended)';
         }
-    } else if (vrsButton) {
-        vrsButton.style.display = 'none';
+
+        // Demote email button to secondary when VRS is available
+        if (emailButton) {
+            emailButton.className = 'btn-secondary btn-large';
+        }
+    } else {
+        if (vrsButton) vrsButton.style.display = 'none';
+        // Keep email as primary when no VRS
+        if (emailButton) {
+            emailButton.className = 'btn-primary btn-large';
+        }
     }
 
     // Handle Official Site button

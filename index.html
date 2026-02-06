@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.10">
+    <link rel="stylesheet" href="styles.css?v=1.9.11">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -578,14 +578,14 @@
                 </div>
 
                 <div class="access-modal-actions">
-                    <!-- Always show email button -->
-                    <button class="btn-primary btn-large" onclick="generateAccessEmail()" id="generateEmailBtn">
-                        ✉️ Generate Access Email
+                    <!-- VRS button (primary when available - BSL is users' main language) -->
+                    <button class="btn-primary btn-large" onclick="openVRSLink()" id="vrsButton" style="display: none;">
+                        <span id="vrsButtonText">📹 Use SignVideo (Recommended)</span>
                     </button>
 
-                    <!-- Conditional VRS button -->
-                    <button class="btn-secondary btn-large" onclick="openVRSLink()" id="vrsButton" style="display: none;">
-                        <span id="vrsButtonText">📹 Use Video Relay</span>
+                    <!-- Email button (primary fallback if no VRS, secondary if VRS available) -->
+                    <button class="btn-primary btn-large" onclick="generateAccessEmail()" id="generateEmailBtn">
+                        ✉️ Generate Access Email
                     </button>
 
                     <!-- Conditional official site button -->
@@ -755,7 +755,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.12">
+    <script src="app.js?v=1.9.13">
     
     <!-- Tally Embed Script -->
     <script>
