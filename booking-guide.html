@@ -410,8 +410,8 @@
             background: white;
             border: 1px solid #E2E8F0;
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
             cursor: pointer;
             text-align: left;
             transition: all 0.2s;
@@ -432,7 +432,7 @@
         }
 
         .venue-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #1a1a1a;
         }
@@ -454,7 +454,7 @@
             background: white;
             border-radius: 8px;
             margin-top: -10px;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
 
         .venue-details.show {
@@ -504,6 +504,23 @@
         .contact-icon {
             font-size: 20px;
             color: #6b7280;
+        }
+
+
+        .venue-region-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748B;
+            padding: 16px 4px 6px;
+            margin-top: 4px;
+            border-bottom: 2px solid #E2E8F0;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .venue-region-header:first-child {
+            margin-top: 0;
+            padding-top: 0;
         }
 
         .contact-info strong {
@@ -1106,7 +1123,7 @@
                     <span class="modal-icon">🏟️</span>
                     <div class="modal-header-text">
                         <h2>Venues</h2>
-                        <p>Contact details</p>
+                        <p>109 venues across the UK &amp; Ireland</p>
                     </div>
                 </div>
                 <button class="modal-close" onclick="closeModal('venuesModal')">✕</button>
@@ -1124,86 +1141,1166 @@
                 </div>
 
                 <div id="venueList">
-                    <!-- The O2 Arena -->
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="The O2 Arena, London">
-                        <span class="venue-name">The O2 Arena, London</span>
+                    <div class="venue-region-header">Aberdeen</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="P&J Live, Aberdeen">
+                        <span class="venue-name">P&J Live</span>
                         <span class="venue-toggle">▼</span>
                     </button>
                     <div class="venue-details">
-                        <span class="venue-badge badge-request">⚠️ Interpreter Available on Request</span>
-                        <p style="color: #4a5568; margin-bottom: 15px;">The O2 provides interpreters when requested. Book your tickets, then contact them to arrange BSL interpretation.</p>
-                        
                         <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">💻</span>
-                                <div class="contact-info">
-                                    <strong>SignVideo (Recommended)</strong>
-                                    <a href="http://o2.signvideo.net" target="_blank" rel="noopener">o2.signvideo.net</a>
-                                </div>
-                            </div>
                             <div class="contact-item">
                                 <span class="contact-icon">✉️</span>
                                 <div class="contact-info">
                                     <strong>Email</strong>
-                                    <a href="mailto:access@theo2.co.uk">access@theo2.co.uk</a>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-icon">📱</span>
-                                <div class="contact-info">
-                                    <strong>Textphone</strong>
-                                    <a href="tel:18001-020-8463-3359">18001 020 8463 3359</a>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-icon">📞</span>
-                                <div class="contact-info">
-                                    <strong>Phone</strong>
-                                    <a href="tel:020-8463-3359">020 8463 3359</a>
+                                    <a href="mailto:access@pandjlive.com">access@pandjlive.com</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Wembley Stadium -->
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Wembley Stadium, London">
-                        <span class="venue-name">Wembley Stadium, London</span>
+                    <div class="venue-region-header">Bath</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bath Forum, Bath">
+                        <span class="venue-name">Bath Forum</span>
                         <span class="venue-toggle">▼</span>
                     </button>
                     <div class="venue-details">
-                        <span class="venue-badge badge-guaranteed">✅ Guaranteed Interpreter at Every Show</span>
-                        <p style="color: #4a5568; margin-bottom: 15px;">Wembley Stadium pledges to provide a BSL interpreter at EVERY event, regardless of deaf attendance. You can book with confidence!</p>
-                        
                         <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">💻</span>
-                                <div class="contact-info">
-                                    <strong>BSL Interpreter Booking (SignVideo)</strong>
-                                    <a href="http://thefa.signvideo.net" target="_blank" rel="noopener">thefa.signvideo.net</a>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-icon">📞</span>
-                                <div class="contact-info">
-                                    <strong>Accessible Ticketing Line</strong>
-                                    <a href="tel:0800-093-0824">0800 093 0824</a>
-                                    <p>(Mon–Fri, 9am–5pm)</p>
-                                </div>
-                            </div>
                             <div class="contact-item">
                                 <span class="contact-icon">✉️</span>
                                 <div class="contact-info">
                                     <strong>Email</strong>
-                                    <a href="mailto:help@wembleystadium.com">help@wembleystadium.com</a><br>
-                                    <a href="mailto:accessforall@wembleystadium.com">accessforall@wembleystadium.com</a>
+                                    <a href="mailto:hello@bathforum.co.uk">hello@bathforum.co.uk</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Southbank Centre -->
+                    <div class="venue-region-header">Belfast</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SSE Arena Belfast, Belfast">
+                        <span class="venue-name">SSE Arena Belfast</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@ssearenabelfast.com">info@ssearenabelfast.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Windsor Park, Belfast">
+                        <span class="venue-name">Windsor Park</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@irishfa.com">info@irishfa.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Birmingham</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="BP Pulse LIVE (NEC), Birmingham">
+                        <span class="venue-name">BP Pulse LIVE (NEC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:feedback@necgroup.co.uk">feedback@necgroup.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Resorts World Arena, Birmingham">
+                        <span class="venue-name">Resorts World Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:feedback@necgroup.co.uk">feedback@necgroup.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Symphony Hall, Birmingham">
+                        <span class="venue-name">Symphony Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:boxoffice@bmusic.co.uk">boxoffice@bmusic.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Birmingham, Birmingham">
+                        <span class="venue-name">Utilita Arena Birmingham</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:boxoffice@utilitaarenabham.co.uk">boxoffice@utilitaarenabham.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Villa Park (Aston Villa), Birmingham">
+                        <span class="venue-name">Villa Park (Aston Villa)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@avfc.co.uk">accessibility@avfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Blackpool</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Blackpool Opera House, Blackpool">
+                        <span class="venue-name">Blackpool Opera House</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@wgbpl.co.uk">info@wgbpl.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Bournemouth</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bournemouth International Centre, Bournemouth">
+                        <span class="venue-name">Bournemouth International Centre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@bhlive.org.uk">access@bhlive.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Brighton</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Amex Stadium (Brighton FC), Brighton">
+                        <span class="venue-name">Amex Stadium (Brighton FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@bhafc.co.uk">accessibility@bhafc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Brighton Centre, Brighton">
+                        <span class="venue-name">Brighton Centre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:brightoncentre@brighton-hove.gov.uk">brightoncentre@brighton-hove.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Bristol</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bristol Hippodrome, Bristol">
+                        <span class="venue-name">Bristol Hippodrome</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:bristolmarketing@theambassadors.com">bristolmarketing@theambassadors.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Burnley</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Turf Moor (Burnley FC), Burnley">
+                        <span class="venue-name">Turf Moor (Burnley FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@burnleyfc.com">info@burnleyfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Cambridge</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cambridge Corn Exchange, Cambridge">
+                        <span class="venue-name">Cambridge Corn Exchange</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@cambridgelivetrust.co.uk">access@cambridgelivetrust.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Cardiff</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cardiff City Stadium, Cardiff">
+                        <span class="venue-name">Cardiff City Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:DAO@cardiffcityfc.co.uk">DAO@cardiffcityfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Principality Stadium, Cardiff">
+                        <span class="venue-name">Principality Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:customercare@wru.wales">customercare@wru.wales</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Cardiff, Cardiff">
+                        <span class="venue-name">Utilita Arena Cardiff</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:liveaccessmotorpointarenacardiff@livenation.co.uk">liveaccessmotorpointarenacardiff@livenation.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Coventry</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Coventry Building Society Arena, Coventry">
+                        <span class="venue-name">Coventry Building Society Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:ticketoffice@CBSarena.co.uk">ticketoffice@CBSarena.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Derby</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Derby Arena, Derby">
+                        <span class="venue-name">Derby Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:derbyarena@derby.gov.uk">derbyarena@derby.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Dublin</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="3Arena, Dublin">
+                        <span class="venue-name">3Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiry@3arena.ie">enquiry@3arena.ie</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Dundee</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Caird Hall, Dundee">
+                        <span class="venue-name">Caird Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:cairdhall@leisureandculturedundee.com">cairdhall@leisureandculturedundee.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Edinburgh</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Edinburgh Playhouse, Edinburgh">
+                        <span class="venue-name">Edinburgh Playhouse</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:edinburghaccess@atgentertainment.com">edinburghaccess@atgentertainment.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Scottish Gas Murrayfield, Edinburgh">
+                        <span class="venue-name">Scottish Gas Murrayfield</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:tickets@sru.org.uk">tickets@sru.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Usher Hall, Edinburgh">
+                        <span class="venue-name">Usher Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:foh@usherhall.co.uk">foh@usherhall.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Exeter</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Westpoint Arena, Exeter">
+                        <span class="venue-name">Westpoint Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@westpointexeter.co.uk">info@westpointexeter.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Gateshead</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="The Glasshouse (Sage Gateshead), Gateshead">
+                        <span class="venue-name">The Glasshouse (Sage Gateshead)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:boxoffice@theglasshouseicm.org">boxoffice@theglasshouseicm.org</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Glasgow</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Celtic Park (Celtic FC), Glasgow">
+                        <span class="venue-name">Celtic Park (Celtic FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:homematches@celticfc.co.uk">homematches@celticfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Glasgow Royal Concert Hall, Glasgow">
+                        <span class="venue-name">Glasgow Royal Concert Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:GRCHVM@glasgowlife.org.uk">GRCHVM@glasgowlife.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Hampden Park, Glasgow">
+                        <span class="venue-name">Hampden Park</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiries@hampdenpark.co.uk">enquiries@hampdenpark.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Ibrox Stadium (Rangers FC), Glasgow">
+                        <span class="venue-name">Ibrox Stadium (Rangers FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disabilitymatters@rangers.co.uk">disabilitymatters@rangers.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Academy Glasgow, Glasgow">
+                        <span class="venue-name">O2 Academy Glasgow</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2academyglasgow.co.uk">access@o2academyglasgow.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="OVO Hydro, Glasgow">
+                        <span class="venue-name">OVO Hydro</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@ovo-hydro.com">accessibility@ovo-hydro.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SEC Armadillo, Glasgow">
+                        <span class="venue-name">SEC Armadillo</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:booking.enquiries@sec.co.uk">booking.enquiries@sec.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Gloucester</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Kingsholm Stadium (Gloucester Rugby), Gloucester">
+                        <span class="venue-name">Kingsholm Stadium (Gloucester Rugby)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:tickets@gloucesterrugby.co.uk">tickets@gloucesterrugby.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Hull</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Connexin Live, Hull">
+                        <span class="venue-name">Connexin Live</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@connexinlive.com">info@connexinlive.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Inverness</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Eden Court Theatre, Inverness">
+                        <span class="venue-name">Eden Court Theatre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@eden-court.co.uk">info@eden-court.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Ipswich</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Ipswich Regent Theatre, Ipswich">
+                        <span class="venue-name">Ipswich Regent Theatre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:tickets@ipswich.gov.uk">tickets@ipswich.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Leeds</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Elland Road (Leeds United), Leeds">
+                        <span class="venue-name">Elland Road (Leeds United)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disabled@leedsunited.com">disabled@leedsunited.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="First Direct Arena, Leeds">
+                        <span class="venue-name">First Direct Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@firstdirectarena.com">accessibility@firstdirectarena.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Leeds Grand Theatre, Leeds">
+                        <span class="venue-name">Leeds Grand Theatre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@leedsheritagetheatres.com">info@leedsheritagetheatres.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Leicester</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="De Montfort Hall, Leicester">
+                        <span class="venue-name">De Montfort Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:dmh-office@leicester.gov.uk">dmh-office@leicester.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="King Power Stadium (Leicester City FC), Leicester">
+                        <span class="venue-name">King Power Stadium (Leicester City FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disability@lcfc.co.uk">disability@lcfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Lincoln</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Lincoln Engine Shed, Lincoln">
+                        <span class="venue-name">Lincoln Engine Shed</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@lincolnenginished.co.uk">info@lincolnenginished.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Liverpool</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Anfield (Liverpool FC), Liverpool">
+                        <span class="venue-name">Anfield (Liverpool FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disability@liverpoolfc.com">disability@liverpoolfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Goodison Park (Everton FC), Liverpool">
+                        <span class="venue-name">Goodison Park (Everton FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@evertonfc.com">accessibility@evertonfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Liverpool Philharmonic Hall, Liverpool">
+                        <span class="venue-name">Liverpool Philharmonic Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@liverpoolphil.com">access@liverpoolphil.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="M&S Bank Arena, Liverpool">
+                        <span class="venue-name">M&S Bank Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@accliverpool.com">accessibility@accliverpool.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">London</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="ABBA Arena, London">
+                        <span class="venue-name">ABBA Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@abbavoyage.com">access@abbavoyage.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Alexandra Palace, London">
+                        <span class="venue-name">Alexandra Palace</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@alexandrapalace.com">access@alexandrapalace.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Allianz Stadium Twickenham, London">
+                        <span class="venue-name">Allianz Stadium Twickenham</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="https://signvideo.co.uk/" target="_blank" rel="noopener">signvideo.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">ℹ️</span>
+                                <div class="contact-info">
+                                    <strong>Note</strong>
+                                    <span>No email — use SignVideo or contact form on englandrugby.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Barbican Centre, London">
+                        <span class="venue-name">Barbican Centre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@barbican.org.uk">access@barbican.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Copper Box Arena, London">
+                        <span class="venue-name">Copper Box Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:copperboxarena@gll.org">copperboxarena@gll.org</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Craven Cottage (Fulham FC), London">
+                        <span class="venue-name">Craven Cottage (Fulham FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiries@fulhamfc.com">enquiries@fulhamfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Crystal Palace National Sports Centre, London">
+                        <span class="venue-name">Crystal Palace National Sports Centre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:crystal.palace@gll.org">crystal.palace@gll.org</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Emirates Stadium (Arsenal), London">
+                        <span class="venue-name">Emirates Stadium (Arsenal)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="https://arsenalfc.signvideo.net/" target="_blank" rel="noopener">arsenalfc.signvideo.net</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">ℹ️</span>
+                                <div class="contact-info">
+                                    <strong>Note</strong>
+                                    <span>No email — use SignVideo or online form</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Eventim Apollo, London">
+                        <span class="venue-name">Eventim Apollo</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@eventimapollo.com">info@eventimapollo.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Fairfield Halls, Croydon, London">
+                        <span class="venue-name">Fairfield Halls, Croydon</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@bhlive.org.uk">access@bhlive.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="GTech Community Stadium (Brentford FC), London">
+                        <span class="venue-name">GTech Community Stadium (Brentford FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@brentfordfc.com">accessibility@brentfordfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="London Palladium, London">
+                        <span class="venue-name">London Palladium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@lwtheatres.co.uk">access@lwtheatres.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="London Stadium (West Ham), London">
+                        <span class="venue-name">London Stadium (West Ham)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@westhamunited.co.uk">accessibility@westhamunited.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Academy Brixton, London">
+                        <span class="venue-name">O2 Academy Brixton</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2academybrixton.co.uk">access@o2academybrixton.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Forum Kentish Town, London">
+                        <span class="venue-name">O2 Forum Kentish Town</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2forumkentishtown.co.uk">access@o2forumkentishtown.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="OVO Arena Wembley, London">
+                        <span class="venue-name">OVO Arena Wembley</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@ovoarena.co.uk">access@ovoarena.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Royal Albert Hall, London">
+                        <span class="venue-name">Royal Albert Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@royalalberthall.com">access@royalalberthall.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Selhurst Park (Crystal Palace FC), London">
+                        <span class="venue-name">Selhurst Park (Crystal Palace FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:dlo@cpfc.co.uk">dlo@cpfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Shoreditch Town Hall, London">
+                        <span class="venue-name">Shoreditch Town Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@shoreditchtownhall.com">info@shoreditchtownhall.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Southbank Centre, London">
-                        <span class="venue-name">Southbank Centre, London</span>
+                        <span class="venue-name">Southbank Centre</span>
                         <span class="venue-toggle">▼</span>
                     </button>
                     <div class="venue-details">
@@ -1215,115 +2312,721 @@
                                     <a href="mailto:accesslist@southbankcentre.co.uk">accesslist@southbankcentre.co.uk</a>
                                 </div>
                             </div>
-                            <div class="contact-item">
-                                <span class="contact-icon">📞</span>
-                                <div class="contact-info">
-                                    <strong>Phone (VRS)</strong>
-                                    <a href="tel:020-3879-9555">020 3879 9555</a>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Strictly Come Dancing -->
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Strictly Come Dancing Live Tour 2025">
-                        <span class="venue-name">Strictly Come Dancing Live Tour 2025</span>
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Stamford Bridge (Chelsea FC), London">
+                        <span class="venue-name">Stamford Bridge (Chelsea FC)</span>
                         <span class="venue-toggle">▼</span>
                     </button>
                     <div class="venue-details">
-                        <span class="venue-badge badge-guaranteed">✅ BSL Interpreter at Every Performance</span>
-                        <p style="color: #4a5568; margin-bottom: 15px;">Each performance will host a BSL interpreter, displayed on two large screens on either side of the stage. Audiences can book tickets and sit almost anywhere to enjoy the show with family and friends. For best access, we recommend seats in the side blocks near the front.</p>
-
-                        <div class="tour-venues">
-                            <h4 style="color: #0F172A; margin-bottom: 15px; font-weight: 600;">Tour Venues & Interpreters:</h4>
-
-                            <div class="tour-venue-item">
-                                <strong>Utilita Arena Birmingham</strong>
-                                <p><strong>Interpreter:</strong> Clare Edwards</p>
-                                <p><strong>Dates:</strong> Fri 23 Jan 19:30 | Sat 24 Jan 14:30 & 19:30 | Sun 25 Jan 13:30 & 18:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:boxoffice@utilitaarenabham.co.uk">boxoffice@utilitaarenabham.co.uk</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>Utilita Arena Newcastle</strong>
-                                <p><strong>Interpreter:</strong> Faye Alvi</p>
-                                <p><strong>Dates:</strong> Tue 27 Jan 19:30 | Wed 28 Jan 14:30 & 19:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:access@utilitaarena.co.uk">access@utilitaarena.co.uk</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>First Direct Arena Leeds</strong>
-                                <p><strong>Interpreter:</strong> Lauren Lister</p>
-                                <p><strong>Dates:</strong> Thu 29 Jan 19:30 | Fri 30 Jan 19:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@firstdirectarena.com">accessibility@firstdirectarena.com</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>AO Arena Manchester</strong>
-                                <p><strong>Interpreter:</strong> Sammie Vanterpool</p>
-                                <p><strong>Dates:</strong> Sat 31 Jan 14:30 & 19:30 | Sun 1 Feb 13:30 & 18:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@ao-arena.com">accessibility@ao-arena.com</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>Utilita Arena Sheffield</strong>
-                                <p><strong>Interpreter:</strong> Sarah Hides</p>
-                                <p><strong>Dates:</strong> Tue 3 Feb 19:30 | Wed 4 Feb 14:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:boxoffice@sheffieldarena.co.uk">boxoffice@sheffieldarena.co.uk</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>M&S Bank Arena Liverpool</strong>
-                                <p><strong>Interpreter:</strong> Sammie Vanterpool</p>
-                                <p><strong>Dates:</strong> Thu 5 Feb 19:30 | Fri 6 Feb 19:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@accliverpool.com">accessibility@accliverpool.com</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>OVO Hydro Glasgow</strong>
-                                <p><strong>Interpreter:</strong> Tracey Tyer</p>
-                                <p><strong>Dates:</strong> Sat 7 Feb 14:30 & 19:30 | Sun 8 Feb 13:30 & 18:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@ovo-hydro.com">accessibility@ovo-hydro.com</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>Motorpoint Arena Nottingham</strong>
-                                <p><strong>Interpreter:</strong> Sarah Hides</p>
-                                <p><strong>Dates:</strong> Tue 10 Feb 19:30 | Wed 11 Feb 19:30 | Thu 12 Feb 19:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:accessibility@motorpointarenanottingham.com">accessibility@motorpointarenanottingham.com</a></p>
-                            </div>
-
-                            <div class="tour-venue-item">
-                                <strong>The O2 London</strong>
-                                <p><strong>Interpreter:</strong> Omoyele Davey</p>
-                                <p><strong>Dates:</strong> Fri 13 Feb 19:30 | Sat 14 Feb 14:30 & 19:30 | Sun 15 Feb 13:30 & 18:30</p>
-                                <p><strong>Accessibility:</strong> <a href="mailto:access@theo2.co.uk">access@theo2.co.uk</a></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Motorpoint Arena Nottingham -->
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Motorpoint Arena Nottingham">
-                        <span class="venue-name">Motorpoint Arena Nottingham</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <span class="venue-badge badge-request">⚠️ Important: Contact Before Purchasing</span>
-                        <p style="color: #4a5568; margin-bottom: 15px;">Please contact before purchasing tickets to ensure you are seated in the best positions available to see the interpreter.</p>
-                        
                         <div class="contact-methods">
                             <div class="contact-item">
                                 <span class="contact-icon">✉️</span>
                                 <div class="contact-info">
                                     <strong>Email</strong>
-                                    <a href="mailto:Accessibility.officer@motorpointarenanottingham.com">Accessibility.officer@motorpointarenanottingham.com</a>
+                                    <a href="mailto:access@chelseafc.com">access@chelseafc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="The O2 Arena, London">
+                        <span class="venue-name">The O2 Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@theo2.co.uk">access@theo2.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="http://o2.signvideo.net" target="_blank" rel="noopener">o2.signvideo.net</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Tottenham Hotspur Stadium, London">
+                        <span class="venue-name">Tottenham Hotspur Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@tottenhamhotspur.com">access@tottenhamhotspur.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Wembley Stadium, London">
+                        <span class="venue-name">Wembley Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessforall@wembleystadium.com">accessforall@wembleystadium.com</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="http://thefa.signvideo.net" target="_blank" rel="noopener">thefa.signvideo.net</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Manchester</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="AO Arena, Manchester">
+                        <span class="venue-name">AO Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@ao-arena.com">accessibility@ao-arena.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bridgewater Hall, Manchester">
+                        <span class="venue-name">Bridgewater Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@bridgewater-hall.co.uk">access@bridgewater-hall.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Co-op Live, Manchester">
+                        <span class="venue-name">Co-op Live</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@cooplive.com">access@cooplive.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Etihad Stadium (Manchester City), Manchester">
+                        <span class="venue-name">Etihad Stadium (Manchester City)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@mancity.com">access@mancity.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Apollo Manchester, Manchester">
+                        <span class="venue-name">O2 Apollo Manchester</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2apollomanchester.co.uk">access@o2apollomanchester.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Victoria Warehouse, Manchester">
+                        <span class="venue-name">O2 Victoria Warehouse</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2victoriawarehouse.co.uk">access@o2victoriawarehouse.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Old Trafford (Manchester United), Manchester">
+                        <span class="venue-name">Old Trafford (Manchester United)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@manutd.co.uk">accessibility@manutd.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="https://signvideo.co.uk/" target="_blank" rel="noopener">signvideo.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Middlesbrough</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Riverside Stadium (Middlesbrough FC), Middlesbrough">
+                        <span class="venue-name">Riverside Stadium (Middlesbrough FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:supporters@mfc.co.uk">supporters@mfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Milton Keynes</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Milton Keynes Theatre, Milton Keynes">
+                        <span class="venue-name">Milton Keynes Theatre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:emkboxoffice@theambassadors.com">emkboxoffice@theambassadors.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Newcastle</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 City Hall Newcastle, Newcastle">
+                        <span class="venue-name">O2 City Hall Newcastle</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2cityhallnewcastle.co.uk">access@o2cityhallnewcastle.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="St James' Park (Newcastle United), Newcastle">
+                        <span class="venue-name">St James' Park (Newcastle United)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disability@nufc.co.uk">disability@nufc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Newcastle, Newcastle">
+                        <span class="venue-name">Utilita Arena Newcastle</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@utilitarena.co.uk">access@utilitarena.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Norwich</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Norwich Theatre Royal, Norwich">
+                        <span class="venue-name">Norwich Theatre Royal</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@norwichtheatre.org">access@norwichtheatre.org</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Nottingham</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="City Ground (Nottingham Forest), Nottingham">
+                        <span class="venue-name">City Ground (Nottingham Forest)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@nottinghamforest.co.uk">accessibility@nottinghamforest.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Motorpoint Arena, Nottingham">
+                        <span class="venue-name">Motorpoint Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@motorpointarenanottingham.com">accessibility@motorpointarenanottingham.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Royal Concert Hall, Nottingham">
+                        <span class="venue-name">Royal Concert Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:trch.access@nottinghamcity.gov.uk">trch.access@nottinghamcity.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Oxford</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="New Theatre Oxford, Oxford">
+                        <span class="venue-name">New Theatre Oxford</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access4all.newtheatreoxford@theambassadors.com">access4all.newtheatreoxford@theambassadors.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Peterborough</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="New Theatre Peterborough, Peterborough">
+                        <span class="venue-name">New Theatre Peterborough</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:peterborough.tickets@landmarktheatres.co.uk">peterborough.tickets@landmarktheatres.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Plymouth</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Plymouth Pavilions, Plymouth">
+                        <span class="venue-name">Plymouth Pavilions</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@plymouthpavilions.com">access@plymouthpavilions.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Preston</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Preston Guild Hall, Preston">
+                        <span class="venue-name">Preston Guild Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:guildhallenquiries@preston.gov.uk">guildhallenquiries@preston.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Reading</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Reading Hexagon, Reading">
+                        <span class="venue-name">Reading Hexagon</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:boxoffice@reading.gov.uk">boxoffice@reading.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Sheffield</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Sheffield City Hall, Sheffield">
+                        <span class="venue-name">Sheffield City Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessteam@sheffieldcityhall.co.uk">accessteam@sheffieldcityhall.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Sheffield, Sheffield">
+                        <span class="venue-name">Utilita Arena Sheffield</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:boxoffice@sheffieldarena.co.uk">boxoffice@sheffieldarena.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Southampton</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Guildhall Southampton, Southampton">
+                        <span class="venue-name">O2 Guildhall Southampton</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:o2guildhallsouthampton.boxoffice@livenation.co.uk">o2guildhallsouthampton.boxoffice@livenation.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="St Mary's Stadium (Southampton FC), Southampton">
+                        <span class="venue-name">St Mary's Stadium (Southampton FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@saintsfc.co.uk">accessibility@saintsfc.co.uk</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">💻</span>
+                                <div class="contact-info">
+                                    <strong>VRS (SignVideo)</strong>
+                                    <a href="https://signvideo.co.uk/" target="_blank" rel="noopener">signvideo.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Stoke-on-Trent</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bet365 Stadium (Stoke City FC), Stoke-on-Trent">
+                        <span class="venue-name">Bet365 Stadium (Stoke City FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:hospitality@stokecityfc.com">hospitality@stokecityfc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Victoria Hall, Stoke-on-Trent">
+                        <span class="venue-name">Victoria Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiries@victoriahallstoke.co.uk">enquiries@victoriahallstoke.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Sunderland</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Stadium of Light (Sunderland FC), Sunderland">
+                        <span class="venue-name">Stadium of Light (Sunderland FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:chris.waters@safc.com">chris.waters@safc.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Surrey</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Epsom Playhouse, Surrey">
+                        <span class="venue-name">Epsom Playhouse</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:tplayhouse@epsom-ewell.gov.uk">tplayhouse@epsom-ewell.gov.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Swansea</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea Arena, Swansea">
+                        <span class="venue-name">Swansea Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:SwanseaAccess@atgentertainment.com">SwanseaAccess@atgentertainment.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea.com Stadium (Swansea City FC), Swansea">
+                        <span class="venue-name">Swansea.com Stadium (Swansea City FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@swanseacity.com">accessibility@swanseacity.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Watford</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Watford Colosseum, Watford">
+                        <span class="venue-name">Watford Colosseum</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:general@watfordcolosseum.co.uk">general@watfordcolosseum.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Wolverhampton</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Molineux Stadium (Wolves FC), Wolverhampton">
+                        <span class="venue-name">Molineux Stadium (Wolves FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:fanservices@wolves.co.uk">fanservices@wolves.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Wolverhampton Civic Hall, Wolverhampton">
+                        <span class="venue-name">Wolverhampton Civic Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@thehallswolverhampton.co.uk">access@thehallswolverhampton.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">Woodstock</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Blenheim Palace, Woodstock">
+                        <span class="venue-name">Blenheim Palace</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:customerservice@blenheimpalace.com">customerservice@blenheimpalace.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-region-header">York</div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="York Barbican, York">
+                        <span class="venue-name">York Barbican</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:laura.harrison@eu.asmglobal.com">laura.harrison@eu.asmglobal.com</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="noResults" class="no-results">
+ class="no-results">
                     <h3>No venues found</h3>
                     <p>Try adjusting your search</p>
                 </div>
@@ -1615,6 +3318,7 @@
         function searchVenues() {
             const searchTerm = document.getElementById('venueSearch').value.toLowerCase();
             const venues = document.querySelectorAll('.venue-button');
+            const regionHeaders = document.querySelectorAll('.venue-region-header');
             const noResults = document.getElementById('noResults');
             let visibleCount = 0;
             
@@ -1630,6 +3334,20 @@
                     venue.classList.remove('active');
                     venueDetails.classList.remove('show');
                 }
+            });
+            
+            // Show/hide region headers based on visible venues within each region
+            regionHeaders.forEach(header => {
+                let nextEl = header.nextElementSibling;
+                let hasVisibleVenue = false;
+                while (nextEl && !nextEl.classList.contains('venue-region-header')) {
+                    if (nextEl.classList.contains('venue-button') && nextEl.style.display !== 'none') {
+                        hasVisibleVenue = true;
+                        break;
+                    }
+                    nextEl = nextEl.nextElementSibling;
+                }
+                header.style.display = hasVisibleVenue || searchTerm === '' ? 'block' : 'none';
             });
             
             // Show/hide no results message
