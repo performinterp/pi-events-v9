@@ -1466,14 +1466,14 @@ function createEventCard(event) {
         if (hasVenueInfo) {
             // Known venue — open modal with VRS/email options
             primaryButton = `
-                <button class="btn-primary" onclick='openRequestBSLModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
+                <button class="btn-orange" onclick='openRequestBSLModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
                     ✉️ Request BSL
                 </button>
             `;
         } else {
             // Unknown venue — go to Flow 3 general request form
             primaryButton = `
-                <a href="${buildRequestInterpreterUrl(event)}" class="btn-primary">
+                <a href="${buildRequestInterpreterUrl(event)}" class="btn-orange">
                     ✉️ Request BSL
                 </a>
             `;
@@ -1645,9 +1645,9 @@ function createCompactEventCard(event) {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="compact-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="compact-btn compact-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn compact-btn-orange">✉️ Request BSL</a>`;
         }
     }
 
@@ -1699,9 +1699,9 @@ function createListEventItem(event) {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="list-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="list-btn list-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn list-btn-orange">✉️ Request BSL</a>`;
         }
     }
 

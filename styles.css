@@ -2215,6 +2215,17 @@ a {
     box-shadow: var(--shadow-xl), 0 0 20px rgba(16, 185, 129, 0.3);
 }
 
+.btn-orange {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: white;
+}
+
+.btn-orange:hover {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
 .btn-slate {
     background: linear-gradient(135deg, #475569 0%, #334155 100%);
     color: white;
@@ -2401,12 +2412,12 @@ a {
     box-shadow: var(--shadow-sm);
 }
 
-.compact-btn-green {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+.compact-btn-orange {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
 }
 
-.compact-btn-green:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+.compact-btn-orange:hover {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
 }
 
 /* ========================================
@@ -2537,12 +2548,12 @@ a {
     box-shadow: var(--shadow-sm);
 }
 
-.list-btn-green {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+.list-btn-orange {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
 }
 
-.list-btn-green:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+.list-btn-orange:hover {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
 }
 
 /* ========================================
