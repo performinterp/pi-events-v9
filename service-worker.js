@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.17-full-venue-sync'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.18-more-info-modal'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const EXTERNAL_CACHE_NAME = `${CACHE_VERSION}-external`;
@@ -13,8 +13,8 @@ const MAX_EXTERNAL_CACHE_ITEMS = 150; // Cap external resource cache (images, fo
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.17',
-    '/app.js?v=1.9.17',
+    '/styles.css?v=1.9.18',
+    '/app.js?v=1.9.18',
     '/manifest.json'
 ];
 

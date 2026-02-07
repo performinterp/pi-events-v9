@@ -4513,11 +4513,17 @@ function openRequestBSLModal(event) {
         }
     }
 
-    // Hide ticket button in request mode (no confirmed interpreter yet)
+    // Show "More Info" button if EVENT URL exists (links to official event page)
     const ticketButton = document.getElementById('ticketLinkButton');
-    if (ticketButton) ticketButton.style.display = 'none';
+    const hasTicketUrl = event['EVENT URL'] && event['EVENT URL'].trim();
+    if (ticketButton && hasTicketUrl) {
+        ticketButton.style.display = 'block';
+        ticketButton.setAttribute('data-ticket-url', event['EVENT URL'].trim());
+    } else if (ticketButton) {
+        ticketButton.style.display = 'none';
+    }
 
-    // Hide official site button
+    // Hide official site button in request mode
     const officialSiteButton = document.getElementById('officialSiteButton');
     if (officialSiteButton) officialSiteButton.style.display = 'none';
 
