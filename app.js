@@ -1575,14 +1575,6 @@ function createEventCard(event) {
                     </div>
                 ` : ''}
 
-                ${!isGrouped && badge.badge !== 'green' ? `
-                    <div class="event-request-interpreter">
-                        <a href="${buildRequestInterpreterUrl(event)}" class="request-interpreter-link">
-                            Request an interpreter for this event →
-                        </a>
-                    </div>
-                ` : ''}
-
                 <div class="event-actions">
                     ${primaryButton}
                 </div>
