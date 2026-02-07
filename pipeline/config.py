@@ -1,4 +1,14 @@
-"""Shared configuration for PI Events pipeline"""
+"""
+Shared configuration for PI Events pipeline.
+
+STATUS: STAGING / DORMANT
+This Python pipeline is NOT the production publish path.
+The canonical daily publish runs via AutoPublish.gs (Google Apps Script).
+This pipeline exists for bulk staging, validation, and future PI OS integration.
+
+If activating this pipeline, ensure READY_TO_PUBLISH column names match
+what the frontend app.js expects (see PUBLISHED_HEADERS in AutoPublish-config-only.gs).
+"""
 
 # Spreadsheet IDs
 PI_WORK_FLOW_ID = "1NiiWMcEEwjiU_DeVuUre_Qxyf5DGqEwG8Z8mYIRMuGU"
@@ -19,7 +29,7 @@ SHEETS = {
 # Validation rules
 REQUIRED_FIELDS = [
     'EVENT_DATE', 'EVENT_TIME', 'EVENT_NAME',
-    'VENUE_ID', 'TICKET_URL', 'IMAGE_URL',
+    'VENUE_ID', 'EVENT_URL', 'IMAGE_URL',
     'CATEGORY_ID', 'LANGUAGE'
 ]
 
@@ -28,15 +38,19 @@ STAGED_EVENTS_COLUMNS = [
     'EVENT_ID', 'SOURCE', 'SOURCE_REFERENCE', 'EVENT_DATE', 'EVENT_TIME',
     'EVENT_NAME', 'ARTIST_NAME', 'EVENT_ORGANISER',
     'VENUE_ID', 'VENUE_NAME', 'CITY', 'COUNTRY', 'LANGUAGE',
-    'TICKET_URL', 'IMAGE_URL', 'CATEGORY_ID', 'CATEGORY_SUGGESTION',
-    'VENUE_ID_OVERRIDE', 'CATEGORY_OVERRIDE', 'TICKET_URL_OVERRIDE', 'IMAGE_URL_OVERRIDE',
+    'EVENT_URL', 'IMAGE_URL', 'CATEGORY_ID', 'CATEGORY_SUGGESTION',
+    'VENUE_ID_OVERRIDE', 'CATEGORY_OVERRIDE', 'EVENT_URL_OVERRIDE', 'IMAGE_URL_OVERRIDE',
     'ACCESS_STATUS', 'NOTES', 'VALIDATION_STATUS', 'APPROVE', 'INTERPRETERS'
 ]
 
+# IMPORTANT: These column names MUST match what the frontend (app.js) reads from the CSV.
+# The frontend expects: DATE, EVENT, VENUE, CITY, TIME, INTERPRETERS, INTERPRETATION,
+# CATEGORY, IMAGE URL, EVENT URL, STATUS, SOURCE
+# See AutoPublish-config-only.gs PUBLISHED_HEADERS for the canonical list.
 READY_TO_PUBLISH_COLUMNS = [
-    'EVENT_ID', 'DATE', 'TIME', 'EVENT', 'ARTIST', 'ORGANISER', 'VENUE',
-    'CITY', 'COUNTRY', 'LANGUAGE', 'URL', 'IMAGE',
-    'CATEGORY', 'ACCESS_STATUS', 'LAST_UPDATED'
+    'DATE', 'EVENT', 'VENUE', 'CITY', 'TIME',
+    'INTERPRETERS', 'INTERPRETATION', 'CATEGORY',
+    'IMAGE URL', 'EVENT URL', 'STATUS', 'SOURCE'
 ]
 
 VENUES_COLUMNS = [
@@ -64,54 +78,68 @@ MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 # Fuzzy matching threshold
 VENUE_MATCH_THRESHOLD = 0.85
 
-# Event categories initial data
+# Event categories — aligned with AutoPublish.gs CATEGORY_KEYWORDS
+# AutoPublish uses: Concert, Comedy, Theatre, Sports, Family, Festival, Cultural, Dance,
+#                   Talks & Discussions, Literature
 INITIAL_CATEGORIES = [
     {
         'category_id': 'concert',
         'category_name': 'Concert',
-        'keywords': '["concert", "music", "band", "tour", "festival"]',
+        'keywords': '["concert", "gig", "live music", "band", "singer", "orchestra", "symphony"]',
         'default_image_url': ''
     },
     {
         'category_id': 'sports',
         'category_name': 'Sports',
-        'keywords': '["football", "basketball", "rugby", "game", "match", "sport"]',
+        'keywords': '["match", "game", "vs", "football", "rugby", "cricket", "boxing", "darts", "basketball", "wrestling"]',
         'default_image_url': ''
     },
     {
         'category_id': 'theatre',
         'category_name': 'Theatre',
-        'keywords': '["theatre", "musical", "play", "opera", "ballet"]',
+        'keywords': '["theatre", "play", "musical", "opera", "ballet", "pantomime"]',
         'default_image_url': ''
     },
     {
         'category_id': 'comedy',
         'category_name': 'Comedy',
-        'keywords': '["comedy", "comedian", "stand-up"]',
+        'keywords': '["comedy", "stand-up", "comedian"]',
         'default_image_url': ''
     },
     {
         'category_id': 'family',
         'category_name': 'Family',
-        'keywords': '["family", "kids", "children"]',
+        'keywords': '["family", "kids", "children", "circus"]',
         'default_image_url': ''
     },
     {
         'category_id': 'cultural',
         'category_name': 'Cultural',
-        'keywords': '["exhibition", "talk", "workshop", "cultural"]',
+        'keywords': '["cultural", "heritage", "parade", "exhibition"]',
         'default_image_url': ''
     },
     {
-        'category_id': 'festival-camping',
-        'category_name': 'Festival - Camping',
-        'keywords': '["festival", "camping"]',
+        'category_id': 'festival',
+        'category_name': 'Festival',
+        'keywords': '["festival", "pride", "fest"]',
         'default_image_url': ''
     },
     {
-        'category_id': 'festival-non-camping',
-        'category_name': 'Festival - Non-Camping',
-        'keywords': '["festival"]',
+        'category_id': 'dance',
+        'category_name': 'Dance',
+        'keywords': '["dance", "dancing"]',
+        'default_image_url': ''
+    },
+    {
+        'category_id': 'talks',
+        'category_name': 'Talks & Discussions',
+        'keywords': '["conversation", "talk", "discussion", "lecture", "q&a", "spoken word"]',
+        'default_image_url': ''
+    },
+    {
+        'category_id': 'literature',
+        'category_name': 'Literature',
+        'keywords': '["book", "author", "literary", "reading", "poetry"]',
         'default_image_url': ''
     }
 ]

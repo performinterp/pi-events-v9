@@ -3,16 +3,18 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.8-vrs-lookup'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.17-full-venue-sync'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
+const EXTERNAL_CACHE_NAME = `${CACHE_VERSION}-external`;
+const MAX_EXTERNAL_CACHE_ITEMS = 150; // Cap external resource cache (images, fonts, etc.)
 
 // Critical files to cache for offline use (must succeed during installation)
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.11',
-    '/app.js?v=1.9.14',
+    '/styles.css?v=1.9.17',
+    '/app.js?v=1.9.17',
     '/manifest.json'
 ];
 
@@ -53,7 +55,9 @@ self.addEventListener('activate', (event) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => {
                         // Delete old caches
-                        if (cacheName !== CACHE_NAME && cacheName !== DATA_CACHE_NAME) {
+                        if (cacheName !== CACHE_NAME &&
+                            cacheName !== DATA_CACHE_NAME &&
+                            cacheName !== EXTERNAL_CACHE_NAME) {
                             return caches.delete(cacheName);
                         }
                     })
@@ -76,6 +80,21 @@ self.addEventListener('activate', (event) => {
             })
     );
 });
+
+/**
+ * Evict oldest entries from a cache when it exceeds maxItems.
+ * Uses cache key ordering (oldest first) as a simple LRU proxy.
+ */
+async function evictOldestFromCache(cacheName, maxItems) {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    if (keys.length > maxItems) {
+        const toDelete = keys.length - maxItems;
+        for (let i = 0; i < toDelete; i++) {
+            await cache.delete(keys[i]);
+        }
+    }
+}
 
 // Fetch event - serve from cache with network fallback
 self.addEventListener('fetch', (event) => {
@@ -129,7 +148,7 @@ self.addEventListener('fetch', (event) => {
                         });
                         return response;
                     }),
-                // Timeout - fall back to cache after 3 seconds
+                // Timeout - fall back to cache after 8 seconds
                 new Promise((resolve, reject) => {
                     setTimeout(() => {
                         caches.match(event.request)
@@ -149,8 +168,8 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-    
-    // Handle external resources (images, fonts, etc.)
+
+    // Handle external resources (images, fonts, etc.) with bounded cache
     if (requestUrl.origin !== location.origin) {
         event.respondWith(
             caches.match(event.request)
@@ -158,14 +177,16 @@ self.addEventListener('fetch', (event) => {
                     if (cachedResponse) {
                         return cachedResponse;
                     }
-                    
+
                     return fetch(event.request)
                         .then((response) => {
-                            // Cache external resources for offline use
+                            // Cache external resources for offline use (with eviction)
                             if (response.status === 200) {
                                 const responseClone = response.clone();
-                                caches.open(CACHE_NAME).then((cache) => {
+                                caches.open(EXTERNAL_CACHE_NAME).then((cache) => {
                                     cache.put(event.request, responseClone);
+                                    // Evict oldest items if cache is too large
+                                    evictOldestFromCache(EXTERNAL_CACHE_NAME, MAX_EXTERNAL_CACHE_ITEMS);
                                 });
                             }
                             return response;
@@ -174,7 +195,7 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-    
+
     // Handle local static assets (cache first, network fallback)
     event.respondWith(
         caches.match(event.request)
@@ -234,10 +255,12 @@ self.addEventListener('sync', (event) => {
     }
 });
 
-// Handle push notifications
-self.addEventListener('push', (event) => {
-    console.log('[Service Worker] Push notification received');
+// ==================== PUSH NOTIFICATIONS (DEFERRED - State 5+) ====================
+// The handlers below are scaffolding for future push notification support.
+// They are not active — no push subscription is registered in the app.
+// Do not remove: they will be activated when notifications are implemented.
 
+self.addEventListener('push', (event) => {
     let notificationData = {
         title: 'New BSL/ISL Event Available!',
         body: 'Check out the latest interpreted events',
@@ -248,7 +271,6 @@ self.addEventListener('push', (event) => {
         vibrate: [200, 100, 200, 100, 200]
     };
 
-    // Parse notification data if provided
     if (event.data) {
         try {
             const data = event.data.json();
@@ -279,24 +301,18 @@ self.addEventListener('push', (event) => {
     );
 });
 
-// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-    console.log('[Service Worker] Notification clicked');
     event.notification.close();
-
-    // Get the URL from notification data, default to root
     const urlToOpen = event.notification.data?.url || '/';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then((clientList) => {
-                // If app is already open, focus it
                 for (const client of clientList) {
                     if (client.url === urlToOpen && 'focus' in client) {
                         return client.focus();
                     }
                 }
-                // Otherwise, open a new window
                 if (clients.openWindow) {
                     return clients.openWindow(urlToOpen);
                 }

@@ -34,9 +34,28 @@ const VENUE_CONTACTS = {
     'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
     'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
 
-    // London - Southbank
+    // London - Southbank Centre (all sub-venues use the same access email)
     'southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
     'southbank centre, london': { email: 'accesslist@southbankcentre.co.uk' },
+    'the southbank': { email: 'accesslist@southbankcentre.co.uk' },
+    'the southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
+    'royal festival hall': { email: 'accesslist@southbankcentre.co.uk' },
+    'rfh': { email: 'accesslist@southbankcentre.co.uk' },
+    'rfh, the southbank': { email: 'accesslist@southbankcentre.co.uk' },
+    'royal festival hall, southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
+    'queen elizabeth hall': { email: 'accesslist@southbankcentre.co.uk' },
+    'qeh': { email: 'accesslist@southbankcentre.co.uk' },
+    'qeh, the southbank': { email: 'accesslist@southbankcentre.co.uk' },
+    'qeh, the southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
+    'purcell room': { email: 'accesslist@southbankcentre.co.uk' },
+    'purcell room, the southbank': { email: 'accesslist@southbankcentre.co.uk' },
+    'clore ballroom': { email: 'accesslist@southbankcentre.co.uk' },
+    'clore ballroom, the southbank': { email: 'accesslist@southbankcentre.co.uk' },
+    'hayward gallery': { email: 'accesslist@southbankcentre.co.uk' },
+    'weston roof pavilion': { email: 'accesslist@southbankcentre.co.uk' },
+    "st paul's roof pavilion": { email: 'accesslist@southbankcentre.co.uk' },
+    'queen elizabeth hall foyer': { email: 'accesslist@southbankcentre.co.uk' },
+    'level 5 fr, the southbank': { email: 'accesslist@southbankcentre.co.uk' },
 
     // Birmingham
     'utilita arena birmingham': { email: 'boxoffice@utilitaarenabham.co.uk' },
@@ -68,6 +87,437 @@ const VENUE_CONTACTS = {
     // Nottingham
     'motorpoint arena': { email: 'accessibility@motorpointarenanottingham.com' },
     'motorpoint arena nottingham': { email: 'accessibility@motorpointarenanottingham.com' },
+
+    // London - Emirates Stadium (Arsenal)
+    'emirates stadium': { email: '', vrs: 'https://arsenalfc.signvideo.net/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo or online form: arsenalfc.freshdesk.com' },
+    'emirates stadium, london': { email: '', vrs: 'https://arsenalfc.signvideo.net/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo or online form' },
+    'arsenal': { email: '', vrs: 'https://arsenalfc.signvideo.net/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo or online form' },
+
+    // London - Alexandra Palace
+    'alexandra palace': { email: 'access@alexandrapalace.com' },
+    'alexandra palace, london': { email: 'access@alexandrapalace.com' },
+    'ally pally': { email: 'access@alexandrapalace.com' },
+
+    // London - ABBA Voyage / ABBA Arena
+    'abba arena': { email: 'access@abbavoyage.com' },
+    'abba arena, london': { email: 'access@abbavoyage.com' },
+    'abba voyage': { email: 'access@abbavoyage.com' },
+    'pudding mill lane': { email: 'access@abbavoyage.com' },
+    'pudding mill lane, london': { email: 'access@abbavoyage.com' },
+
+    // London - OVO Arena Wembley (formerly SSE Arena Wembley — separate from Wembley Stadium)
+    'ovo arena wembley': { email: 'access@ovoarena.co.uk' },
+    'ovo arena, wembley': { email: 'access@ovoarena.co.uk' },
+    'ovo arena, wembley, london': { email: 'access@ovoarena.co.uk' },
+    'ovo wembley arena': { email: 'access@ovoarena.co.uk' },
+    'sse arena wembley': { email: 'access@ovoarena.co.uk' },
+
+    // London - Eventim Apollo (Hammersmith)
+    'eventim apollo': { email: 'info@eventimapollo.com' },
+    'eventim apollo, london': { email: 'info@eventimapollo.com' },
+    'eventim apollo, hammersmith': { email: 'info@eventimapollo.com' },
+    'eventim apollo, hammersmith, london': { email: 'info@eventimapollo.com' },
+    'hammersmith apollo': { email: 'info@eventimapollo.com' },
+
+    // London - Royal Albert Hall
+    'royal albert hall': { email: 'access@royalalberthall.com' },
+    'royal albert hall, london': { email: 'access@royalalberthall.com' },
+
+    // London - London Stadium (West Ham United)
+    'london stadium': { email: 'accessibility@westhamunited.co.uk' },
+    'london stadium, london': { email: 'accessibility@westhamunited.co.uk' },
+    'west ham stadium': { email: 'accessibility@westhamunited.co.uk' },
+
+    // London - Stamford Bridge (Chelsea FC — PI provides BSL here)
+    'stamford bridge': { email: 'access@chelseafc.com' },
+    'stamford bridge, london': { email: 'access@chelseafc.com' },
+    'chelsea': { email: 'access@chelseafc.com' },
+
+    // London - O2 Academy Brixton
+    'o2 academy brixton': { email: 'access@o2academybrixton.co.uk' },
+    'o2 academy, brixton': { email: 'access@o2academybrixton.co.uk' },
+    'o2 academy brixton, london': { email: 'access@o2academybrixton.co.uk' },
+    'brixton academy': { email: 'access@o2academybrixton.co.uk' },
+
+    // London - Copper Box Arena (Olympic Park)
+    'copper box arena': { email: 'copperboxarena@gll.org' },
+    'copper box arena, london': { email: 'copperboxarena@gll.org' },
+
+    // London - O2 Forum Kentish Town
+    'o2 forum kentish town': { email: 'access@o2forumkentishtown.co.uk' },
+    'o2 forum, kentish town': { email: 'access@o2forumkentishtown.co.uk' },
+    'o2 kentish forum': { email: 'access@o2forumkentishtown.co.uk' },
+    'o2 kentish forum, london': { email: 'access@o2forumkentishtown.co.uk' },
+
+    // London - Shoreditch Town Hall
+    'shoreditch town hall': { email: 'info@shoreditchtownhall.com' },
+    'shoreditch town hall, london': { email: 'info@shoreditchtownhall.com' },
+
+    // London - Allianz Stadium Twickenham (England Rugby)
+    'allianz stadium': { email: '', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo or contact form on englandrugby.com' },
+    'allianz stadium, twickenham': { email: '', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo' },
+    'twickenham': { email: '', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo' },
+    'twickenham stadium': { email: '', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo', note: 'No email — use SignVideo' },
+
+    // Dublin - 3Arena
+    '3arena': { email: 'enquiry@3arena.ie' },
+    '3arena, dublin': { email: 'enquiry@3arena.ie' },
+    '3 arena': { email: 'enquiry@3arena.ie' },
+    '3 arena, dublin': { email: 'enquiry@3arena.ie' },
+
+    // Manchester - Old Trafford (Manchester United)
+    'old trafford': { email: 'accessibility@manutd.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    'old trafford, manchester': { email: 'accessibility@manutd.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    'manchester united': { email: 'accessibility@manutd.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    'man utd': { email: 'accessibility@manutd.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+
+    // Manchester - O2 Apollo Manchester
+    'o2 apollo manchester': { email: 'access@o2apollomanchester.co.uk' },
+    'o2 apollo, manchester': { email: 'access@o2apollomanchester.co.uk' },
+    'apollo manchester': { email: 'access@o2apollomanchester.co.uk' },
+
+    // Manchester - O2 Victoria Warehouse
+    'o2 victoria warehouse': { email: 'access@o2victoriawarehouse.co.uk' },
+    'o2 victoria warehouse manchester': { email: 'access@o2victoriawarehouse.co.uk' },
+    'o2 victoria warehouse, manchester': { email: 'access@o2victoriawarehouse.co.uk' },
+    'o2 victoria manchester': { email: 'access@o2victoriawarehouse.co.uk' },
+    'victoria warehouse': { email: 'access@o2victoriawarehouse.co.uk' },
+
+    // Glasgow - O2 Academy Glasgow
+    'o2 academy glasgow': { email: 'access@o2academyglasgow.co.uk' },
+    'o2 academy, glasgow': { email: 'access@o2academyglasgow.co.uk' },
+
+    // Bournemouth International Centre
+    'bournemouth international centre': { email: 'access@bhlive.org.uk' },
+    'bournemouth int. centre': { email: 'access@bhlive.org.uk' },
+    'bic bournemouth': { email: 'access@bhlive.org.uk' },
+
+    // Birmingham - BP Pulse LIVE / NEC
+    'bp pulse live': { email: 'feedback@necgroup.co.uk' },
+    'bp pulse live, nec': { email: 'feedback@necgroup.co.uk' },
+    'bp pulse, birmingham': { email: 'feedback@necgroup.co.uk' },
+    'bp pulse live, birmingham': { email: 'feedback@necgroup.co.uk' },
+    'nec birmingham': { email: 'feedback@necgroup.co.uk' },
+
+    // Southampton - St Mary's Stadium
+    'southampton stadium': { email: 'accessibility@saintsfc.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    "st mary's stadium": { email: 'accessibility@saintsfc.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    'st marys stadium': { email: 'accessibility@saintsfc.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+    'southampton fc': { email: 'accessibility@saintsfc.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo' },
+
+    // Watford - Watford Colosseum
+    'watford colosseum': { email: 'general@watfordcolosseum.co.uk' },
+    'watford colosseum, watford': { email: 'general@watfordcolosseum.co.uk' },
+
+    // Surrey - Epsom Playhouse
+    'epsom playhouse': { email: 'tplayhouse@epsom-ewell.gov.uk' },
+
+    // ---- Typo aliases (common WF data entry variations) ----
+    'emirates staduim': { email: '', vrs: 'https://arsenalfc.signvideo.net/', vrsLabel: 'SignVideo', note: 'Typo alias for Emirates Stadium' },
+    'london staduim': { email: 'accessibility@westhamunited.co.uk', note: 'Typo alias for London Stadium' },
+    'london staduim, london': { email: 'accessibility@westhamunited.co.uk', note: 'Typo alias for London Stadium' },
+    'copper cox arena': { email: 'copperboxarena@gll.org', note: 'Typo alias for Copper Box Arena' },
+    'copper cox arena, london': { email: 'copperboxarena@gll.org', note: 'Typo alias for Copper Box Arena' },
+    'man utd staduim old tafford manchester': { email: 'accessibility@manutd.co.uk', vrs: 'https://signvideo.co.uk/', vrsLabel: 'SignVideo', note: 'Typo alias for Old Trafford' },
+
+    // ---- Remaining venues from __VENUES database (auto-synced) ----
+
+    // London
+    'barbican centre': { email: 'access@barbican.org.uk' },
+    'barbican centre, london': { email: 'access@barbican.org.uk' },
+    'the barbican': { email: 'access@barbican.org.uk' },
+    'london palladium': { email: 'access@lwtheatres.co.uk' },
+    'london palladium, london': { email: 'access@lwtheatres.co.uk' },
+    'the palladium': { email: 'access@lwtheatres.co.uk' },
+    'tottenham hotspur stadium': { email: 'access@tottenhamhotspur.com' },
+    'tottenham hotspur stadium, london': { email: 'access@tottenhamhotspur.com' },
+    'spurs stadium': { email: 'access@tottenhamhotspur.com' },
+    'tottenham stadium': { email: 'access@tottenhamhotspur.com' },
+    'crystal palace national sports centre': { email: 'crystal.palace@gll.org' },
+    'crystal palace national sports centre, london': { email: 'crystal.palace@gll.org' },
+    'selhurst park': { email: 'dlo@cpfc.co.uk' },
+    'selhurst park, london': { email: 'dlo@cpfc.co.uk' },
+    'crystal palace fc': { email: 'dlo@cpfc.co.uk' },
+    'craven cottage': { email: 'enquiries@fulhamfc.com' },
+    'craven cottage, london': { email: 'enquiries@fulhamfc.com' },
+    'fulham fc': { email: 'enquiries@fulhamfc.com' },
+    'gtech community stadium': { email: 'accessibility@brentfordfc.com' },
+    'gtech community stadium, london': { email: 'accessibility@brentfordfc.com' },
+    'brentford fc': { email: 'accessibility@brentfordfc.com' },
+    'fairfield halls': { email: 'access@bhlive.org.uk' },
+    'fairfield halls, croydon': { email: 'access@bhlive.org.uk' },
+
+    // Manchester
+    'co-op live': { email: 'access@cooplive.com' },
+    'co-op live, manchester': { email: 'access@cooplive.com' },
+    'coop live': { email: 'access@cooplive.com' },
+    'etihad stadium': { email: 'access@mancity.com' },
+    'etihad stadium, manchester': { email: 'access@mancity.com' },
+    'manchester city': { email: 'access@mancity.com' },
+    'man city': { email: 'access@mancity.com' },
+    'bridgewater hall': { email: 'access@bridgewater-hall.co.uk' },
+    'bridgewater hall, manchester': { email: 'access@bridgewater-hall.co.uk' },
+    'the bridgewater hall': { email: 'access@bridgewater-hall.co.uk' },
+
+    // Birmingham
+    'resorts world arena': { email: 'feedback@necgroup.co.uk' },
+    'resorts world arena, birmingham': { email: 'feedback@necgroup.co.uk' },
+    'resorts world arena birmingham': { email: 'feedback@necgroup.co.uk' },
+    'symphony hall': { email: 'boxoffice@bmusic.co.uk' },
+    'symphony hall, birmingham': { email: 'boxoffice@bmusic.co.uk' },
+    'symphony hall birmingham': { email: 'boxoffice@bmusic.co.uk' },
+    'villa park': { email: 'accessibility@avfc.co.uk' },
+    'villa park, birmingham': { email: 'accessibility@avfc.co.uk' },
+    'aston villa': { email: 'accessibility@avfc.co.uk' },
+
+    // Liverpool
+    'anfield': { email: 'disability@liverpoolfc.com' },
+    'anfield stadium': { email: 'disability@liverpoolfc.com' },
+    'anfield, liverpool': { email: 'disability@liverpoolfc.com' },
+    'liverpool fc': { email: 'disability@liverpoolfc.com' },
+    'liverpool philharmonic hall': { email: 'access@liverpoolphil.com' },
+    'liverpool philharmonic': { email: 'access@liverpoolphil.com' },
+    'goodison park': { email: 'accessibility@evertonfc.com' },
+    'goodison park, liverpool': { email: 'accessibility@evertonfc.com' },
+    'everton fc': { email: 'accessibility@evertonfc.com' },
+
+    // Leeds
+    'first direct bank arena': { email: 'accessibility@firstdirectbankarena.com' },
+    'first direct bank arena, leeds': { email: 'accessibility@firstdirectbankarena.com' },
+    'leeds grand theatre': { email: 'info@leedsheritagetheatres.com' },
+    'leeds grand theatre, leeds': { email: 'info@leedsheritagetheatres.com' },
+    'elland road': { email: 'disabled@leedsunited.com' },
+    'elland road, leeds': { email: 'disabled@leedsunited.com' },
+    'leeds united': { email: 'disabled@leedsunited.com' },
+
+    // Glasgow
+    'hampden park': { email: 'enquiries@hampdenpark.co.uk' },
+    'hampden park, glasgow': { email: 'enquiries@hampdenpark.co.uk' },
+    'glasgow royal concert hall': { email: 'GRCHVM@glasgowlife.org.uk' },
+    'glasgow royal concert hall, glasgow': { email: 'GRCHVM@glasgowlife.org.uk' },
+    'celtic park': { email: 'homematches@celticfc.co.uk' },
+    'celtic park, glasgow': { email: 'homematches@celticfc.co.uk' },
+    'celtic fc': { email: 'homematches@celticfc.co.uk' },
+    'ibrox stadium': { email: 'disabilitymatters@rangers.co.uk' },
+    'ibrox stadium, glasgow': { email: 'disabilitymatters@rangers.co.uk' },
+    'ibrox': { email: 'disabilitymatters@rangers.co.uk' },
+    'rangers fc': { email: 'disabilitymatters@rangers.co.uk' },
+    'sec armadillo': { email: 'booking.enquiries@sec.co.uk' },
+    'sec armadillo, glasgow': { email: 'booking.enquiries@sec.co.uk' },
+    'the armadillo': { email: 'booking.enquiries@sec.co.uk' },
+
+    // Newcastle
+    "st james' park": { email: 'disability@nufc.co.uk' },
+    "st james' park, newcastle": { email: 'disability@nufc.co.uk' },
+    'st james park': { email: 'disability@nufc.co.uk' },
+    'st james park, newcastle': { email: 'disability@nufc.co.uk' },
+    'newcastle united': { email: 'disability@nufc.co.uk' },
+    'o2 city hall newcastle': { email: 'access@o2cityhallnewcastle.co.uk' },
+    'o2 city hall, newcastle': { email: 'access@o2cityhallnewcastle.co.uk' },
+
+    // Sheffield
+    'sheffield city hall': { email: 'accessteam@sheffieldcityhall.co.uk' },
+    'sheffield city hall, sheffield': { email: 'accessteam@sheffieldcityhall.co.uk' },
+
+    // Nottingham
+    'royal concert hall nottingham': { email: 'trch.access@nottinghamcity.gov.uk' },
+    'royal concert hall, nottingham': { email: 'trch.access@nottinghamcity.gov.uk' },
+    'city ground': { email: 'accessibility@nottinghamforest.co.uk' },
+    'city ground, nottingham': { email: 'accessibility@nottinghamforest.co.uk' },
+    'nottingham forest': { email: 'accessibility@nottinghamforest.co.uk' },
+
+    // Cardiff
+    'principality stadium': { email: 'customercare@wru.wales' },
+    'principality stadium, cardiff': { email: 'customercare@wru.wales' },
+    'utilita arena cardiff': { email: 'liveaccessmotorpointarenacardiff@livenation.co.uk' },
+    'utilita arena, cardiff': { email: 'liveaccessmotorpointarenacardiff@livenation.co.uk' },
+    'cardiff city stadium': { email: 'DAO@cardiffcityfc.co.uk' },
+    'cardiff city stadium, cardiff': { email: 'DAO@cardiffcityfc.co.uk' },
+    'cardiff city fc': { email: 'DAO@cardiffcityfc.co.uk' },
+
+    // Edinburgh
+    'usher hall': { email: 'foh@usherhall.co.uk' },
+    'usher hall, edinburgh': { email: 'foh@usherhall.co.uk' },
+    'edinburgh playhouse': { email: 'edinburghaccess@atgentertainment.com' },
+    'edinburgh playhouse, edinburgh': { email: 'edinburghaccess@atgentertainment.com' },
+    'scottish gas murrayfield': { email: 'tickets@sru.org.uk' },
+    'scottish gas murrayfield, edinburgh': { email: 'tickets@sru.org.uk' },
+    'murrayfield': { email: 'tickets@sru.org.uk' },
+    'murrayfield stadium': { email: 'tickets@sru.org.uk' },
+
+    // Brighton
+    'brighton centre': { email: 'brightoncentre@brighton-hove.gov.uk' },
+    'brighton centre, brighton': { email: 'brightoncentre@brighton-hove.gov.uk' },
+    'amex stadium': { email: 'accessibility@bhafc.co.uk' },
+    'amex stadium, brighton': { email: 'accessibility@bhafc.co.uk' },
+    'brighton fc': { email: 'accessibility@bhafc.co.uk' },
+
+    // Belfast
+    'sse arena belfast': { email: 'info@ssearenabelfast.com' },
+    'sse arena, belfast': { email: 'info@ssearenabelfast.com' },
+    'windsor park': { email: 'info@irishfa.com' },
+    'windsor park, belfast': { email: 'info@irishfa.com' },
+
+    // Southampton
+    'o2 guildhall southampton': { email: 'o2guildhallsouthampton.boxoffice@livenation.co.uk' },
+    'o2 guildhall, southampton': { email: 'o2guildhallsouthampton.boxoffice@livenation.co.uk' },
+
+    // Bristol
+    'bristol hippodrome': { email: 'bristolmarketing@theambassadors.com' },
+    'bristol hippodrome, bristol': { email: 'bristolmarketing@theambassadors.com' },
+
+    // Leicester
+    'king power stadium': { email: 'disability@lcfc.co.uk' },
+    'king power stadium, leicester': { email: 'disability@lcfc.co.uk' },
+    'leicester city fc': { email: 'disability@lcfc.co.uk' },
+    'de montfort hall': { email: 'dmh-office@leicester.gov.uk' },
+    'de montfort hall, leicester': { email: 'dmh-office@leicester.gov.uk' },
+
+    // Wolverhampton
+    'wolverhampton civic hall': { email: 'access@thehallswolverhampton.co.uk' },
+    'wolverhampton civic hall, wolverhampton': { email: 'access@thehallswolverhampton.co.uk' },
+    'molineux stadium': { email: 'fanservices@wolves.co.uk' },
+    'molineux stadium, wolverhampton': { email: 'fanservices@wolves.co.uk' },
+    'molineux': { email: 'fanservices@wolves.co.uk' },
+    'wolves fc': { email: 'fanservices@wolves.co.uk' },
+
+    // Swansea
+    'swansea arena': { email: 'SwanseaAccess@atgentertainment.com' },
+    'swansea arena, swansea': { email: 'SwanseaAccess@atgentertainment.com' },
+    'swansea.com stadium': { email: 'accessibility@swanseacity.com' },
+    'swansea.com stadium, swansea': { email: 'accessibility@swanseacity.com' },
+    'swansea city fc': { email: 'accessibility@swanseacity.com' },
+
+    // Sunderland
+    'stadium of light': { email: 'chris.waters@safc.com' },
+    'stadium of light, sunderland': { email: 'chris.waters@safc.com' },
+    'sunderland fc': { email: 'chris.waters@safc.com' },
+
+    // Stoke-on-Trent
+    'victoria hall stoke': { email: 'enquiries@victoriahallstoke.co.uk' },
+    'victoria hall, stoke': { email: 'enquiries@victoriahallstoke.co.uk' },
+    'victoria hall, stoke-on-trent': { email: 'enquiries@victoriahallstoke.co.uk' },
+    'bet365 stadium': { email: 'hospitality@stokecityfc.com' },
+    'bet365 stadium, stoke': { email: 'hospitality@stokecityfc.com' },
+    'stoke city fc': { email: 'hospitality@stokecityfc.com' },
+
+    // Hull
+    'connexin live': { email: 'info@connexinlive.com' },
+    'connexin live, hull': { email: 'info@connexinlive.com' },
+    'connexin live hull': { email: 'info@connexinlive.com' },
+
+    // Coventry
+    'coventry building society arena': { email: 'ticketoffice@CBSarena.co.uk' },
+    'coventry building society arena, coventry': { email: 'ticketoffice@CBSarena.co.uk' },
+    'cbs arena': { email: 'ticketoffice@CBSarena.co.uk' },
+    'cbs arena, coventry': { email: 'ticketoffice@CBSarena.co.uk' },
+
+    // Aberdeen
+    'p&j live': { email: 'access@pandjlive.com' },
+    'p&j live, aberdeen': { email: 'access@pandjlive.com' },
+
+    // Burnley
+    'turf moor': { email: 'info@burnleyfc.com' },
+    'turf moor, burnley': { email: 'info@burnleyfc.com' },
+    'burnley fc': { email: 'info@burnleyfc.com' },
+
+    // Derby
+    'derby arena': { email: 'derbyarena@derby.gov.uk' },
+    'derby arena, derby': { email: 'derbyarena@derby.gov.uk' },
+
+    // Dundee
+    'caird hall': { email: 'cairdhall@leisureandculturedundee.com' },
+    'caird hall, dundee': { email: 'cairdhall@leisureandculturedundee.com' },
+
+    // Exeter
+    'westpoint arena exeter': { email: 'info@westpointexeter.co.uk' },
+    'westpoint arena, exeter': { email: 'info@westpointexeter.co.uk' },
+    'westpoint exeter': { email: 'info@westpointexeter.co.uk' },
+
+    // Gateshead
+    'the glasshouse': { email: 'boxoffice@theglasshouseicm.org' },
+    'the glasshouse, gateshead': { email: 'boxoffice@theglasshouseicm.org' },
+    'sage gateshead': { email: 'boxoffice@theglasshouseicm.org' },
+
+    // Gloucester
+    'kingsholm stadium': { email: 'tickets@gloucesterrugby.co.uk' },
+    'kingsholm stadium, gloucester': { email: 'tickets@gloucesterrugby.co.uk' },
+    'kingsholm': { email: 'tickets@gloucesterrugby.co.uk' },
+    'gloucester rugby': { email: 'tickets@gloucesterrugby.co.uk' },
+
+    // Inverness
+    'eden court theatre': { email: 'info@eden-court.co.uk' },
+    'eden court theatre, inverness': { email: 'info@eden-court.co.uk' },
+    'eden court': { email: 'info@eden-court.co.uk' },
+
+    // Ipswich
+    'ipswich regent theatre': { email: 'tickets@ipswich.gov.uk' },
+    'ipswich regent theatre, ipswich': { email: 'tickets@ipswich.gov.uk' },
+    'regent theatre, ipswich': { email: 'tickets@ipswich.gov.uk' },
+
+    // Lincoln
+    'lincoln engine shed': { email: 'info@lincolnenginished.co.uk' },
+    'engine shed, lincoln': { email: 'info@lincolnenginished.co.uk' },
+
+    // Middlesbrough
+    'riverside stadium': { email: 'supporters@mfc.co.uk' },
+    'riverside stadium, middlesbrough': { email: 'supporters@mfc.co.uk' },
+    'middlesbrough fc': { email: 'supporters@mfc.co.uk' },
+
+    // Milton Keynes
+    'milton keynes theatre': { email: 'emkboxoffice@theambassadors.com' },
+    'milton keynes theatre, milton keynes': { email: 'emkboxoffice@theambassadors.com' },
+    'mk theatre': { email: 'emkboxoffice@theambassadors.com' },
+
+    // Norwich
+    'norwich theatre royal': { email: 'access@norwichtheatre.org' },
+    'norwich theatre royal, norwich': { email: 'access@norwichtheatre.org' },
+    'theatre royal, norwich': { email: 'access@norwichtheatre.org' },
+
+    // Oxford
+    'new theatre oxford': { email: 'access4all.newtheatreoxford@theambassadors.com' },
+    'new theatre, oxford': { email: 'access4all.newtheatreoxford@theambassadors.com' },
+
+    // Peterborough
+    'new theatre peterborough': { email: 'peterborough.tickets@landmarktheatres.co.uk' },
+    'new theatre, peterborough': { email: 'peterborough.tickets@landmarktheatres.co.uk' },
+
+    // Plymouth
+    'plymouth pavilions': { email: 'access@plymouthpavilions.com' },
+    'plymouth pavilions, plymouth': { email: 'access@plymouthpavilions.com' },
+
+    // Preston
+    'preston guild hall': { email: 'guildhallenquiries@preston.gov.uk' },
+    'preston guild hall, preston': { email: 'guildhallenquiries@preston.gov.uk' },
+
+    // Reading
+    'reading hexagon': { email: 'boxoffice@reading.gov.uk' },
+    'reading hexagon, reading': { email: 'boxoffice@reading.gov.uk' },
+    'the hexagon': { email: 'boxoffice@reading.gov.uk' },
+    'the hexagon, reading': { email: 'boxoffice@reading.gov.uk' },
+
+    // Woodstock
+    'blenheim palace': { email: 'customerservice@blenheimpalace.com' },
+    'blenheim palace, woodstock': { email: 'customerservice@blenheimpalace.com' },
+
+    // Cambridge
+    'cambridge corn exchange': { email: 'access@cambridgelivetrust.co.uk' },
+    'cambridge corn exchange, cambridge': { email: 'access@cambridgelivetrust.co.uk' },
+    'corn exchange, cambridge': { email: 'access@cambridgelivetrust.co.uk' },
+
+    // Bath
+    'bath forum': { email: 'hello@bathforum.co.uk' },
+    'bath forum, bath': { email: 'hello@bathforum.co.uk' },
+    'the forum, bath': { email: 'hello@bathforum.co.uk' },
+
+    // York
+    'york barbican': { email: 'laura.harrison@eu.asmglobal.com' },
+    'york barbican, york': { email: 'laura.harrison@eu.asmglobal.com' },
+
+    // Blackpool
+    'blackpool opera house': { email: 'info@wgbpl.co.uk' },
+    'blackpool opera house, blackpool': { email: 'info@wgbpl.co.uk' },
+    'opera house, blackpool': { email: 'info@wgbpl.co.uk' },
 };
 
 // Legacy compatibility - flat email lookup
@@ -244,6 +694,20 @@ function setupVenueEmailLookup() {
 }
 
 // ========================================
+// TIME HELPER
+// ========================================
+
+/**
+ * Check if a time value is meaningful (not TBC/empty/placeholder).
+ * Used to exclude meaningless times from emails and messages.
+ */
+function hasRealTime(time) {
+    if (!time) return false;
+    const t = time.toString().trim().toLowerCase();
+    return t !== '' && t !== 'tbc' && t !== 'to be confirmed' && t !== 'tba';
+}
+
+// ========================================
 // REQUEST INTERPRETER URL BUILDER
 // ========================================
 
@@ -255,7 +719,7 @@ function buildRequestInterpreterUrl(event) {
     if (event['EVENT']) params.set('event', event['EVENT']);
     if (event['VENUE']) params.set('venue', event['VENUE']);
     if (event['DATE']) params.set('date', event['DATE']);
-    if (event['TIME']) params.set('time', event['TIME']);
+    if (hasRealTime(event['TIME'])) params.set('time', event['TIME']);
     return `#/flow3?${params.toString()}`;
 }
 
@@ -285,7 +749,7 @@ function prefillRequestForm() {
     }
     if (dateInput && params.get('date')) {
         const time = params.get('time');
-        dateInput.value = params.get('date') + (time ? ` at ${time}` : '');
+        dateInput.value = params.get('date') + (hasRealTime(time) ? ` at ${time}` : '');
     }
 }
 
@@ -738,12 +1202,13 @@ function formatDate(dateString) {
         console.warn('Date parse error:', error);
     }
     
+    // Unparseable dates sort to the end (far future) rather than appearing as "now"
     return {
         day: '--',
         month: '---',
         full: dateString,
-        timestamp: Date.now(),
-        dateObj: new Date()
+        timestamp: Number.MAX_SAFE_INTEGER,
+        dateObj: new Date(9999, 11, 31)
     };
 }
 
@@ -985,45 +1450,30 @@ function createEventCard(event) {
     // ACCESS FIRST - No direct ticket links for green badge events
     let primaryButton = '';
     if (badge.canBook) {
-        // Green badge - ALWAYS open access-first modal (no direct ticket links)
+        // Green badge - open access-first modal for booking guidance
         primaryButton = `
             <button class="btn-primary" onclick='openAccessFirstModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
-                📋 How to Book BSL Access
+                🎟️ Book BSL Tickets
             </button>
         `;
     } else {
         // Orange/Red badge - show request BSL option
-        // For O2 events, create pre-filled email to their accessibility team
-        const venue = (event['VENUE'] || '').toLowerCase();
-        const isO2Venue = venue.includes('o2') || venue.includes('indigo');
+        // If venue has VRS or contact info in VENUE_CONTACTS, open the modal
+        // so the user gets VRS as primary + email as secondary. Otherwise go to Flow 3.
+        const venueMatches = findMatchingVenues(event['VENUE'] || '');
+        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
 
-        if (isO2Venue) {
-            const eventName = event['EVENT'] || 'Event';
-            const eventDate = event['DATE'] || '';
-            const eventTime = event['TIME'] || 'TBC';
-            const subject = encodeURIComponent(`BSL Interpreter Request - ${eventName}`);
-            const body = encodeURIComponent(
-`Hello O2 Accessibility Team,
-
-I would like to request a BSL interpreter for the following event:
-
-Event: ${eventName}
-Date: ${eventDate}
-Time: ${eventTime}
-Venue: ${event['VENUE'] || 'The O2'}
-
-Please let me know the process for arranging BSL interpretation for this event.
-
-Thank you`
-            );
+        if (hasVenueInfo) {
+            // Known venue — open modal with VRS/email options
             primaryButton = `
-                <a href="mailto:access@theo2.co.uk?cc=office@performanceinterpreting.co.uk&subject=${subject}&body=${body}" class="btn-primary">
+                <button class="btn-primary" onclick='openRequestBSLModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
                     ✉️ Request BSL
-                </a>
+                </button>
             `;
         } else {
+            // Unknown venue — go to Flow 3 general request form
             primaryButton = `
-                <a href="#/flow3" class="btn-primary">
+                <a href="${buildRequestInterpreterUrl(event)}" class="btn-primary">
                     ✉️ Request BSL
                 </a>
             `;
@@ -1185,7 +1635,21 @@ function toggleDates(eventId) {
  */
 function createCompactEventCard(event) {
     const date = formatDate(event['DATE']);
-    const hasTicketLink = event['EVENT URL'] && event['EVENT URL'].trim() !== '';
+    const badge = calculateBadgeStatus(event);
+    const eventJson = JSON.stringify(event).replace(/'/g, "&apos;");
+
+    let actionButton = '';
+    if (badge.canBook) {
+        actionButton = `<button class="compact-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
+    } else {
+        const venueMatches = findMatchingVenues(event['VENUE'] || '');
+        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
+        if (hasVenueInfo) {
+            actionButton = `<button class="compact-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+        } else {
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn">✉️ Request BSL</a>`;
+        }
+    }
 
     return `
         <article class="event-card-compact" data-event-id="${Date.now()}-${Math.random()}">
@@ -1205,11 +1669,7 @@ function createCompactEventCard(event) {
             <div class="compact-content">
                 <h3 class="compact-title">${event['EVENT']}</h3>
                 <div class="compact-venue">📍 ${event['VENUE']}</div>
-                ${hasTicketLink ? `
-                    <a href="${event['EVENT URL']}" target="_blank" rel="noopener" class="compact-btn">
-                        🎟️ Tickets
-                    </a>
-                ` : ''}
+                ${actionButton}
             </div>
         </article>
     `;
@@ -1220,7 +1680,21 @@ function createCompactEventCard(event) {
  */
 function createListEventItem(event) {
     const date = formatDate(event['DATE']);
-    const hasTicketLink = event['EVENT URL'] && event['EVENT URL'].trim() !== '';
+    const badge = calculateBadgeStatus(event);
+    const eventJson = JSON.stringify(event).replace(/'/g, "&apos;");
+
+    let actionButton = '';
+    if (badge.canBook) {
+        actionButton = `<button class="list-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
+    } else {
+        const venueMatches = findMatchingVenues(event['VENUE'] || '');
+        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
+        if (hasVenueInfo) {
+            actionButton = `<button class="list-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+        } else {
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn">✉️ Request BSL</a>`;
+        }
+    }
 
     return `
         <article class="event-list-item" data-event-id="${Date.now()}-${Math.random()}">
@@ -1237,11 +1711,7 @@ function createListEventItem(event) {
                 </div>
             </div>
 
-            ${hasTicketLink ? `
-                <a href="${event['EVENT URL']}" target="_blank" rel="noopener" class="list-btn">
-                    🎟️ Tickets
-                </a>
-            ` : ''}
+            ${actionButton}
         </article>
     `;
 }
@@ -1320,11 +1790,11 @@ function renderEvents(events) {
                 <button onclick="${backButtonHandler}" class="back-button">
                     ${backButtonText}
                 </button>
-                <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${eventsToRender.length} ${eventsToRender.length === 1 ? 'event' : 'events'}</h2>
+                <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${events.length} ${events.length === 1 ? 'event' : 'events'}</h2>
             `;
         } else {
             // Show just count with back button
-            const eventWord = eventsToRender.length === 1 ? 'event' : 'events';
+            const eventWord = events.length === 1 ? 'event' : 'events';
             const hasActiveFilters = AppState.filters.search ||
                                      AppState.filters.time !== 'all' ||
                                      AppState.filters.interpretation !== 'all' ||
@@ -1332,9 +1802,9 @@ function renderEvents(events) {
 
             let titleText;
             if (hasActiveFilters) {
-                titleText = `${eventsToRender.length} ${eventWord} found`;
+                titleText = `${events.length} ${eventWord} found`;
             } else {
-                titleText = `All: ${eventsToRender.length} ${eventWord}`;
+                titleText = `All: ${events.length} ${eventWord}`;
             }
 
             resultsHeaderContent.innerHTML = `
@@ -1345,7 +1815,7 @@ function renderEvents(events) {
             `;
         }
     } else {
-        updateResultsTitle(eventsToRender.length);
+        updateResultsTitle(events.length);
     }
 }
 
@@ -3409,12 +3879,12 @@ function emailVenueFromModal() {
     const venueEmail = currentEventForAccess.VENUE_CONTACT_EMAIL || '';
 
     const subject = encodeURIComponent('BSL Accessible Tickets - ' + currentEventForAccess.EVENT);
+    const timeLine = hasRealTime(currentEventForAccess.TIME) ? `\nTime: ${currentEventForAccess.TIME}` : '';
     const body = encodeURIComponent(`Hi ${currentEventForAccess.VENUE} team,
 
 I want to book accessible tickets for ${currentEventForAccess.EVENT}.
 
-Date: ${currentEventForAccess.DATE}
-Time: ${currentEventForAccess.TIME || 'TBC'}
+Date: ${currentEventForAccess.DATE}${timeLine}
 
 I am Deaf and use BSL.
 I see there will be BSL interpretation.
@@ -3511,12 +3981,12 @@ function contactVenueFromTicketsModal() {
     const language = getInterpretationLanguage(currentTicketEvent);
 
     const subject = encodeURIComponent(`${language} Accessible Tickets - ${currentTicketEvent.EVENT}`);
+    const timeLine = hasRealTime(currentTicketEvent.TIME) ? `\nTime: ${currentTicketEvent.TIME}` : '';
     const body = encodeURIComponent(`Hi ${currentTicketEvent.VENUE} team,
 
 I want to book accessible tickets for ${currentTicketEvent.EVENT}.
 
-Date: ${currentTicketEvent.DATE}
-Time: ${currentTicketEvent.TIME || 'TBC'}
+Date: ${currentTicketEvent.DATE}${timeLine}
 
 I am Deaf and use ${language}.
 I see there will be ${language} interpretation.
@@ -3690,10 +4160,28 @@ function openAccessFirstModal(event) {
     const modal = document.getElementById('accessFirstModal');
     if (!modal) return;
 
+    // Reset to booking mode (in case previously opened in request mode)
+    event._isRequestMode = false;
+
+    const titleEl = document.getElementById('accessFirstModalTitle');
+    if (titleEl) titleEl.textContent = 'Book BSL Tickets';
+
     // Update event name in subtitle
     const eventNameEl = document.getElementById('accessFirstEventName');
     if (eventNameEl && event['EVENT']) {
         eventNameEl.textContent = event['EVENT'];
+    }
+
+    // Reset info text to booking mode
+    const infoEl = document.getElementById('accessFirstInfo');
+    if (infoEl) {
+        infoEl.querySelector('p:first-child').innerHTML = '<strong>Contact venue first, then book tickets.</strong>';
+    }
+
+    // Reset tip text to booking mode
+    const noteEl = modal.querySelector('.access-modal-note');
+    if (noteEl) {
+        noteEl.innerHTML = '<strong>💡 Tip:</strong><br>Contact venue before buying tickets<br>Ask for BSL accessible seating';
     }
 
     // Show ACCESS_NOTES if available
@@ -3751,6 +4239,36 @@ function openAccessFirstModal(event) {
         }
     }
 
+    // Resolve venue email: event data → VENUE_CONTACTS lookup → PI fallback
+    let resolvedEmail = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
+    if (!resolvedEmail && event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].email) {
+            resolvedEmail = venueMatches[0].email;
+        }
+    }
+    // Store resolved email on the event so generateAccessEmail can use it
+    currentAccessEvent._resolvedEmail = resolvedEmail;
+
+    // Update email button label to indicate where it goes
+    if (emailButton) {
+        if (resolvedEmail) {
+            emailButton.innerHTML = '✉️ Email Venue Access Team';
+        } else {
+            emailButton.innerHTML = '✉️ Email PI (We\'ll Contact Venue)';
+        }
+    }
+
+    // Handle ticket link button — show if EVENT URL exists
+    const ticketButton = document.getElementById('ticketLinkButton');
+    const hasTicketUrl = event['EVENT URL'] && event['EVENT URL'].trim();
+    if (ticketButton && hasTicketUrl) {
+        ticketButton.style.display = 'block';
+        ticketButton.setAttribute('data-ticket-url', event['EVENT URL'].trim());
+    } else if (ticketButton) {
+        ticketButton.style.display = 'none';
+    }
+
     // Handle Official Site button
     const officialSiteButton = document.getElementById('officialSiteButton');
     if (officialSiteButton && event['OFFICIAL_SITE_URL'] && event['OFFICIAL_SITE_URL'].trim()) {
@@ -3790,13 +4308,14 @@ function generateAccessEmail() {
     const eventName = event['EVENT'] || 'this event';
     const venue = event['VENUE'] || 'your venue';
     const date = event['DATE'] || '[date]';
+    const isRequestMode = event._isRequestMode || false;
 
     // Format date for email
     let formattedDate = date;
     try {
-        const dateObj = new Date(date);
-        if (!isNaN(dateObj)) {
-            formattedDate = dateObj.toLocaleDateString('en-GB', {
+        const parsed = parseDateString(date);
+        if (parsed && !isNaN(parsed)) {
+            formattedDate = parsed.toLocaleDateString('en-GB', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -3807,21 +4326,48 @@ function generateAccessEmail() {
         // Keep original date if parsing fails
     }
 
-    // Email template
-    const subject = `${language} Access Request - ${eventName}`;
-    const body = `Hi,
+    // Choose email template based on mode
+    let subject, body;
+    if (isRequestMode) {
+        // Requesting BSL — interpreter not yet confirmed
+        subject = `${language} Interpreter Request - ${eventName}`;
+        body = `Hi,
+
+I am Deaf and use ${language}. I would like to attend ${eventName} at ${venue} on ${formattedDate}.
+
+Will there be a ${language} interpreter at this event? If not, is it possible to arrange one?
+
+Thank you.`;
+    } else {
+        // Booking BSL — interpreter already confirmed
+        subject = `${language} Access Request - ${eventName}`;
+        body = `Hi,
 
 I am a Deaf ${language} user and would like to attend ${eventName} at ${venue} on ${formattedDate}.
 
 Please can you advise how I can book tickets with a clear view of the interpreter/${language} area?
 
 Thank you.`;
+    }
 
-    // Get email address from event data or use fallback
-    const emailTo = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
+    // Get email address: resolved venue email or fall back to PI
+    const venueEmail = event._resolvedEmail || event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
 
-    // Create mailto link
-    const mailtoLink = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    let mailtoLink;
+    if (venueEmail) {
+        // Send to venue, CC PI for support
+        mailtoLink = `mailto:${venueEmail}?cc=office@performanceinterpreting.co.uk&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else {
+        // No venue email — send to PI, they'll contact the venue on user's behalf
+        const piBody = `Hi PI,
+
+I am Deaf and use ${language}. I would like to attend ${eventName} at ${venue} on ${formattedDate}.
+
+I couldn't find the venue's access email. Could you help me contact them${isRequestMode ? ' about arranging a ' + language + ' interpreter' : ' about booking tickets with a view of the ' + language + ' interpreter area'}?
+
+Thank you.`;
+        mailtoLink = `mailto:office@performanceinterpreting.co.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(piBody)}`;
+    }
 
     // Open email client
     window.location.href = mailtoLink;
@@ -3865,6 +4411,106 @@ function openOfficialSite() {
 
     window.open(currentAccessEvent['OFFICIAL_SITE_URL'], '_blank', 'noopener,noreferrer');
 }
+
+/**
+ * Open ticket link from the Access First modal
+ */
+function openTicketLink() {
+    const ticketButton = document.getElementById('ticketLinkButton');
+    const url = ticketButton && ticketButton.getAttribute('data-ticket-url');
+    if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+}
+window.openTicketLink = openTicketLink;
+
+/**
+ * Open the Access First Modal in "Request BSL" mode.
+ * Used for orange/red badge events at venues with known VRS or contact info.
+ * Reuses the same modal but adjusts title and email template for requesting.
+ */
+function openRequestBSLModal(event) {
+    currentAccessEvent = event;
+    const modal = document.getElementById('accessFirstModal');
+    if (!modal) return;
+
+    // Set request-mode title and subtitle
+    const titleEl = document.getElementById('accessFirstModalTitle');
+    const eventNameEl = document.getElementById('accessFirstEventName');
+    if (titleEl) titleEl.textContent = 'Request BSL Interpretation';
+    if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
+
+    // Update info text
+    const infoEl = document.getElementById('accessFirstInfo');
+    if (infoEl) {
+        const notesEl = document.getElementById('accessNotesText');
+        if (notesEl) notesEl.style.display = 'none';
+        infoEl.querySelector('p:first-child').innerHTML = '<strong>Contact the venue to request BSL for this event.</strong>';
+    }
+
+    // Resolve VRS and email from VENUE_CONTACTS
+    const venueMatches = findMatchingVenues(event['VENUE'] || '');
+    let vrsUrl = event['VRS_URL'] || '';
+    let vrsProvider = event['VRS_PROVIDER'] || '';
+    let resolvedEmail = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
+
+    if (venueMatches.length > 0) {
+        if (!vrsUrl && venueMatches[0].vrs) {
+            vrsUrl = venueMatches[0].vrs;
+            vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
+        }
+        if (!resolvedEmail && venueMatches[0].email) {
+            resolvedEmail = venueMatches[0].email;
+        }
+    }
+
+    // Store for generateRequestEmail
+    currentAccessEvent._resolvedEmail = resolvedEmail;
+    currentAccessEvent._isRequestMode = true;
+
+    // VRS button
+    const vrsButton = document.getElementById('vrsButton');
+    const vrsButtonText = document.getElementById('vrsButtonText');
+    const emailButton = document.getElementById('generateEmailBtn');
+
+    if (vrsButton && vrsUrl) {
+        vrsButton.style.display = 'block';
+        vrsButton.className = 'btn-primary btn-large';
+        vrsButton.dataset.vrsUrl = vrsUrl;
+        if (vrsButtonText) vrsButtonText.textContent = `📹 Use ${vrsProvider || 'SignVideo'} (Recommended)`;
+        if (emailButton) emailButton.className = 'btn-secondary btn-large';
+    } else {
+        if (vrsButton) vrsButton.style.display = 'none';
+        if (emailButton) emailButton.className = 'btn-primary btn-large';
+    }
+
+    // Email button label
+    if (emailButton) {
+        if (resolvedEmail) {
+            emailButton.innerHTML = '✉️ Email Venue Access Team';
+        } else {
+            emailButton.innerHTML = '✉️ Email PI (We\'ll Contact Venue)';
+        }
+    }
+
+    // Hide ticket button in request mode (no confirmed interpreter yet)
+    const ticketButton = document.getElementById('ticketLinkButton');
+    if (ticketButton) ticketButton.style.display = 'none';
+
+    // Hide official site button
+    const officialSiteButton = document.getElementById('officialSiteButton');
+    if (officialSiteButton) officialSiteButton.style.display = 'none';
+
+    // Update tip text for request context
+    const noteEl = modal.querySelector('.access-modal-note');
+    if (noteEl) {
+        noteEl.innerHTML = '<strong>💡 Tip:</strong><br>VRS lets you call the venue in BSL via video relay — it\'s faster than email.';
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+window.openRequestBSLModal = openRequestBSLModal;
 
 // ========================================
 // CALENDAR & SHARE FUNCTIONS

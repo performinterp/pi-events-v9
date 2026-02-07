@@ -113,9 +113,9 @@ function dailyAutoPublish() {
     }
 
     // 5. Deduplicate existing PUBLISHED rows (fuzzy match, keep best data)
-    const dedupResult = deduplicatePublished(publishedSheet);
-    if (dedupResult.removed > 0) {
-      log.warnings.push('Dedup: merged ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
+    const exactDedupResult = deduplicatePublished(publishedSheet);
+    if (exactDedupResult.removed > 0) {
+      log.warnings.push('Dedup: merged ' + exactDedupResult.removed + ' duplicate row(s): ' + exactDedupResult.merged.join('; '));
       existingData = publishedSheet.getDataRange().getValues();
     }
 
@@ -252,7 +252,7 @@ function getEventsFromPreApproved() {
         imageUrl,          // IMAGE URL
         eventUrl,          // EVENT URL
         '',                // STATUS
-        'SCRAPER'          // SOURCE
+        'PRE_APPROVED'     // SOURCE (from PRE_APPROVED EVENTS sheet - may be scraper or manual)
       ];
 
       const key = makeDedupKey(dateRaw, eventName, venue);
@@ -711,6 +711,7 @@ function getCancelledKeys(spreadsheet) {
 
 /**
  * Remove any cancelled events that are still in PUBLISHED.
+ * Uses bottom-up row deletion to avoid data loss if script crashes mid-operation.
  * Returns array of removed event names.
  */
 function removeCancelledEvents(sheet, data, cancelledKeys) {
@@ -723,8 +724,8 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 
   if (dateIdx < 0 || eventIdx < 0 || venueIdx < 0) return [];
 
-  var rowsToKeep = [data[0]];
   var removed = [];
+  var rowsToRemove = [];
 
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
@@ -735,15 +736,14 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 
     if (cancelledKeys.has(key)) {
       removed.push(event);
-    } else {
-      rowsToKeep.push(row);
+      rowsToRemove.push(i + 1); // 1-based sheet row
     }
   }
 
-  if (removed.length > 0 && !DRY_RUN) {
-    sheet.clearContents();
-    if (rowsToKeep.length > 0) {
-      sheet.getRange(1, 1, rowsToKeep.length, rowsToKeep[0].length).setValues(rowsToKeep);
+  if (rowsToRemove.length > 0 && !DRY_RUN) {
+    // Delete rows bottom-up to preserve indices
+    for (var d = rowsToRemove.length - 1; d >= 0; d--) {
+      sheet.deleteRow(rowsToRemove[d]);
     }
   }
 
@@ -753,7 +753,8 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 // ==================== PUBLISH & PRUNE ====================
 
 /**
- * Remove past events from PUBLISHED sheet
+ * Remove past events from PUBLISHED sheet.
+ * Uses bottom-up row deletion to avoid data loss if script crashes mid-operation.
  */
 function removePastEvents(sheet, data) {
   const result = { removed: [] };
@@ -769,8 +770,7 @@ function removePastEvents(sheet, data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const rowsToKeep = [data[0]]; // Keep header
-  const removed = [];
+  const rowsToRemove = [];
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
@@ -778,25 +778,22 @@ function removePastEvents(sheet, data) {
     const parsed = parseDDMMYY(dateStr);
 
     if (parsed && parsed < today) {
-      removed.push({
+      result.removed.push({
         date: dateStr,
         event: (row[eventIdx] || '').toString().trim(),
         venue: (row[venueIdx] || '').toString().trim()
       });
-    } else {
-      rowsToKeep.push(row);
+      rowsToRemove.push(i + 1); // 1-based sheet row
     }
   }
 
-  if (removed.length > 0 && !DRY_RUN) {
-    // Rewrite sheet without past events
-    sheet.clearContents();
-    if (rowsToKeep.length > 0) {
-      sheet.getRange(1, 1, rowsToKeep.length, rowsToKeep[0].length).setValues(rowsToKeep);
+  if (rowsToRemove.length > 0 && !DRY_RUN) {
+    // Delete rows bottom-up to preserve indices
+    for (let d = rowsToRemove.length - 1; d >= 0; d--) {
+      sheet.deleteRow(rowsToRemove[d]);
     }
   }
 
-  result.removed = removed;
   return result;
 }
 
@@ -1166,14 +1163,25 @@ function enrichMissingImages(sheet) {
   }
 
   // Tier 2: Venue website scraping (max 15 per run to avoid timeout)
+  // Use CacheService to skip events that already failed scraping (7-day TTL)
+  var scrapeCache = CacheService.getScriptCache();
   var scrapeCount = 0;
   for (var s = 0; s < needsScraping.length && scrapeCount < 15; s++) {
     var item = needsScraping[s];
+    var cacheKey = 'scrape_fail_' + normalizeForImageMatch(item.event + item.venue);
+    if (cacheKey.length > 250) cacheKey = cacheKey.substring(0, 250); // CacheService key limit
+
+    // Skip if we already tried and failed recently
+    if (scrapeCache.get(cacheKey)) continue;
+
     var scraped = scrapeImageFromVenue_(item.event, item.venue);
     if (scraped) {
       if (!DRY_RUN) sheet.getRange(item.row + 1, imgCol + 1).setValue(scraped);
       filled.push(item.event + ' [scraped]');
       enriched++;
+    } else {
+      // Cache the failure for 7 days (604800 seconds) to avoid retrying daily
+      scrapeCache.put(cacheKey, 'miss', 604800);
     }
     scrapeCount++;
   }
@@ -1681,9 +1689,9 @@ function dailyAutoPublishDryRun_() {
     }
 
     // Dry-run dedup check
-    const dedupResult = deduplicatePublished(publishedSheet);
-    if (dedupResult.removed > 0) {
-      log.warnings.push('Dedup (dry run): would merge ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
+    const exactDedupResult = deduplicatePublished(publishedSheet);
+    if (exactDedupResult.removed > 0) {
+      log.warnings.push('Dedup (dry run): would merge ' + exactDedupResult.removed + ' duplicate row(s): ' + exactDedupResult.merged.join('; '));
     }
 
     // Dry-run date-varying dedup check

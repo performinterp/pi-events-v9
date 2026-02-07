@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.11">
+    <link rel="stylesheet" href="styles.css?v=1.9.17">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -569,11 +569,11 @@
             <div class="access-modal-content">
                 <button class="access-modal-close" onclick="closeAccessFirstModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title" id="accessFirstModalTitle">How to Get BSL/ISL Access</h2>
+                <h2 class="access-modal-title" id="accessFirstModalTitle">Book BSL Tickets</h2>
                 <p class="access-modal-subtitle" id="accessFirstEventName">Booking accessible tickets</p>
 
                 <div class="access-first-info" id="accessFirstInfo">
-                    <p><strong>Access first. Info second. Tickets last.</strong></p>
+                    <p><strong>Contact venue first, then book tickets.</strong></p>
                     <p id="accessNotesText" style="display: none;"></p>
                 </div>
 
@@ -583,9 +583,14 @@
                         <span id="vrsButtonText">📹 Use SignVideo (Recommended)</span>
                     </button>
 
-                    <!-- Email button (primary fallback if no VRS, secondary if VRS available) -->
+                    <!-- Email button - label updated dynamically based on whether we have venue email -->
                     <button class="btn-primary btn-large" onclick="generateAccessEmail()" id="generateEmailBtn">
-                        ✉️ Generate Access Email
+                        ✉️ Email Venue Access Team
+                    </button>
+
+                    <!-- Ticket link button (shown when EVENT URL available) -->
+                    <button class="btn-secondary btn-large" onclick="openTicketLink()" id="ticketLinkButton" style="display: none;">
+                        🎟️ Get Tickets
                     </button>
 
                     <!-- Conditional official site button -->
@@ -596,7 +601,7 @@
 
                 <div class="access-modal-note">
                     <strong>💡 Tip:</strong><br>
-                    Contact venue before buying<br>
+                    Contact venue before buying tickets<br>
                     Ask for BSL accessible seating
                 </div>
             </div>
@@ -755,7 +760,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.14">
+    <script src="app.js?v=1.9.17">
     
     <!-- Tally Embed Script -->
     <script>
