@@ -920,8 +920,12 @@ const Router = {
         if (isHome && sessionStorage.getItem('pi-visited')) {
             const homeFlow = document.getElementById('homeFlow');
             if (homeFlow) {
-                // Slight delay to let the DOM render before scrolling
-                requestAnimationFrame(() => homeFlow.scrollIntoView({ behavior: 'instant' }));
+                // Scroll to just above homeFlow, leaving a sliver of hero blue visible
+                requestAnimationFrame(() => {
+                    const rect = homeFlow.getBoundingClientRect();
+                    const offset = window.scrollY + rect.top - 20; // 20px of blue showing
+                    window.scrollTo(0, offset);
+                });
             }
         } else {
             window.scrollTo(0, 0);

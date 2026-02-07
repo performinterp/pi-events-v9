@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.22">
+    <link rel="stylesheet" href="styles.css?v=1.9.23">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -391,6 +391,8 @@
                            <label for="venueName">Venue</label>
                            <input type="text" id="venueName" required placeholder="e.g. Wembley Stadium" aria-describedby="venueNameError">
                            <span id="venueNameError" class="form-error" role="alert" aria-live="assertive"></span>
+                           <div id="venueMatches" class="venue-matches" style="display: none;"></div>
+                           <div id="venueEmailStatus" class="venue-email-status"></div>
                        </div>
 
                        <div class="form-group">
@@ -402,8 +404,6 @@
                            <label for="venueEmail">Venue's Access Email</label>
                            <input type="email" id="venueEmail" placeholder="Auto-filled or type your own..." aria-describedby="venueEmailError">
                            <span id="venueEmailError" class="form-error" role="alert" aria-live="assertive"></span>
-                           <div id="venueMatches" class="venue-matches" style="display: none;"></div>
-                           <div id="venueEmailStatus" class="venue-email-status"></div>
                        </div>
 
                        <button type="submit" class="btn-primary btn-large">Generate Message</button>
@@ -778,7 +778,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.22">
+    <script src="app.js?v=1.9.23">
     
     <!-- Tally Embed Script -->
     <script>
