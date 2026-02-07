@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.18-more-info-modal'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.19-network-first'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const EXTERNAL_CACHE_NAME = `${CACHE_VERSION}-external`;
@@ -13,8 +13,8 @@ const MAX_EXTERNAL_CACHE_ITEMS = 150; // Cap external resource cache (images, fo
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.18',
-    '/app.js?v=1.9.18',
+    '/styles.css?v=1.9.19',
+    '/app.js?v=1.9.19',
     '/manifest.json'
 ];
 
@@ -196,49 +196,31 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Handle local static assets (cache first, network fallback)
+    // Handle local static assets (network first, cache fallback for offline)
     event.respondWith(
-        caches.match(event.request)
-            .then((cachedResponse) => {
-                if (cachedResponse) {
-                    // Serve from cache
-                    return cachedResponse;
+        fetch(event.request, { redirect: 'follow' })
+            .then((response) => {
+                // Cache successful responses for offline use
+                if (response && response.ok && response.status === 200 &&
+                    !response.redirected &&
+                    response.type !== 'opaqueredirect' &&
+                    response.type !== 'opaque') {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
                 }
-
-                // Not in cache, fetch from network
-                return fetch(event.request, {
-                    redirect: 'follow'  // Follow redirects automatically
-                })
-                    .then((response) => {
-                        // Check if response is valid
-                        if (!response || !response.ok) {
-                            console.warn('[Service Worker] Invalid response:', response);
-                            return response;
-                        }
-
-                        // Only cache successful, non-redirect, same-origin responses
-                        if (response.status === 200 &&
-                            !response.redirected &&
-                            response.type !== 'opaqueredirect' &&
-                            response.type !== 'opaque') {
-                            const responseClone = response.clone();
-                            caches.open(CACHE_NAME).then((cache) => {
-                                cache.put(event.request, responseClone);
-                            });
-                        }
-
-                        return response;
-                    })
-                    .catch((error) => {
-                        console.error('[Service Worker] Fetch failed:', error, event.request.url);
-
-                        // Only fall back to index.html for the root path
-                        if (event.request.mode === 'navigate' &&
-                            (event.request.url.endsWith('/') || event.request.url.endsWith('/index.html'))) {
+                return response;
+            })
+            .catch((error) => {
+                console.log('[Service Worker] Network failed, trying cache:', event.request.url);
+                return caches.match(event.request)
+                    .then((cachedResponse) => {
+                        if (cachedResponse) return cachedResponse;
+                        // Last resort for navigation: serve index.html
+                        if (event.request.mode === 'navigate') {
                             return caches.match('/index.html');
                         }
-
-                        // For other navigation failures, throw error to let browser handle
                         throw error;
                     });
             })
