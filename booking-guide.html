@@ -386,7 +386,12 @@
 
         /* Venue Section */
         .venue-search {
-            margin-bottom: 20px;
+            position: sticky;
+            top: -30px;
+            z-index: 2;
+            background: white;
+            padding: 0 0 12px;
+            margin: 0 0 12px;
         }
 
         .search-input {
@@ -507,20 +512,83 @@
         }
 
 
-        .venue-region-header {
-            font-size: 13px;
-            font-weight: 700;
-            color: #64748B;
-            padding: 16px 4px 6px;
-            margin-top: 4px;
-            border-bottom: 2px solid #E2E8F0;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
+        .venue-region {
+            margin-bottom: 6px;
         }
 
-        .venue-region-header:first-child {
-            margin-top: 0;
-            padding-top: 0;
+        .region-button {
+            width: 100%;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .region-button:hover {
+            border-color: #2563EB;
+            background: #EFF6FF;
+        }
+
+        .region-button.active {
+            border-color: #2563EB;
+            background: #EFF6FF;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .region-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .region-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0F172A;
+        }
+
+        .region-count {
+            font-size: 12px;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .region-toggle {
+            color: #2563EB;
+            font-size: 14px;
+            transition: transform 0.3s;
+            font-weight: 700;
+        }
+
+        .region-button.active .region-toggle {
+            transform: rotate(90deg);
+        }
+
+        .region-venues {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border: 1px solid transparent;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .region-venues.show {
+            max-height: 10000px;
+            transition: max-height 0.5s ease-in;
+            border-color: #E2E8F0;
+            padding: 8px;
+            background: white;
+        }
+
+        .venue-region.hidden {
+            display: none;
         }
 
         .contact-info strong {
@@ -1141,7 +1209,15 @@
                 </div>
 
                 <div id="venueList">
-                    <div class="venue-region-header">Aberdeen</div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Aberdeen</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="P&J Live, Aberdeen">
                         <span class="venue-name">P&J Live</span>
@@ -1158,8 +1234,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Bath</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Bath</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bath Forum, Bath">
                         <span class="venue-name">Bath Forum</span>
@@ -1176,8 +1261,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Belfast</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Belfast</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SSE Arena Belfast, Belfast">
                         <span class="venue-name">SSE Arena Belfast</span>
@@ -1210,8 +1304,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Birmingham</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Birmingham</span>
+                                <span class="region-count">5 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="BP Pulse LIVE (NEC), Birmingham">
                         <span class="venue-name">BP Pulse LIVE (NEC)</span>
@@ -1292,8 +1395,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Blackpool</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Blackpool</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Blackpool Opera House, Blackpool">
                         <span class="venue-name">Blackpool Opera House</span>
@@ -1310,8 +1422,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Bournemouth</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Bournemouth</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bournemouth International Centre, Bournemouth">
                         <span class="venue-name">Bournemouth International Centre</span>
@@ -1328,8 +1449,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Brighton</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Brighton</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Amex Stadium (Brighton FC), Brighton">
                         <span class="venue-name">Amex Stadium (Brighton FC)</span>
@@ -1362,8 +1492,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Bristol</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Bristol</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bristol Hippodrome, Bristol">
                         <span class="venue-name">Bristol Hippodrome</span>
@@ -1380,8 +1519,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Burnley</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Burnley</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Turf Moor (Burnley FC), Burnley">
                         <span class="venue-name">Turf Moor (Burnley FC)</span>
@@ -1398,8 +1546,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Cambridge</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Cambridge</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cambridge Corn Exchange, Cambridge">
                         <span class="venue-name">Cambridge Corn Exchange</span>
@@ -1416,8 +1573,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Cardiff</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Cardiff</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cardiff City Stadium, Cardiff">
                         <span class="venue-name">Cardiff City Stadium</span>
@@ -1466,8 +1632,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Coventry</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Coventry</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Coventry Building Society Arena, Coventry">
                         <span class="venue-name">Coventry Building Society Arena</span>
@@ -1484,8 +1659,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Derby</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Derby</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Derby Arena, Derby">
                         <span class="venue-name">Derby Arena</span>
@@ -1502,8 +1686,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Dublin</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Dublin</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="3Arena, Dublin">
                         <span class="venue-name">3Arena</span>
@@ -1520,8 +1713,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Dundee</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Dundee</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Caird Hall, Dundee">
                         <span class="venue-name">Caird Hall</span>
@@ -1538,8 +1740,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Edinburgh</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Edinburgh</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Edinburgh Playhouse, Edinburgh">
                         <span class="venue-name">Edinburgh Playhouse</span>
@@ -1588,8 +1799,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Exeter</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Exeter</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Westpoint Arena, Exeter">
                         <span class="venue-name">Westpoint Arena</span>
@@ -1606,8 +1826,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Gateshead</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Gateshead</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="The Glasshouse (Sage Gateshead), Gateshead">
                         <span class="venue-name">The Glasshouse (Sage Gateshead)</span>
@@ -1624,8 +1853,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Glasgow</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Glasgow</span>
+                                <span class="region-count">7 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Celtic Park (Celtic FC), Glasgow">
                         <span class="venue-name">Celtic Park (Celtic FC)</span>
@@ -1738,8 +1976,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Gloucester</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Gloucester</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Kingsholm Stadium (Gloucester Rugby), Gloucester">
                         <span class="venue-name">Kingsholm Stadium (Gloucester Rugby)</span>
@@ -1756,8 +2003,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Hull</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Hull</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Connexin Live, Hull">
                         <span class="venue-name">Connexin Live</span>
@@ -1774,8 +2030,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Inverness</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Inverness</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Eden Court Theatre, Inverness">
                         <span class="venue-name">Eden Court Theatre</span>
@@ -1792,8 +2057,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Ipswich</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Ipswich</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Ipswich Regent Theatre, Ipswich">
                         <span class="venue-name">Ipswich Regent Theatre</span>
@@ -1810,8 +2084,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Leeds</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Leeds</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Elland Road (Leeds United), Leeds">
                         <span class="venue-name">Elland Road (Leeds United)</span>
@@ -1860,8 +2143,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Leicester</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Leicester</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="De Montfort Hall, Leicester">
                         <span class="venue-name">De Montfort Hall</span>
@@ -1894,8 +2186,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Lincoln</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Lincoln</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Lincoln Engine Shed, Lincoln">
                         <span class="venue-name">Lincoln Engine Shed</span>
@@ -1912,8 +2213,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Liverpool</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Liverpool</span>
+                                <span class="region-count">4 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Anfield (Liverpool FC), Liverpool">
                         <span class="venue-name">Anfield (Liverpool FC)</span>
@@ -1978,8 +2288,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">London</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">London</span>
+                                <span class="region-count">24 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="ABBA Arena, London">
                         <span class="venue-name">ABBA Arena</span>
@@ -2392,8 +2711,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Manchester</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Manchester</span>
+                                <span class="region-count">7 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="AO Arena, Manchester">
                         <span class="venue-name">AO Arena</span>
@@ -2513,8 +2841,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Middlesbrough</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Middlesbrough</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Riverside Stadium (Middlesbrough FC), Middlesbrough">
                         <span class="venue-name">Riverside Stadium (Middlesbrough FC)</span>
@@ -2531,8 +2868,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Milton Keynes</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Milton Keynes</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Milton Keynes Theatre, Milton Keynes">
                         <span class="venue-name">Milton Keynes Theatre</span>
@@ -2549,8 +2895,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Newcastle</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Newcastle</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 City Hall Newcastle, Newcastle">
                         <span class="venue-name">O2 City Hall Newcastle</span>
@@ -2599,8 +2954,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Norwich</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Norwich</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Norwich Theatre Royal, Norwich">
                         <span class="venue-name">Norwich Theatre Royal</span>
@@ -2617,8 +2981,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Nottingham</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Nottingham</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="City Ground (Nottingham Forest), Nottingham">
                         <span class="venue-name">City Ground (Nottingham Forest)</span>
@@ -2667,8 +3040,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Oxford</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Oxford</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="New Theatre Oxford, Oxford">
                         <span class="venue-name">New Theatre Oxford</span>
@@ -2685,8 +3067,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Peterborough</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Peterborough</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="New Theatre Peterborough, Peterborough">
                         <span class="venue-name">New Theatre Peterborough</span>
@@ -2703,8 +3094,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Plymouth</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Plymouth</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Plymouth Pavilions, Plymouth">
                         <span class="venue-name">Plymouth Pavilions</span>
@@ -2721,8 +3121,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Preston</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Preston</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Preston Guild Hall, Preston">
                         <span class="venue-name">Preston Guild Hall</span>
@@ -2739,8 +3148,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Reading</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Reading</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Reading Hexagon, Reading">
                         <span class="venue-name">Reading Hexagon</span>
@@ -2757,8 +3175,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Sheffield</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Sheffield</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Sheffield City Hall, Sheffield">
                         <span class="venue-name">Sheffield City Hall</span>
@@ -2791,8 +3218,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Southampton</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Southampton</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Guildhall Southampton, Southampton">
                         <span class="venue-name">O2 Guildhall Southampton</span>
@@ -2832,8 +3268,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Stoke-on-Trent</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Stoke-on-Trent</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Bet365 Stadium (Stoke City FC), Stoke-on-Trent">
                         <span class="venue-name">Bet365 Stadium (Stoke City FC)</span>
@@ -2866,8 +3311,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Sunderland</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Sunderland</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Stadium of Light (Sunderland FC), Sunderland">
                         <span class="venue-name">Stadium of Light (Sunderland FC)</span>
@@ -2884,8 +3338,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Surrey</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Surrey</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Epsom Playhouse, Surrey">
                         <span class="venue-name">Epsom Playhouse</span>
@@ -2902,8 +3365,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Swansea</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Swansea</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea Arena, Swansea">
                         <span class="venue-name">Swansea Arena</span>
@@ -2936,8 +3408,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Watford</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Watford</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Watford Colosseum, Watford">
                         <span class="venue-name">Watford Colosseum</span>
@@ -2954,8 +3435,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Wolverhampton</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Wolverhampton</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Molineux Stadium (Wolves FC), Wolverhampton">
                         <span class="venue-name">Molineux Stadium (Wolves FC)</span>
@@ -2988,8 +3478,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">Woodstock</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Woodstock</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Blenheim Palace, Woodstock">
                         <span class="venue-name">Blenheim Palace</span>
@@ -3006,8 +3505,17 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="venue-region-header">York</div>
+                        </div>
+                    </div>
+                    <div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">York</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="York Barbican, York">
                         <span class="venue-name">York Barbican</span>
@@ -3022,6 +3530,8 @@
                                     <a href="mailto:laura.harrison@eu.asmglobal.com">laura.harrison@eu.asmglobal.com</a>
                                 </div>
                             </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -3274,18 +3784,40 @@
             }
         });
 
+        // Toggle region (expand/collapse venue list for a region)
+        function toggleRegion(event, button) {
+            event.stopPropagation();
+            
+            const regionVenues = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+            
+            // Close all regions
+            document.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.region-venues').forEach(r => r.classList.remove('show'));
+            // Also close any open venue details
+            document.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+            
+            // Open clicked region (unless it was already open)
+            if (!isActive) {
+                button.classList.add('active');
+                regionVenues.classList.add('show');
+            }
+        }
+
         // Toggle venue details (within venues modal)
         function toggleVenue(event, button) {
             event.stopPropagation();
             
             const details = button.nextElementSibling;
             const isActive = button.classList.contains('active');
+            const region = button.closest('.region-venues');
             
-            // Close all venue details
-            const allButtons = document.querySelectorAll('.venue-button');
-            const allDetails = document.querySelectorAll('.venue-details');
-            allButtons.forEach(b => b.classList.remove('active'));
-            allDetails.forEach(d => d.classList.remove('show'));
+            // Close all venue details within this region only
+            if (region) {
+                region.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+                region.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+            }
             
             // Open clicked venue (unless it was already open)
             if (!isActive) {
@@ -3314,43 +3846,52 @@
             }
         }
 
-        // Search venues
         function searchVenues() {
             const searchTerm = document.getElementById('venueSearch').value.toLowerCase();
-            const venues = document.querySelectorAll('.venue-button');
-            const regionHeaders = document.querySelectorAll('.venue-region-header');
+            const regions = document.querySelectorAll('.venue-region');
             const noResults = document.getElementById('noResults');
             let visibleCount = 0;
             
-            venues.forEach(venue => {
-                const venueName = venue.getAttribute('data-venue').toLowerCase();
-                const venueDetails = venue.nextElementSibling;
+            regions.forEach(region => {
+                const venues = region.querySelectorAll('.venue-button');
+                const regionButton = region.querySelector('.region-button');
+                const regionVenues = region.querySelector('.region-venues');
+                let regionHasMatch = false;
                 
-                if (venueName.includes(searchTerm)) {
-                    venue.style.display = 'flex';
-                    visibleCount++;
-                } else {
-                    venue.style.display = 'none';
-                    venue.classList.remove('active');
-                    venueDetails.classList.remove('show');
-                }
-            });
-            
-            // Show/hide region headers based on visible venues within each region
-            regionHeaders.forEach(header => {
-                let nextEl = header.nextElementSibling;
-                let hasVisibleVenue = false;
-                while (nextEl && !nextEl.classList.contains('venue-region-header')) {
-                    if (nextEl.classList.contains('venue-button') && nextEl.style.display !== 'none') {
-                        hasVisibleVenue = true;
-                        break;
+                venues.forEach(venue => {
+                    const venueName = venue.getAttribute('data-venue').toLowerCase();
+                    const venueDetails = venue.nextElementSibling;
+                    
+                    if (venueName.includes(searchTerm)) {
+                        venue.style.display = 'flex';
+                        regionHasMatch = true;
+                        visibleCount++;
+                    } else {
+                        venue.style.display = 'none';
+                        venue.classList.remove('active');
+                        venueDetails.classList.remove('show');
                     }
-                    nextEl = nextEl.nextElementSibling;
+                });
+                
+                if (searchTerm === '') {
+                    // No search: show all regions collapsed
+                    region.classList.remove('hidden');
+                    regionButton.classList.remove('active');
+                    regionVenues.classList.remove('show');
+                    venues.forEach(v => v.style.display = 'flex');
+                } else if (regionHasMatch) {
+                    // Has matches: show region expanded
+                    region.classList.remove('hidden');
+                    regionButton.classList.add('active');
+                    regionVenues.classList.add('show');
+                } else {
+                    // No matches: hide entire region
+                    region.classList.add('hidden');
+                    regionButton.classList.remove('active');
+                    regionVenues.classList.remove('show');
                 }
-                header.style.display = hasVisibleVenue || searchTerm === '' ? 'block' : 'none';
             });
             
-            // Show/hide no results message
             if (visibleCount === 0 && searchTerm !== '') {
                 noResults.classList.add('show');
             } else {
