@@ -581,26 +581,11 @@ function setupVenueEmailLookup() {
             if (venueMatches) venueMatches.style.display = 'none';
 
             if (matches.length === 1) {
-                // Single match - auto-fill
-                venueEmailInput.value = matches[0].email;
-                wasAutoFilled = true;
-
-                // Show VRS as primary option if available (BSL is user's main language)
-                if (matches[0].vrs) {
-                    const vrsLabel = matches[0].vrsLabel || 'SignVideo';
-                    venueEmailStatus.innerHTML = `
-                        <div class="status-found-vrs">
-                            <span class="status-found">✅ We have contact info for this venue</span>
-                            <a href="${matches[0].vrs}" target="_blank" rel="noopener" class="vrs-link-primary">
-                                📹 Use ${vrsLabel} (Recommended for BSL users)
-                            </a>
-                            <span class="status-or">or continue below for email</span>
-                        </div>`;
-                    venueEmailStatus.className = 'venue-email-status found has-vrs';
-                } else {
-                    venueEmailStatus.innerHTML = '<span class="status-found">✅ We have this venue\'s access email</span>';
-                    venueEmailStatus.className = 'venue-email-status found';
-                }
+                // Single match - show as visible suggestion so user can tap to confirm
+                // (Don't silently auto-fill - English isn't first language for many Deaf users)
+                showVenuePicker(matches);
+                venueEmailStatus.innerHTML = '<span class="status-pick">Venue found - tap to select</span>';
+                venueEmailStatus.className = 'venue-email-status pick';
             } else if (matches.length > 1) {
                 // Multiple matches - show picker
                 showVenuePicker(matches);
@@ -915,22 +900,20 @@ const Router = {
         // Hide all flow sections
         this.hideAllFlows();
 
-        // Scroll behaviour: skip hero on return visits to home
+        // Scroll behaviour: skip hero on return visits, show blue sliver
         const isHome = (route === '/' || route === '');
-        if (isHome && sessionStorage.getItem('pi-visited')) {
-            const homeFlow = document.getElementById('homeFlow');
-            if (homeFlow) {
-                // Scroll to just above homeFlow, leaving a sliver of hero blue visible
-                requestAnimationFrame(() => {
-                    const rect = homeFlow.getBoundingClientRect();
-                    const offset = window.scrollY + rect.top - 20; // 20px of blue showing
-                    window.scrollTo(0, offset);
-                });
-            }
+        if (sessionStorage.getItem('pi-visited')) {
+            // Skip past hero on all routes after first visit
+            // Use setTimeout to ensure scroll happens after all rendering completes
+            setTimeout(() => {
+                const hero = document.querySelector('.hero-section');
+                if (hero) {
+                    const heroBottom = hero.offsetTop + hero.offsetHeight - 20; // 20px of blue showing
+                    window.scrollTo(0, heroBottom);
+                }
+            }, 50);
         } else {
             window.scrollTo(0, 0);
-        }
-        if (!sessionStorage.getItem('pi-visited')) {
             sessionStorage.setItem('pi-visited', '1');
         }
 

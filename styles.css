@@ -2159,7 +2159,8 @@ a {
 /* Primary Action Buttons (Premium) */
 .btn-primary,
 .btn-secondary,
-.btn-slate {
+.btn-slate,
+.btn-orange {
     display: flex;
     align-items: center;
     justify-content: center;
