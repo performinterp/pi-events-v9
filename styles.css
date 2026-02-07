@@ -2259,6 +2259,7 @@ a {
     flex-direction: column;
     animation: fadeInUp 0.5s ease;
     border: 1px solid rgba(226, 232, 240, 0.6);
+    position: relative;
 }
 
 .event-card-compact:hover {
@@ -3528,6 +3529,32 @@ select:focus-visible {
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.03em;
+}
+
+/* Inline status badges for list view */
+.list-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.badge-green-inline {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+}
+
+.badge-orange-inline {
+    background: rgba(245, 158, 11, 0.12);
+    color: #D97706;
+}
+
+.badge-cancelled-inline {
+    background: rgba(107, 114, 128, 0.12);
+    color: #6B7280;
 }
 
 /* Request Interpreter link on event cards */

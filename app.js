@@ -1651,8 +1651,17 @@ function createCompactEventCard(event) {
         }
     }
 
+    const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
+    let badgeIndicator = '';
+    if (isCancelled) {
+        badgeIndicator = `<div class="event-badge-indicator badge-cancelled"><span class="badge-label">CANCELLED</span></div>`;
+    } else if (badge.badge === 'green') {
+        badgeIndicator = `<div class="event-badge-indicator badge-green"><span class="badge-label">${badge.shortLabel}</span></div>`;
+    }
+
     return `
-        <article class="event-card-compact" data-event-id="${Date.now()}-${Math.random()}">
+        <article class="event-card-compact ${isCancelled ? 'event-cancelled' : ''}" data-event-id="${Date.now()}-${Math.random()}">
+            ${badgeIndicator}
             <div class="compact-image-container">
                 <img
                     src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? event['IMAGE URL'] : CONFIG.defaultImage}"
@@ -1696,8 +1705,18 @@ function createListEventItem(event) {
         }
     }
 
+    const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
+    let statusBadge = '';
+    if (isCancelled) {
+        statusBadge = `<span class="list-status-badge badge-cancelled-inline">CANCELLED</span>`;
+    } else if (badge.badge === 'green') {
+        statusBadge = `<span class="list-status-badge badge-green-inline">✅ ${badge.shortLabel}</span>`;
+    } else {
+        statusBadge = `<span class="list-status-badge badge-orange-inline">🟠 ${badge.shortLabel}</span>`;
+    }
+
     return `
-        <article class="event-list-item" data-event-id="${Date.now()}-${Math.random()}">
+        <article class="event-list-item ${isCancelled ? 'event-cancelled' : ''}" data-event-id="${Date.now()}-${Math.random()}">
             <div class="list-date">
                 <span class="list-date-day">${date.day}</span>
                 <span class="list-date-month">${date.month}</span>
@@ -1708,6 +1727,7 @@ function createListEventItem(event) {
                 <div class="list-meta">
                     <span class="list-venue">📍 ${event['VENUE']}</span>
                     ${event['TIME'] ? `<span class="list-time">🕐 ${event['TIME']}</span>` : ''}
+                    ${statusBadge}
                 </div>
             </div>
 
