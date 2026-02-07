@@ -915,11 +915,23 @@ const Router = {
         // Hide all flow sections
         this.hideAllFlows();
 
-        // Scroll to top when navigating between routes
-        window.scrollTo(0, 0);
+        // Scroll behaviour: skip hero on return visits to home
+        const isHome = (route === '/' || route === '');
+        if (isHome && sessionStorage.getItem('pi-visited')) {
+            const homeFlow = document.getElementById('homeFlow');
+            if (homeFlow) {
+                // Slight delay to let the DOM render before scrolling
+                requestAnimationFrame(() => homeFlow.scrollIntoView({ behavior: 'instant' }));
+            }
+        } else {
+            window.scrollTo(0, 0);
+        }
+        if (!sessionStorage.getItem('pi-visited')) {
+            sessionStorage.setItem('pi-visited', '1');
+        }
 
         // Route to appropriate flow
-        if (route === '/' || route === '') {
+        if (isHome) {
             this.renderHome();
         } else if (route === '/flow1' || route.startsWith('/flow1/') || route === 'events') {
             this.renderFlow1();

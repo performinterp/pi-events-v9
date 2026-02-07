@@ -2587,33 +2587,71 @@ a {
     letter-spacing: -0.03em;
 }
 
-.about-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-2xl);
+.about-accordion {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
 }
 
 .about-card {
-    padding: var(--spacing-2xl);
     background: white;
     border-radius: var(--radius-xl);
     border: 1px solid var(--gray-200);
     box-shadow: var(--shadow-sm);
     transition: all var(--transition-base);
+    overflow: hidden;
 }
 
 .about-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
     border-color: var(--primary-light);
 }
 
-.about-card h3 {
-    font-size: 22px;
+.about-card summary {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.about-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.about-card summary::after {
+    content: '+';
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--primary);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: var(--spacing-md);
+}
+
+.about-card[open] summary::after {
+    content: '−';
+}
+
+.about-card summary h3 {
+    font-size: 20px;
     font-weight: var(--font-weight-bold);
     color: var(--primary);
-    margin-bottom: var(--spacing-md);
+    margin: 0;
     letter-spacing: -0.01em;
+}
+
+.about-card-body {
+    padding: 0 var(--spacing-xl) var(--spacing-xl);
+    animation: accordionOpen 0.3s ease;
+}
+
+@keyframes accordionOpen {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .about-card p {
@@ -3341,8 +3379,8 @@ body.modal-open {
         padding: 12px;
     }
 
-    .about-grid {
-        grid-template-columns: 1fr;
+    .about-accordion {
+        gap: var(--spacing-sm);
     }
 
     .contact-grid {
@@ -3383,12 +3421,14 @@ body.modal-open {
     .contact-card-content {
         flex: 1;
         min-width: 0;
+        align-items: flex-start;
     }
 
     .contact-btn {
         padding: 10px 20px;
         font-size: 14px;
-        align-self: flex-start;
+        margin: 0;
+        width: auto;
     }
 
     .social-icons-large {
