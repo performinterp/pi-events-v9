@@ -58,12 +58,12 @@
 
         /* Override sections grid padding */
         .sections-grid {
-            padding: 60px 20px 80px;
+            padding: 30px 20px 40px;
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 16px;
         }
 
         .section-card {
@@ -89,15 +89,15 @@
         .section-header {
             background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
             color: #0F172A;
-            padding: 32px 20px;
+            padding: 20px 16px;
             text-align: center;
             position: relative;
             border-bottom: 1px solid #E2E8F0;
         }
 
         .section-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
             display: block;
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
         }
@@ -691,8 +691,38 @@
 
         @media (max-width: 768px) {
             .sections-grid {
-                grid-template-columns: 1fr;
-                padding: 40px 16px 60px;
+                grid-template-columns: 1fr 1fr;
+                padding: 20px 16px 30px;
+                gap: 12px;
+            }
+
+            .section-header {
+                padding: 16px 12px;
+            }
+
+            .section-icon {
+                font-size: 2rem;
+                margin-bottom: 6px;
+            }
+
+            .section-title {
+                font-size: 15px;
+            }
+
+            .section-subtitle {
+                font-size: 12px;
+            }
+
+            .click-hint {
+                font-size: 10px;
+                margin-top: 8px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .sections-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
             }
         }
 
