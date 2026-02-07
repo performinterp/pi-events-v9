@@ -2390,6 +2390,14 @@ a {
     box-shadow: var(--shadow-sm);
 }
 
+.compact-btn-green {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.compact-btn-green:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
 /* ========================================
    LIST EVENT ITEM
    ======================================== */
@@ -2516,6 +2524,14 @@ a {
 .list-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
+}
+
+.list-btn-green {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.list-btn-green:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
 /* ========================================
