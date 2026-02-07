@@ -1640,14 +1640,14 @@ function createCompactEventCard(event) {
 
     let actionButton = '';
     if (badge.canBook) {
-        actionButton = `<button class="compact-btn compact-btn-green" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
+        actionButton = `<button class="compact-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
     } else {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="compact-btn compact-btn-blue" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="compact-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn compact-btn-blue">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn">✉️ Request BSL</a>`;
         }
     }
 
@@ -1656,7 +1656,7 @@ function createCompactEventCard(event) {
     if (isCancelled) {
         badgeIndicator = `<div class="event-badge-indicator badge-cancelled"><span class="badge-label">CANCELLED</span></div>`;
     } else if (badge.badge === 'green') {
-        badgeIndicator = `<div class="event-badge-indicator badge-green"><span class="badge-label">${badge.shortLabel}</span></div>`;
+        badgeIndicator = `<div class="event-badge-indicator badge-green"><span class="badge-label">✅ BSL</span></div>`;
     }
 
     return `
@@ -1694,14 +1694,14 @@ function createListEventItem(event) {
 
     let actionButton = '';
     if (badge.canBook) {
-        actionButton = `<button class="list-btn list-btn-green" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
+        actionButton = `<button class="list-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
     } else {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="list-btn list-btn-blue" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="list-btn" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn list-btn-blue">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn">✉️ Request BSL</a>`;
         }
     }
 
@@ -1710,9 +1710,7 @@ function createListEventItem(event) {
     if (isCancelled) {
         statusBadge = `<span class="list-status-badge badge-cancelled-inline">CANCELLED</span>`;
     } else if (badge.badge === 'green') {
-        statusBadge = `<span class="list-status-badge badge-green-inline">✅ ${badge.shortLabel}</span>`;
-    } else {
-        statusBadge = `<span class="list-status-badge badge-orange-inline">🟠 ${badge.shortLabel}</span>`;
+        statusBadge = `<span class="list-status-badge badge-green-inline">✅ BSL</span>`;
     }
 
     return `
