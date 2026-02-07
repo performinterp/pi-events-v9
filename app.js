@@ -3926,7 +3926,7 @@ Thank you!`);
 let currentTicketEvent = null;
 
 /**
- * Open the Get Tickets modal with booking guidance
+ * Open the Event Info modal with booking guidance
  */
 function openGetTicketsModal(event) {
     currentTicketEvent = event;
@@ -3961,7 +3961,7 @@ function openGetTicketsModal(event) {
 }
 
 /**
- * Close the Get Tickets modal
+ * Close the Event Info modal
  */
 function closeGetTicketsModal() {
     const modal = document.getElementById('getTicketsModal');
@@ -3989,7 +3989,7 @@ function continueToTickets() {
 }
 
 /**
- * Contact venue from the Get Tickets modal
+ * Contact venue from the Event Info modal
  */
 function contactVenueFromTicketsModal() {
     if (!currentTicketEvent) {
