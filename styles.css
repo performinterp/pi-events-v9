@@ -1033,7 +1033,7 @@ a {
     height: auto;
     margin: 0 auto var(--spacing-xl);
     display: block;
-    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
+    filter: brightness(0) invert(1) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
     animation: fadeInScale 0.8s ease-out;
 }
 
@@ -2676,6 +2676,13 @@ a {
     padding: 3rem 0 2rem;
     border-top: 1px solid var(--gray-200);
     scroll-margin-top: 80px;
+}
+
+.about-logo {
+    display: block;
+    margin: 0 auto var(--spacing-2xl);
+    height: 80px;
+    width: auto;
 }
 
 .section-title {
