@@ -13,8 +13,8 @@ const MAX_EXTERNAL_CACHE_ITEMS = 150; // Cap external resource cache (images, fo
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.39',
-    '/app.js?v=1.9.39',
+    '/styles.css?v=1.9.46',
+    '/app.js?v=1.9.46',
     '/manifest.json'
 ];
 
