@@ -2255,6 +2255,28 @@ window.openFestivalSubcategory = openFestivalSubcategory;
 window.backToCategorySelection = backToCategorySelection;
 window.backToFestivalSubcategories = backToFestivalSubcategories;
 
+/**
+ * Context-aware back navigation for the header back button.
+ * Steps back through the in-app hierarchy before falling back to history.back().
+ */
+function handleBackNavigation() {
+    const route = Router.currentRoute;
+    const isInFlow1 = route === '/flow1' || (route && route.startsWith('/flow1/'));
+
+    if (isInFlow1 && AppState.viewMode === 'events') {
+        if (AppState.selectedCategory === 'Festival' && AppState.festivalSubcategory) {
+            backToFestivalSubcategories();
+        } else {
+            backToCategorySelection();
+        }
+    } else if (isInFlow1 && AppState.viewMode === 'festival-subcategories') {
+        backToCategorySelection();
+    } else {
+        history.back();
+    }
+}
+window.handleBackNavigation = handleBackNavigation;
+
 // ========================================
 // DATA FETCHING
 // ========================================
