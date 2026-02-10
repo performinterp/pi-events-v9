@@ -3340,10 +3340,19 @@ body.modal-open {
         grid-template-columns: 1fr;
     }
 
+    .events-section {
+        padding-top: var(--spacing-md);
+    }
+
     .results-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-md);
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .results-header-content {
+        align-items: center;
+        text-align: center;
     }
 
     .results-header-actions {
