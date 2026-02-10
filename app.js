@@ -4856,23 +4856,31 @@ function openVideoModal() {
     if (!video) return;
 
     video.currentTime = 0;
-    video.play().then(() => {
-        if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
-            return video.requestPictureInPicture();
-        }
-    }).catch(() => {
-        // PiP not supported or blocked — fall back to modal
-        const modal = document.getElementById('bslVideoModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-    });
 
-    // Clean up when PiP window is closed
-    video.addEventListener('leavepictureinpicture', () => {
-        video.pause();
-    }, { once: true });
+    // PiP must be requested synchronously during user gesture
+    if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+        video.requestPictureInPicture().then(() => {
+            video.play();
+        }).catch(() => {
+            // PiP blocked — fall back to modal
+            fallbackToModal(video);
+        });
+
+        video.addEventListener('leavepictureinpicture', () => {
+            video.pause();
+        }, { once: true });
+    } else {
+        fallbackToModal(video);
+    }
+}
+
+function fallbackToModal(video) {
+    const modal = document.getElementById('bslVideoModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    video.play().catch(() => {});
 }
 
 function closeVideoModal() {
