@@ -70,18 +70,28 @@
         }
 
         .no-tickets-chevron {
-            animation: chevronPulse 1.2s ease-in-out infinite;
             font-size: 0.8em;
-            opacity: 0.9;
+            display: inline-block;
+            background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.4) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmerRight 2s ease-in-out infinite;
         }
 
         .no-tickets-chevron-right {
-            animation-delay: 0.1s;
+            animation: shimmerLeft 2s ease-in-out infinite;
         }
 
-        @keyframes chevronPulse {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+        @keyframes shimmerRight {
+            0%, 100% { background-position: 200% center; }
+            50% { background-position: 0% center; }
+        }
+
+        @keyframes shimmerLeft {
+            0%, 100% { background-position: -100% center; }
+            50% { background-position: 100% center; }
         }
 
         @media (prefers-reduced-motion: reduce) {
