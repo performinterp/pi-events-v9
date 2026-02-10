@@ -33,18 +33,25 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.24">
+    <link rel="stylesheet" href="styles.css?v=1.9.26">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
     <a href="#/flow1" class="skip-to-content">Skip to main content</a>
 
-    <!-- Back to Top Button -->
-    <button id="backToTop" class="back-to-top" aria-label="Back to top">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-    </button>
+    <!-- Stacked Navigation Buttons -->
+    <div id="navFabStack" class="nav-fab-stack">
+        <button id="navBackBtn" class="nav-fab-btn hidden" aria-label="Go back">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button id="navTopBtn" class="nav-fab-btn" aria-label="Back to top">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        </button>
+    </div>
 
     <!-- App Header -->
     <header class="app-header">
@@ -66,6 +73,7 @@
     <div class="nav-dropdown">
         <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
         <div class="dropdown-menu" id="moreDropdownMenu">
+            <button onclick="openCommSupportModal()" class="dropdown-item">Communication Support</button>
             <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="dropdown-item">Know Your Rights</button>
@@ -91,6 +99,7 @@
     <div class="mobile-nav-dropdown">
         <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
         <div class="mobile-dropdown-menu" id="mobileMoreMenu">
+            <button onclick="openCommSupportModal(); closeMobileMenu()" class="mobile-dropdown-item">Communication Support</button>
             <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="mobile-dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="mobile-dropdown-item">Know Your Rights</button>
@@ -180,6 +189,12 @@
 
        <!-- FLOW 1: Events with BSL (Existing content wrapped) -->
        <div id="flow1Section" style="display: none;">
+
+       <!-- Traffic Light Legend -->
+       <div class="badge-legend" id="badgeLegend">
+           <span class="badge-legend-item badge-legend-green">✅ Interpreter Booked</span>
+           <span class="badge-legend-item badge-legend-orange">🟠 Request Interpreter</span>
+       </div>
 
        <!-- Category Selection View -->
        <section class="category-selection-section" id="categorySelectionView">
@@ -488,7 +503,7 @@
                         <div class="contact-icon-large">&#128172;</div>
                         <div class="contact-card-content">
                             <h3>Share Your Experience</h3>
-                            <p>Tell us about your experience—whether you attended an event, faced booking challenges, or have suggestions for improvement</p>
+                            <p>Share your experience — text or video. Tell us about events you attended, booking challenges, or suggestions</p>
                             <button onclick="openFeedbackModal()" class="contact-btn">
                                 Share Feedback
                             </button>
@@ -589,11 +604,6 @@
 
                 <h2 class="access-modal-title" id="accessFirstModalTitle">Book BSL Tickets</h2>
                 <p class="access-modal-subtitle" id="accessFirstEventName">Booking accessible tickets</p>
-
-                <div class="access-first-info" id="accessFirstInfo">
-                    <p><strong>Contact venue first, then book tickets.</strong></p>
-                    <p id="accessNotesText" style="display: none;"></p>
-                </div>
 
                 <div class="access-modal-actions">
                     <!-- VRS button (primary when available - BSL is users' main language) -->
@@ -778,8 +788,66 @@
         </div>
     </div>
 
+    <!-- Communication Support Modal -->
+    <div id="commSupportModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="commSupportTitle">
+        <div class="access-modal-overlay" onclick="closeCommSupportModal()"></div>
+        <div class="access-modal-content comm-support-content">
+            <button class="access-modal-close" onclick="closeCommSupportModal()" aria-label="Close dialog">&#10005;</button>
+
+            <h2 class="access-modal-title" id="commSupportTitle">Communication Support</h2>
+            <p class="access-modal-subtitle">Tools to help you communicate at venues</p>
+
+            <!-- Tab buttons -->
+            <div class="comm-tabs">
+                <button class="comm-tab active" onclick="switchCommTab('card')">Show Staff Card</button>
+                <button class="comm-tab" onclick="switchCommTab('stt')">Speech to Text</button>
+            </div>
+
+            <!-- Tab 1: Staff Awareness Card -->
+            <div id="commCardTab" class="comm-tab-content">
+                <div class="staff-card">
+                    <div class="staff-card-header">Communication Card</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
+                        <p class="staff-card-line">Please face me when speaking</p>
+                        <p class="staff-card-line">Speak clearly at a normal pace</p>
+                        <p class="staff-card-line">Please type or write your message</p>
+                        <p class="staff-card-line staff-card-thanks">Thank you for your patience</p>
+                    </div>
+                </div>
+                <p class="comm-hint">Show this to venue staff on your phone screen</p>
+            </div>
+
+            <!-- Tab 2: Speech to Text -->
+            <div id="commSTTTab" class="comm-tab-content" style="display: none;">
+                <div id="sttSupported">
+                    <div class="stt-display" id="sttDisplay">
+                        <p class="stt-placeholder" id="sttPlaceholder">Press "Start Listening" and ask the other person to speak</p>
+                        <p class="stt-text" id="sttText"></p>
+                    </div>
+                    <div class="stt-controls">
+                        <button class="btn-primary btn-large stt-btn" id="sttToggleBtn" onclick="toggleSTT()">
+                            Start Listening
+                        </button>
+                        <button class="btn-secondary" onclick="clearSTT()">Clear</button>
+                    </div>
+                    <div class="stt-reply">
+                        <label for="sttReplyInput" class="stt-reply-label">Type your reply:</label>
+                        <textarea id="sttReplyInput" class="stt-reply-input" rows="2" placeholder="Type here..."></textarea>
+                    </div>
+                </div>
+                <div id="sttUnsupported" style="display: none;">
+                    <div class="stt-unsupported-msg">
+                        <p>Speech-to-text is not supported in this browser.</p>
+                        <p>Try using <strong>Chrome</strong> or <strong>Edge</strong> for this feature.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.24">
+    <script src="app.js?v=1.9.26">
     
     <!-- Tally Embed Script -->
     <script>

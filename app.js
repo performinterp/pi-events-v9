@@ -29,10 +29,10 @@ const VENUE_CONTACTS = {
     'indigo at the o2': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
     'indigo at the o2, london': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
 
-    // London - Wembley
-    'wembley stadium': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
-    'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
-    'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo' },
+    // London - Wembley (BSL interpretation provided at all events as standard)
+    'wembley stadium': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
+    'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
+    'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
 
     // London - Southbank Centre (all sub-venues use the same access email)
     'southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
@@ -3118,8 +3118,10 @@ function initEventListeners() {
         console.error('View toggle element not found!');
     }
 
-    // Header scroll shadow and back to top button visibility
-    const backToTopBtn = document.getElementById('backToTop');
+    // Header scroll shadow and nav fab stack visibility
+    const navFabStack = document.getElementById('navFabStack');
+    const navBackBtn = document.getElementById('navBackBtn');
+    const navTopBtn = document.getElementById('navTopBtn');
     const moreDropdownMenu = document.getElementById('moreDropdownMenu');
 
     window.addEventListener('scroll', () => {
@@ -3130,12 +3132,23 @@ function initEventListeners() {
             header.classList.remove('scrolled');
         }
 
-        // Show/hide back to top button
-        if (backToTopBtn) {
+        // Show/hide nav fab stack
+        if (navFabStack) {
             if (window.scrollY > 500) {
-                backToTopBtn.classList.add('visible');
+                navFabStack.classList.add('visible');
             } else {
-                backToTopBtn.classList.remove('visible');
+                navFabStack.classList.remove('visible');
+            }
+        }
+
+        // Show/hide back button based on context
+        if (navBackBtn) {
+            const isInEventsView = AppState.viewMode === 'events' || AppState.viewMode === 'festival-subcategories';
+            const isInFlow1 = Router.currentRoute === '/flow1' || Router.currentRoute.startsWith('/flow1/');
+            if (isInFlow1 && isInEventsView) {
+                navBackBtn.classList.remove('hidden');
+            } else {
+                navBackBtn.classList.add('hidden');
             }
         }
 
@@ -3151,13 +3164,29 @@ function initEventListeners() {
         }
     });
 
-    // Back to top button click handler
-    if (backToTopBtn) {
-        backToTopBtn.addEventListener('click', () => {
+    // Nav top button click handler (scroll to top)
+    if (navTopBtn) {
+        navTopBtn.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
+        });
+    }
+
+    // Nav back button click handler (context-aware)
+    if (navBackBtn) {
+        navBackBtn.addEventListener('click', () => {
+            if (AppState.viewMode === 'events') {
+                if (AppState.selectedCategory === 'Festival' && AppState.festivalSubcategory) {
+                    backToFestivalSubcategories();
+                } else {
+                    backToCategorySelection();
+                }
+            } else if (AppState.viewMode === 'festival-subcategories') {
+                backToCategorySelection();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
@@ -4181,27 +4210,6 @@ function openAccessFirstModal(event) {
         eventNameEl.textContent = event['EVENT'];
     }
 
-    // Reset info text to booking mode
-    const infoEl = document.getElementById('accessFirstInfo');
-    if (infoEl) {
-        infoEl.querySelector('p:first-child').innerHTML = '<strong>Contact venue first, then book tickets.</strong>';
-    }
-
-    // Reset tip text to booking mode
-    const noteEl = modal.querySelector('.access-modal-note');
-    if (noteEl) {
-        noteEl.innerHTML = '<strong>💡 Tip:</strong><br>Contact venue before buying tickets<br>Ask for BSL accessible seating';
-    }
-
-    // Show ACCESS_NOTES if available
-    const accessNotesEl = document.getElementById('accessNotesText');
-    if (accessNotesEl && event['ACCESS_NOTES'] && event['ACCESS_NOTES'].trim()) {
-        accessNotesEl.textContent = event['ACCESS_NOTES'];
-        accessNotesEl.style.display = 'block';
-    } else if (accessNotesEl) {
-        accessNotesEl.style.display = 'none';
-    }
-
     // Handle VRS button - VRS is primary contact method for BSL users
     const vrsButton = document.getElementById('vrsButton');
     const vrsButtonText = document.getElementById('vrsButtonText');
@@ -4210,13 +4218,29 @@ function openAccessFirstModal(event) {
     // Check for VRS: first from spreadsheet, then from VENUE_CONTACTS lookup
     let vrsUrl = event['VRS_URL'] && event['VRS_URL'].trim();
     let vrsProvider = event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim();
+    let venueNote = '';
 
     // If no VRS in spreadsheet data, try VENUE_CONTACTS lookup
     if (!vrsUrl && event['VENUE']) {
         const venueMatches = findMatchingVenues(event['VENUE']);
-        if (venueMatches.length > 0 && venueMatches[0].vrs) {
-            vrsUrl = venueMatches[0].vrs;
-            vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
+        if (venueMatches.length > 0) {
+            if (venueMatches[0].vrs) {
+                vrsUrl = venueMatches[0].vrs;
+                vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
+            }
+            if (venueMatches[0].note) {
+                venueNote = venueMatches[0].note;
+            }
+        }
+    }
+
+    // Set tip text — show venue note if available, otherwise default tip
+    const noteEl = modal.querySelector('.access-modal-note');
+    if (noteEl) {
+        if (venueNote) {
+            noteEl.innerHTML = `<strong>✅ ${venueNote}</strong>`;
+        } else {
+            noteEl.innerHTML = '<strong>💡 Tip:</strong><br>Contact venue before buying tickets<br>Ask for BSL accessible seating';
         }
     }
 
@@ -4284,6 +4308,16 @@ function openAccessFirstModal(event) {
         officialSiteButton.style.display = 'block';
     } else if (officialSiteButton) {
         officialSiteButton.style.display = 'none';
+    }
+
+    // Add gentle bounce to primary CTA button (Item 1: entice users to press)
+    // Bounce VRS if available, otherwise bounce email
+    if (vrsButton) vrsButton.classList.remove('bounce-cta');
+    if (emailButton) emailButton.classList.remove('bounce-cta');
+    if (hasVRS && vrsButton) {
+        vrsButton.classList.add('bounce-cta');
+    } else if (emailButton) {
+        emailButton.classList.add('bounce-cta');
     }
 
     // Show modal
@@ -4449,14 +4483,6 @@ function openRequestBSLModal(event) {
     if (titleEl) titleEl.textContent = 'Request BSL Interpretation';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
 
-    // Update info text
-    const infoEl = document.getElementById('accessFirstInfo');
-    if (infoEl) {
-        const notesEl = document.getElementById('accessNotesText');
-        if (notesEl) notesEl.style.display = 'none';
-        infoEl.querySelector('p:first-child').innerHTML = '<strong>Contact the venue to request BSL for this event.</strong>';
-    }
-
     // Resolve VRS and email from VENUE_CONTACTS
     const venueMatches = findMatchingVenues(event['VENUE'] || '');
     let vrsUrl = event['VRS_URL'] || '';
@@ -4520,6 +4546,15 @@ function openRequestBSLModal(event) {
     const noteEl = modal.querySelector('.access-modal-note');
     if (noteEl) {
         noteEl.innerHTML = '<strong>💡 Tip:</strong><br>VRS lets you call the venue in BSL via video relay — it\'s faster than email.';
+    }
+
+    // Add gentle bounce to primary CTA button
+    if (vrsButton) vrsButton.classList.remove('bounce-cta');
+    if (emailButton) emailButton.classList.remove('bounce-cta');
+    if (vrsUrl && vrsButton) {
+        vrsButton.classList.add('bounce-cta');
+    } else if (emailButton) {
+        emailButton.classList.add('bounce-cta');
     }
 
     modal.style.display = 'flex';
@@ -4703,6 +4738,145 @@ window.openVenueBookingGuide = openVenueBookingGuide;
 window.closeVenueBookingModal = closeVenueBookingModal;
 window.openKnowYourRightsModal = openKnowYourRightsModal;
 window.closeKnowYourRightsModal = closeKnowYourRightsModal;
+
+// ========================================
+// COMMUNICATION SUPPORT MODAL
+// ========================================
+
+let sttRecognition = null;
+let sttIsListening = false;
+
+function openCommSupportModal() {
+    const modal = document.getElementById('commSupportModal');
+    if (!modal) return;
+
+    // Check Speech API support
+    const supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    const supportedEl = document.getElementById('sttSupported');
+    const unsupportedEl = document.getElementById('sttUnsupported');
+    if (supportedEl) supportedEl.style.display = supported ? 'block' : 'none';
+    if (unsupportedEl) unsupportedEl.style.display = supported ? 'none' : 'block';
+
+    // Reset to card tab
+    switchCommTab('card');
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCommSupportModal() {
+    const modal = document.getElementById('commSupportModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    // Stop STT if running
+    if (sttRecognition && sttIsListening) {
+        sttRecognition.stop();
+        sttIsListening = false;
+    }
+}
+
+function switchCommTab(tab) {
+    const cardTab = document.getElementById('commCardTab');
+    const sttTab = document.getElementById('commSTTTab');
+    const tabs = document.querySelectorAll('.comm-tab');
+
+    tabs.forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'card' && i === 0) || (tab === 'stt' && i === 1));
+    });
+
+    if (cardTab) cardTab.style.display = tab === 'card' ? 'block' : 'none';
+    if (sttTab) sttTab.style.display = tab === 'stt' ? 'block' : 'none';
+}
+
+function toggleSTT() {
+    if (sttIsListening) {
+        stopSTT();
+    } else {
+        startSTT();
+    }
+}
+
+function startSTT() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    sttRecognition = new SpeechRecognition();
+    sttRecognition.continuous = true;
+    sttRecognition.interimResults = true;
+    sttRecognition.lang = 'en-GB';
+
+    const display = document.getElementById('sttDisplay');
+    const textEl = document.getElementById('sttText');
+    const placeholder = document.getElementById('sttPlaceholder');
+    const toggleBtn = document.getElementById('sttToggleBtn');
+
+    let finalTranscript = textEl.textContent || '';
+
+    sttRecognition.onstart = () => {
+        sttIsListening = true;
+        if (display) display.classList.add('listening');
+        if (placeholder) placeholder.style.display = 'none';
+        if (toggleBtn) {
+            toggleBtn.textContent = 'Stop Listening';
+            toggleBtn.classList.add('listening');
+        }
+    };
+
+    sttRecognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript + ' ';
+            } else {
+                interim += event.results[i][0].transcript;
+            }
+        }
+        if (textEl) {
+            textEl.textContent = finalTranscript + interim;
+        }
+    };
+
+    sttRecognition.onerror = (event) => {
+        if (event.error !== 'no-speech') {
+            console.error('STT error:', event.error);
+        }
+    };
+
+    sttRecognition.onend = () => {
+        sttIsListening = false;
+        if (display) display.classList.remove('listening');
+        if (toggleBtn) {
+            toggleBtn.textContent = 'Start Listening';
+            toggleBtn.classList.remove('listening');
+        }
+    };
+
+    sttRecognition.start();
+}
+
+function stopSTT() {
+    if (sttRecognition) {
+        sttRecognition.stop();
+    }
+}
+
+function clearSTT() {
+    const textEl = document.getElementById('sttText');
+    const placeholder = document.getElementById('sttPlaceholder');
+    if (textEl) textEl.textContent = '';
+    if (placeholder) placeholder.style.display = 'block';
+    if (sttRecognition && sttIsListening) {
+        sttRecognition.stop();
+    }
+}
+
+window.openCommSupportModal = openCommSupportModal;
+window.closeCommSupportModal = closeCommSupportModal;
+window.switchCommTab = switchCommTab;
+window.toggleSTT = toggleSTT;
+window.clearSTT = clearSTT;
 
 // ========================================
 // START THE APP

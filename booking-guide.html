@@ -51,6 +51,53 @@
 
         /* Override header for this page if needed */
 
+        /* "Does not sell tickets" notice */
+        .no-tickets-notice {
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 700;
+            color: white;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+            margin: 1rem auto 1.5rem;
+            animation: noticeGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes noticeGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .no-tickets-notice {
+                animation: none;
+            }
+        }
+
+        /* BSL Guaranteed badge for venues */
+        .badge-guaranteed {
+            display: inline-block;
+            background: #059669;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .venue-note-guaranteed {
+            background: #ECFDF5;
+            border: 1px solid #6EE7B7;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #065F46;
+            font-weight: 500;
+        }
+
         /* Main Content */
         .booking-content {
             padding: 0;
@@ -944,8 +991,9 @@
         <section class="hero-section">
             <div class="hero-content">
                 <h1 class="hero-title">How to Book BSL/ISL Accessible Tickets</h1>
-                <p class="hero-subtitle" style="max-width: 800px;"><strong>Performance Interpreting <u>does not</u> sell tickets.</strong><br><br>Below is a guide for booking BSL/ISL accessible tickets with different venues and promoters. Please note this information is subject to change.</p>
-                <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list will be continuously updated as we work with more event organisers to streamline the booking process for accessible events.</p>
+                <p class="no-tickets-notice">We do not sell tickets</p>
+                <p class="hero-subtitle" style="max-width: 800px;">A guide for booking BSL/ISL accessible tickets with venues and promoters across the UK and Ireland.</p>
+                <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list is updated regularly. Information may change.</p>
             </div>
         </section>
 
@@ -1093,15 +1141,15 @@
                     <div class="tip-icon">📞</div>
                     <div class="tip-content">
                         <h4>Always Use the Accessible Booking Line</h4>
-                        <p>Don't use the general ticketing number. Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements.</p>
+                        <p>Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements (don't use the general ticketing number).</p>
                     </div>
                 </div>
 
                 <div class="tip-item">
                     <div class="tip-icon">👀</div>
                     <div class="tip-content">
-                        <h4>Request Optimal Seating Position</h4>
-                        <p>Ask for seats with a clear view of the interpreter. Many venues have designated BSL viewing areas with the best sightlines.</p>
+                        <h4>Ask for the Best Seats</h4>
+                        <p>Ask for seats with a clear view of the interpreter. Many venues have BSL viewing areas with the best sightlines.</p>
                     </div>
                 </div>
 
@@ -1116,8 +1164,8 @@
                 <div class="tip-item">
                     <div class="tip-icon">⏰</div>
                     <div class="tip-content">
-                        <h4>Arrive Early</h4>
-                        <p>Give yourself extra time to locate the interpretation area and get settled before the event starts.</p>
+                        <h4>Give Yourself Time</h4>
+                        <p>Give yourself extra time to find the interpretation area and get settled before the event starts.</p>
                     </div>
                 </div>
 
@@ -1190,7 +1238,7 @@
                     <div class="step-number">6</div>
                     <div class="step-content">
                         <h4>Enjoy the Event!</h4>
-                        <p>Arrive early to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team immediately.</p>
+                        <p>Give yourself time to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team.</p>
                     </div>
                 </div>
             </div>
@@ -2709,9 +2757,11 @@
 
                     <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Wembley Stadium, London">
                         <span class="venue-name">Wembley Stadium</span>
+                        <span class="badge-guaranteed">✅ BSL at every event</span>
                         <span class="venue-toggle">▼</span>
                     </button>
                     <div class="venue-details">
+                        <div class="venue-note-guaranteed">BSL interpretation is provided at all Wembley Stadium events as standard.</div>
                         <div class="contact-methods">
                             <div class="contact-item">
                                 <span class="contact-icon">✉️</span>

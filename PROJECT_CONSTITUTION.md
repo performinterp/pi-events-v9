@@ -100,6 +100,7 @@ The standalone app is production-ready. The focus now shifts to **integration wi
 ### Deferred to State 5+
 
 - Push notifications (Cloudflare Workers) — 3 months post-release
+- Native app on app stores (iOS/Android) — community feedback Feb 2026
 - New scrapers or data sources
 - User accounts or personalisation
 - Analytics dashboards
