@@ -539,13 +539,13 @@ function findMatchingVenues(query) {
     // Exact match first
     if (VENUE_CONTACTS[queryLower]) {
         const contact = VENUE_CONTACTS[queryLower];
-        return [{ venueName: queryLower, email: contact.email, vrs: contact.vrs, vrsLabel: contact.vrsLabel }];
+        return [{ venueName: queryLower, ...contact }];
     }
 
     // Fuzzy match - find all venues that contain the query or vice versa
     for (const [key, contact] of Object.entries(VENUE_CONTACTS)) {
         if ((queryLower.includes(key) || key.includes(queryLower)) && !seenEmails.has(contact.email)) {
-            matches.push({ venueName: key, email: contact.email, vrs: contact.vrs, vrsLabel: contact.vrsLabel });
+            matches.push({ venueName: key, ...contact });
             seenEmails.add(contact.email);
         }
     }
