@@ -4852,21 +4852,36 @@ let sttRecognition = null;
 let sttIsListening = false;
 
 function openVideoModal() {
-    const modal = document.getElementById('bslVideoModal');
     const video = document.getElementById('bslVideo');
-    if (!modal) return;
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    if (video) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-    }
+    if (!video) return;
+
+    video.currentTime = 0;
+    video.play().then(() => {
+        if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+            return video.requestPictureInPicture();
+        }
+    }).catch(() => {
+        // PiP not supported or blocked — fall back to modal
+        const modal = document.getElementById('bslVideoModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
+    // Clean up when PiP window is closed
+    video.addEventListener('leavepictureinpicture', () => {
+        video.pause();
+    }, { once: true });
 }
 
 function closeVideoModal() {
     const modal = document.getElementById('bslVideoModal');
     const video = document.getElementById('bslVideo');
     if (video) video.pause();
+    if (document.pictureInPictureElement) {
+        document.exitPictureInPicture().catch(() => {});
+    }
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
 }

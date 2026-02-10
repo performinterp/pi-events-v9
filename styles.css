@@ -1084,20 +1084,20 @@ a {
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s;
-    animation: gentleBounce 2.5s ease-in-out infinite;
+    animation: pulseGlow 2.5s ease-in-out infinite;
     backdrop-filter: blur(4px);
 }
 
-@keyframes gentleBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 255, 255, 0.1); }
+    50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.25), 0 0 60px rgba(255, 255, 255, 0.1); }
 }
 
 .bsl-video-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: white;
     animation: none;
-    transform: translateY(-1px);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.2);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2685,6 +2685,11 @@ a {
     margin-bottom: var(--spacing-2xl);
     text-align: center;
     letter-spacing: -0.03em;
+}
+
+.section-title img {
+    display: block;
+    margin: 0.5rem auto 0;
 }
 
 .about-accordion {
