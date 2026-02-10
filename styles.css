@@ -2678,10 +2678,10 @@ a {
     scroll-margin-top: 80px;
 }
 
-.about-logo {
+.contact-logo {
     display: block;
-    margin: 0 auto var(--spacing-2xl);
-    height: 80px;
+    margin: 0 auto var(--spacing-lg);
+    height: 60px;
     width: auto;
 }
 
