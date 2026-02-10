@@ -1094,6 +1094,13 @@ a {
     transform: translateY(-1px);
 }
 
+.video-modal-content {
+    padding: 1rem;
+    max-width: 600px;
+    background: #000;
+    border-radius: 16px;
+}
+
 /* ========================================
    CATEGORY SELECTION (Premium Cards)
    ======================================== */

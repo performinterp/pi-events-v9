@@ -4851,6 +4851,24 @@ window.closeKnowYourRightsModal = closeKnowYourRightsModal;
 let sttRecognition = null;
 let sttIsListening = false;
 
+function openVideoModal() {
+    const modal = document.getElementById('bslVideoModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('bslVideoModal');
+    const video = document.getElementById('bslVideo');
+    if (video) video.pause();
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+window.openVideoModal = openVideoModal;
+window.closeVideoModal = closeVideoModal;
+
 function openCommSupportModal() {
     const modal = document.getElementById('commSupportModal');
     if (!modal) return;
