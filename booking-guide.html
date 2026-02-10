@@ -920,12 +920,19 @@
     <!-- Skip to Content Link (Accessibility) -->
     <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
-    <!-- Back to Top Button -->
-    <button id="backToTop" class="back-to-top" aria-label="Back to top">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-    </button>
+    <!-- Stacked Navigation Buttons -->
+    <div id="navFabStack" class="nav-fab-stack">
+        <button id="navBackBtn" class="nav-fab-btn" aria-label="Go back" onclick="history.back()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button id="navTopBtn" class="nav-fab-btn" aria-label="Back to top">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        </button>
+    </div>
 
     <!-- App Header -->
     <header class="app-header">
@@ -4162,18 +4169,19 @@
             }
         }
 
-        // Back to top button and close dropdowns on scroll
-        const backToTopBtn = document.getElementById('backToTop');
+        // Nav fab stack and close dropdowns on scroll
+        const navFabStack = document.getElementById('navFabStack');
+        const navTopBtn = document.getElementById('navTopBtn');
         const dropdownMenuEl = document.getElementById('moreDropdownMenu');
         const mobileNavEl = document.getElementById('mobileNav');
         const mobileMenuBtnEl = document.getElementById('mobileMenuBtn');
 
         window.addEventListener('scroll', () => {
-            if (backToTopBtn) {
+            if (navFabStack) {
                 if (window.scrollY > 500) {
-                    backToTopBtn.classList.add('visible');
+                    navFabStack.classList.add('visible');
                 } else {
-                    backToTopBtn.classList.remove('visible');
+                    navFabStack.classList.remove('visible');
                 }
             }
 
@@ -4189,8 +4197,8 @@
             }
         });
 
-        if (backToTopBtn) {
-            backToTopBtn.addEventListener('click', () => {
+        if (navTopBtn) {
+            navTopBtn.addEventListener('click', () => {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'

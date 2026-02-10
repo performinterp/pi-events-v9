@@ -172,6 +172,27 @@ function dailyAutoPublish() {
   sendDigestEmail(log);
 }
 
+// ==================== BSL GUARANTEED VENUES ====================
+
+/**
+ * Venues that provide BSL interpretation at every event as standard.
+ * If INTERPRETERS is empty for these venues, auto-fill it.
+ */
+var BSL_GUARANTEED_VENUES = ['wembley stadium'];
+
+function resolveInterpreters(interpreters, venue) {
+  if (interpreters && interpreters.trim() !== '' && interpreters.trim().toUpperCase() !== 'TBC') {
+    return interpreters.trim();
+  }
+  var venueLower = (venue || '').toLowerCase();
+  for (var i = 0; i < BSL_GUARANTEED_VENUES.length; i++) {
+    if (venueLower.indexOf(BSL_GUARANTEED_VENUES[i]) !== -1) {
+      return 'BSL Interpreter (Venue Standard)';
+    }
+  }
+  return interpreters || 'TBC';
+}
+
 // ==================== READ SOURCES ====================
 
 /**
@@ -246,7 +267,7 @@ function getEventsFromPreApproved() {
         venue,             // VENUE
         city,              // CITY
         time || 'TBC',     // TIME
-        interpreters || 'TBC', // INTERPRETERS
+        resolveInterpreters(interpreters, venue), // INTERPRETERS
         interpretation || 'BSL', // INTERPRETATION
         category,          // CATEGORY
         imageUrl,          // IMAGE URL
@@ -331,7 +352,7 @@ function getEventsFromMonthlyTabs() {
           venue,                   // VENUE
           city,                    // CITY
           time || 'TBC',           // TIME
-          interpreters || 'TBC',   // INTERPRETERS
+          resolveInterpreters(interpreters, venue), // INTERPRETERS
           interpretation,          // INTERPRETATION
           catResult.category,      // CATEGORY
           '',                      // IMAGE URL (not available from monthly tabs)

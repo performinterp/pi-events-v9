@@ -30,9 +30,9 @@ const VENUE_CONTACTS = {
     'indigo at the o2, london': { email: 'access@theo2.co.uk', vrs: 'http://o2.signvideo.net', vrsLabel: 'SignVideo' },
 
     // London - Wembley (BSL interpretation provided at all events as standard)
-    'wembley stadium': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
-    'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
-    'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard' },
+    'wembley stadium': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard', bslGuaranteed: true },
+    'wembley': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard', bslGuaranteed: true },
+    'wembley stadium, london': { email: 'accessforall@wembleystadium.com', vrs: 'http://thefa.signvideo.net', vrsLabel: 'SignVideo', note: 'BSL interpretation provided at all Wembley events as standard', bslGuaranteed: true },
 
     // London - Southbank Centre (all sub-venues use the same access email)
     'southbank centre': { email: 'accesslist@southbankcentre.co.uk' },
@@ -773,6 +773,23 @@ function getInterpretationLanguage(event) {
 function calculateBadgeStatus(event) {
     // Detect BSL or ISL for this event
     const language = getInterpretationLanguage(event);
+
+    // 🟢 GREEN (guaranteed): Venue provides BSL at every event as standard
+    if (event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].bslGuaranteed) {
+            return {
+                badge: 'green',
+                icon: '✅',
+                label: 'BSL Guaranteed',
+                shortLabel: `${language} at Every Event`,
+                action: 'book-tickets',
+                message: venueMatches[0].note || `${language} interpretation provided at this venue as standard`,
+                canBook: true,
+                language: language
+            };
+        }
+    }
 
     // 🟢 GREEN: Interpreter booked (confirmed)
     const interpreterValue = event['INTERPRETERS'] ? event['INTERPRETERS'].trim() : '';
@@ -3143,9 +3160,8 @@ function initEventListeners() {
 
         // Show/hide back button based on context
         if (navBackBtn) {
-            const isInEventsView = AppState.viewMode === 'events' || AppState.viewMode === 'festival-subcategories';
-            const isInFlow1 = Router.currentRoute === '/flow1' || Router.currentRoute.startsWith('/flow1/');
-            if (isInFlow1 && isInEventsView) {
+            const isHome = Router.currentRoute === '/' || Router.currentRoute === '';
+            if (!isHome) {
                 navBackBtn.classList.remove('hidden');
             } else {
                 navBackBtn.classList.add('hidden');
@@ -3177,16 +3193,23 @@ function initEventListeners() {
     // Nav back button click handler (context-aware)
     if (navBackBtn) {
         navBackBtn.addEventListener('click', () => {
-            if (AppState.viewMode === 'events') {
+            const isInFlow1 = Router.currentRoute === '/flow1' || Router.currentRoute.startsWith('/flow1/');
+
+            if (isInFlow1 && AppState.viewMode === 'events') {
+                // In events list → go back to categories (or festival subcategories)
                 if (AppState.selectedCategory === 'Festival' && AppState.festivalSubcategory) {
                     backToFestivalSubcategories();
                 } else {
                     backToCategorySelection();
                 }
-            } else if (AppState.viewMode === 'festival-subcategories') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (isInFlow1 && AppState.viewMode === 'festival-subcategories') {
                 backToCategorySelection();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // On any other page/flow → go home
+                window.location.hash = '#/';
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
