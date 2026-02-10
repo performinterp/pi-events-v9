@@ -332,6 +332,16 @@ a {
     background: var(--gray-200);
 }
 
+/* Home page: hide back arrow, logo on left, original layout */
+.header-content.header-home {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-content.header-home .header-back-btn {
+    display: none;
+}
+
 .logo-container {
     flex-shrink: 0;
     justify-self: center;

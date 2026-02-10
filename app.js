@@ -919,6 +919,17 @@ const Router = {
 
         // Scroll behaviour: skip hero on return visits, show blue sliver
         const isHome = (route === '/' || route === '');
+
+        // Toggle header layout: logo left on home, centred with back arrow elsewhere
+        const headerContent = document.querySelector('.header-content');
+        if (headerContent) {
+            if (isHome) {
+                headerContent.classList.add('header-home');
+            } else {
+                headerContent.classList.remove('header-home');
+            }
+        }
+
         if (sessionStorage.getItem('pi-visited')) {
             // Skip past hero on all routes after first visit
             // Use setTimeout to ensure scroll happens after all rendering completes
