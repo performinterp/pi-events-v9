@@ -4853,9 +4853,14 @@ let sttIsListening = false;
 
 function openVideoModal() {
     const modal = document.getElementById('bslVideoModal');
+    const video = document.getElementById('bslVideo');
     if (!modal) return;
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    if (video) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+    }
 }
 
 function closeVideoModal() {
