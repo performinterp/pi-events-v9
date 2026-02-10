@@ -3130,10 +3130,8 @@ function initEventListeners() {
         console.error('View toggle element not found!');
     }
 
-    // Header scroll shadow and nav fab stack visibility
-    const navFabStack = document.getElementById('navFabStack');
-    const navBackBtn = document.getElementById('navBackBtn');
-    const navTopBtn = document.getElementById('navTopBtn');
+    // Header scroll shadow and scroll-to-top button visibility
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
     const moreDropdownMenu = document.getElementById('moreDropdownMenu');
 
     window.addEventListener('scroll', () => {
@@ -3144,22 +3142,12 @@ function initEventListeners() {
             header.classList.remove('scrolled');
         }
 
-        // Show/hide nav fab stack
-        if (navFabStack) {
+        // Show/hide scroll to top button
+        if (scrollTopBtn) {
             if (window.scrollY > 500) {
-                navFabStack.classList.add('visible');
+                scrollTopBtn.classList.add('visible');
             } else {
-                navFabStack.classList.remove('visible');
-            }
-        }
-
-        // Show/hide back button based on context
-        if (navBackBtn) {
-            const isHome = Router.currentRoute === '/' || Router.currentRoute === '';
-            if (!isHome) {
-                navBackBtn.classList.remove('hidden');
-            } else {
-                navBackBtn.classList.add('hidden');
+                scrollTopBtn.classList.remove('visible');
             }
         }
 
@@ -3175,9 +3163,9 @@ function initEventListeners() {
         }
     });
 
-    // Nav top button click handler (scroll to top)
-    if (navTopBtn) {
-        navTopBtn.addEventListener('click', () => {
+    // Scroll to top button click handler
+    if (scrollTopBtn) {
+        scrollTopBtn.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -3185,28 +3173,21 @@ function initEventListeners() {
         });
     }
 
-    // Nav back button click handler (context-aware)
-    if (navBackBtn) {
-        navBackBtn.addEventListener('click', () => {
-            const isInFlow1 = Router.currentRoute === '/flow1' || Router.currentRoute.startsWith('/flow1/');
-
-            if (isInFlow1 && AppState.viewMode === 'events') {
-                // In events list → go back to categories (or festival subcategories)
-                if (AppState.selectedCategory === 'Festival' && AppState.festivalSubcategory) {
-                    backToFestivalSubcategories();
-                } else {
-                    backToCategorySelection();
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if (isInFlow1 && AppState.viewMode === 'festival-subcategories') {
-                backToCategorySelection();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                // On any other page/flow → go home
-                window.location.hash = '#/';
-            }
-        });
-    }
+    // Swipe right-to-left to go back (like the header back arrow)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = Math.abs(e.changedTouches[0].screenY - touchStartY);
+        // Swipe right (finger moves left→right) with enough distance and not too vertical
+        if (dx > 80 && dy < 100) {
+            history.back();
+        }
+    }, { passive: true });
 
     // Make logo clickable to scroll to top
     const logo = document.querySelector('.logo');
