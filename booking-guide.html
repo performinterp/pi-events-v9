@@ -391,30 +391,71 @@
         /* Tips Styling */
         .tip-item {
             background: white;
-            padding: 20px;
             border-radius: 12px;
-            margin-bottom: 15px;
-            display: flex;
-            gap: 15px;
+            margin-bottom: 10px;
             border: 1px solid #E2E8F0;
             box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .tip-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
             border-left: 3px solid #2563EB;
         }
 
+        .tip-header:hover {
+            background: #F8FAFC;
+        }
+
+        .tip-header.active {
+            background: #EFF6FF;
+        }
+
         .tip-icon {
-            font-size: 24px;
+            font-size: 22px;
             flex-shrink: 0;
         }
 
-        .tip-content h4 {
-            font-size: 16px;
+        .tip-title {
+            font-size: 15px;
             font-weight: 600;
             color: #0F172A;
-            margin-bottom: 6px;
+            flex: 1;
             letter-spacing: -0.01em;
         }
 
-        .tip-content p {
+        .tip-toggle {
+            color: #2563EB;
+            font-size: 12px;
+            transition: transform 0.3s;
+            font-weight: 700;
+        }
+
+        .tip-header.active .tip-toggle {
+            transform: rotate(90deg);
+        }
+
+        .tip-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .tip-body.show {
+            max-height: 500px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .tip-body-inner {
+            padding: 0 16px 16px 52px;
+        }
+
+        .tip-body-inner p {
             font-size: 14px;
             color: #475569;
             line-height: 1.6;
@@ -671,6 +712,85 @@
         }
 
         .venue-region.hidden {
+            display: none;
+        }
+
+        /* Country-level grouping */
+        .venue-country {
+            margin-bottom: 12px;
+        }
+
+        .country-button {
+            width: 100%;
+            background: #1E3A5F;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .country-button:hover {
+            background: #2563EB;
+        }
+
+        .country-button.active {
+            background: #2563EB;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .country-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .country-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .country-count {
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .country-toggle {
+            font-size: 14px;
+            transition: transform 0.3s;
+            font-weight: 700;
+        }
+
+        .country-button.active .country-toggle {
+            transform: rotate(90deg);
+        }
+
+        .country-regions {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border: 1px solid transparent;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .country-regions.show {
+            max-height: 100000px;
+            transition: max-height 0.8s ease-in;
+            border-color: #E2E8F0;
+            padding: 8px;
+            background: #F8FAFC;
+        }
+
+        .venue-country.hidden {
             display: none;
         }
 
@@ -1178,43 +1298,68 @@
             </div>
             <div class="modal-body">
                 <div class="tip-item">
-                    <div class="tip-icon">📞</div>
-                    <div class="tip-content">
-                        <h4>Always Use the Accessible Booking Line</h4>
-                        <p>Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements (don't use the general ticketing number).</p>
+                    <div class="tip-header" onclick="toggleTip(this)">
+                        <span class="tip-icon">📞</span>
+                        <span class="tip-title">Always Use the Accessible Booking Line</span>
+                        <span class="tip-toggle">▶</span>
+                    </div>
+                    <div class="tip-body">
+                        <div class="tip-body-inner">
+                            <p>Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements (don't use the general ticketing number).</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="tip-item">
-                    <div class="tip-icon">👀</div>
-                    <div class="tip-content">
-                        <h4>Ask for the Best Seats</h4>
-                        <p>Ask for seats with a clear view of the interpreter. Many venues have BSL viewing areas with the best sightlines.</p>
+                    <div class="tip-header" onclick="toggleTip(this)">
+                        <span class="tip-icon">👀</span>
+                        <span class="tip-title">Ask for the Best Seats</span>
+                        <span class="tip-toggle">▶</span>
+                    </div>
+                    <div class="tip-body">
+                        <div class="tip-body-inner">
+                            <p>Ask for seats with a clear view of the interpreter. Many venues have BSL viewing areas with the best sightlines.</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="tip-item">
-                    <div class="tip-icon">✉️</div>
-                    <div class="tip-content">
-                        <h4>Get Written Confirmation</h4>
-                        <p>Always request email confirmation that interpretation has been arranged. Save this confirmation and bring it to the event.</p>
+                    <div class="tip-header" onclick="toggleTip(this)">
+                        <span class="tip-icon">✉️</span>
+                        <span class="tip-title">Get Written Confirmation</span>
+                        <span class="tip-toggle">▶</span>
+                    </div>
+                    <div class="tip-body">
+                        <div class="tip-body-inner">
+                            <p>Always request email confirmation that interpretation has been arranged. Save this confirmation and bring it to the event.</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="tip-item">
-                    <div class="tip-icon">⏰</div>
-                    <div class="tip-content">
-                        <h4>Give Yourself Time</h4>
-                        <p>Give yourself extra time to find the interpretation area and get settled before the event starts.</p>
+                    <div class="tip-header" onclick="toggleTip(this)">
+                        <span class="tip-icon">⏰</span>
+                        <span class="tip-title">Give Yourself Time</span>
+                        <span class="tip-toggle">▶</span>
+                    </div>
+                    <div class="tip-body">
+                        <div class="tip-body-inner">
+                            <p>Give yourself extra time to find the interpretation area and get settled before the event starts.</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="tip-item">
-                    <div class="tip-icon">💬</div>
-                    <div class="tip-content">
-                        <h4>Share Your Experience</h4>
-                        <p>Let Performance Interpreting know how your experience was. Your feedback helps improve accessibility for everyone.</p>
-                        <button onclick="openFeedbackModal(); closeModal('tipsModal');" style="margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Share Your Thoughts</button>
+                    <div class="tip-header" onclick="toggleTip(this)">
+                        <span class="tip-icon">💬</span>
+                        <span class="tip-title">Share Your Experience</span>
+                        <span class="tip-toggle">▶</span>
+                    </div>
+                    <div class="tip-body">
+                        <div class="tip-body-inner">
+                            <p>Let Performance Interpreting know how your experience was. Your feedback helps improve accessibility for everyone.</p>
+                            <button onclick="openFeedbackModal(); closeModal('tipsModal');" style="margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Share Your Thoughts</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1316,34 +1461,16 @@
                 </div>
 
                 <div id="venueList">
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Aberdeen</span>
-                                <span class="region-count">1 venue</span>
+                    <div class="venue-country" data-country="England">
+                        <button class="country-button" onclick="toggleCountry(event, this)">
+                            <div class="country-info">
+                                <span class="country-name">🏴 England</span>
+                                <span class="country-count">40 cities</span>
                             </div>
-                            <span class="region-toggle">▶</span>
+                            <span class="country-toggle">▶</span>
                         </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="P&J Live, Aberdeen">
-                        <span class="venue-name">P&J Live</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:access@pandjlive.com">access@pandjlive.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+                        <div class="country-regions">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Bath</span>
@@ -1370,50 +1497,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Belfast</span>
-                                <span class="region-count">2 venues</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SSE Arena Belfast, Belfast">
-                        <span class="venue-name">SSE Arena Belfast</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:info@ssearenabelfast.com">info@ssearenabelfast.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Windsor Park, Belfast">
-                        <span class="venue-name">Windsor Park</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:info@irishfa.com">info@irishfa.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Birmingham</span>
@@ -1504,7 +1588,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Blackpool</span>
@@ -1531,7 +1615,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Bournemouth</span>
@@ -1558,7 +1642,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Brighton</span>
@@ -1601,7 +1685,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Bristol</span>
@@ -1628,7 +1712,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Burnley</span>
@@ -1655,7 +1739,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Cambridge</span>
@@ -1682,66 +1766,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Cardiff</span>
-                                <span class="region-count">3 venues</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cardiff City Stadium, Cardiff">
-                        <span class="venue-name">Cardiff City Stadium</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:DAO@cardiffcityfc.co.uk">DAO@cardiffcityfc.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Principality Stadium, Cardiff">
-                        <span class="venue-name">Principality Stadium</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:customercare@wru.wales">customercare@wru.wales</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Cardiff, Cardiff">
-                        <span class="venue-name">Utilita Arena Cardiff</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:liveaccessmotorpointarenacardiff@livenation.co.uk">liveaccessmotorpointarenacardiff@livenation.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Coventry</span>
@@ -1768,7 +1793,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Derby</span>
@@ -1795,120 +1820,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Dublin</span>
-                                <span class="region-count">1 venue</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="3Arena, Dublin">
-                        <span class="venue-name">3Arena</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:enquiry@3arena.ie">enquiry@3arena.ie</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Dundee</span>
-                                <span class="region-count">1 venue</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Caird Hall, Dundee">
-                        <span class="venue-name">Caird Hall</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:cairdhall@leisureandculturedundee.com">cairdhall@leisureandculturedundee.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Edinburgh</span>
-                                <span class="region-count">3 venues</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Edinburgh Playhouse, Edinburgh">
-                        <span class="venue-name">Edinburgh Playhouse</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:edinburghaccess@atgentertainment.com">edinburghaccess@atgentertainment.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Scottish Gas Murrayfield, Edinburgh">
-                        <span class="venue-name">Scottish Gas Murrayfield</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:tickets@sru.org.uk">tickets@sru.org.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Usher Hall, Edinburgh">
-                        <span class="venue-name">Usher Hall</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:foh@usherhall.co.uk">foh@usherhall.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Exeter</span>
@@ -1935,7 +1847,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Gateshead</span>
@@ -1962,130 +1874,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Glasgow</span>
-                                <span class="region-count">7 venues</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Celtic Park (Celtic FC), Glasgow">
-                        <span class="venue-name">Celtic Park (Celtic FC)</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:homematches@celticfc.co.uk">homematches@celticfc.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Glasgow Royal Concert Hall, Glasgow">
-                        <span class="venue-name">Glasgow Royal Concert Hall</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:GRCHVM@glasgowlife.org.uk">GRCHVM@glasgowlife.org.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Hampden Park, Glasgow">
-                        <span class="venue-name">Hampden Park</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:enquiries@hampdenpark.co.uk">enquiries@hampdenpark.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Ibrox Stadium (Rangers FC), Glasgow">
-                        <span class="venue-name">Ibrox Stadium (Rangers FC)</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:disabilitymatters@rangers.co.uk">disabilitymatters@rangers.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Academy Glasgow, Glasgow">
-                        <span class="venue-name">O2 Academy Glasgow</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:access@o2academyglasgow.co.uk">access@o2academyglasgow.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="OVO Hydro, Glasgow">
-                        <span class="venue-name">OVO Hydro</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:accessibility@ovo-hydro.com">accessibility@ovo-hydro.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SEC Armadillo, Glasgow">
-                        <span class="venue-name">SEC Armadillo</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:booking.enquiries@sec.co.uk">booking.enquiries@sec.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Gloucester</span>
@@ -2112,7 +1901,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Hull</span>
@@ -2139,34 +1928,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Inverness</span>
-                                <span class="region-count">1 venue</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Eden Court Theatre, Inverness">
-                        <span class="venue-name">Eden Court Theatre</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:info@eden-court.co.uk">info@eden-court.co.uk</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Ipswich</span>
@@ -2193,7 +1955,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Leeds</span>
@@ -2252,7 +2014,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Leicester</span>
@@ -2295,7 +2057,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Lincoln</span>
@@ -2322,7 +2084,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Liverpool</span>
@@ -2397,7 +2159,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">London</span>
@@ -2822,7 +2584,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Manchester</span>
@@ -2952,7 +2714,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Middlesbrough</span>
@@ -2979,7 +2741,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Milton Keynes</span>
@@ -3006,7 +2768,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Newcastle</span>
@@ -3065,7 +2827,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Norwich</span>
@@ -3092,7 +2854,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Nottingham</span>
@@ -3151,7 +2913,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Oxford</span>
@@ -3178,7 +2940,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Peterborough</span>
@@ -3205,7 +2967,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Plymouth</span>
@@ -3232,7 +2994,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Preston</span>
@@ -3259,7 +3021,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Reading</span>
@@ -3286,7 +3048,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Sheffield</span>
@@ -3329,7 +3091,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Southampton</span>
@@ -3379,7 +3141,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Stoke-on-Trent</span>
@@ -3422,7 +3184,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Sunderland</span>
@@ -3449,7 +3211,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Surrey</span>
@@ -3476,50 +3238,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
-                        <button class="region-button" onclick="toggleRegion(event, this)">
-                            <div class="region-info">
-                                <span class="region-name">Swansea</span>
-                                <span class="region-count">2 venues</span>
-                            </div>
-                            <span class="region-toggle">▶</span>
-                        </button>
-                        <div class="region-venues">
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea Arena, Swansea">
-                        <span class="venue-name">Swansea Arena</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:SwanseaAccess@atgentertainment.com">SwanseaAccess@atgentertainment.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea.com Stadium (Swansea City FC), Swansea">
-                        <span class="venue-name">Swansea.com Stadium (Swansea City FC)</span>
-                        <span class="venue-toggle">▼</span>
-                    </button>
-                    <div class="venue-details">
-                        <div class="contact-methods">
-                            <div class="contact-item">
-                                <span class="contact-icon">✉️</span>
-                                <div class="contact-info">
-                                    <strong>Email</strong>
-                                    <a href="mailto:accessibility@swanseacity.com">accessibility@swanseacity.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Watford</span>
@@ -3546,7 +3265,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Wolverhampton</span>
@@ -3589,7 +3308,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">Woodstock</span>
@@ -3616,7 +3335,7 @@
                     </div>
                         </div>
                     </div>
-                    <div class="venue-region">
+<div class="venue-region">
                         <button class="region-button" onclick="toggleRegion(event, this)">
                             <div class="region-info">
                                 <span class="region-name">York</span>
@@ -3644,6 +3363,487 @@
                         </div>
                     </div>
                 </div>
+                        </div>
+                    </div>
+                    <div class="venue-country" data-country="Scotland">
+                        <button class="country-button" onclick="toggleCountry(event, this)">
+                            <div class="country-info">
+                                <span class="country-name">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland</span>
+                                <span class="country-count">5 cities</span>
+                            </div>
+                            <span class="country-toggle">▶</span>
+                        </button>
+                        <div class="country-regions">
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Aberdeen</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="P&J Live, Aberdeen">
+                        <span class="venue-name">P&J Live</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@pandjlive.com">access@pandjlive.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Dundee</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Caird Hall, Dundee">
+                        <span class="venue-name">Caird Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:cairdhall@leisureandculturedundee.com">cairdhall@leisureandculturedundee.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Edinburgh</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Edinburgh Playhouse, Edinburgh">
+                        <span class="venue-name">Edinburgh Playhouse</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:edinburghaccess@atgentertainment.com">edinburghaccess@atgentertainment.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Scottish Gas Murrayfield, Edinburgh">
+                        <span class="venue-name">Scottish Gas Murrayfield</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:tickets@sru.org.uk">tickets@sru.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Usher Hall, Edinburgh">
+                        <span class="venue-name">Usher Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:foh@usherhall.co.uk">foh@usherhall.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Glasgow</span>
+                                <span class="region-count">7 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Celtic Park (Celtic FC), Glasgow">
+                        <span class="venue-name">Celtic Park (Celtic FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:homematches@celticfc.co.uk">homematches@celticfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Glasgow Royal Concert Hall, Glasgow">
+                        <span class="venue-name">Glasgow Royal Concert Hall</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:GRCHVM@glasgowlife.org.uk">GRCHVM@glasgowlife.org.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Hampden Park, Glasgow">
+                        <span class="venue-name">Hampden Park</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiries@hampdenpark.co.uk">enquiries@hampdenpark.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Ibrox Stadium (Rangers FC), Glasgow">
+                        <span class="venue-name">Ibrox Stadium (Rangers FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:disabilitymatters@rangers.co.uk">disabilitymatters@rangers.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="O2 Academy Glasgow, Glasgow">
+                        <span class="venue-name">O2 Academy Glasgow</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:access@o2academyglasgow.co.uk">access@o2academyglasgow.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="OVO Hydro, Glasgow">
+                        <span class="venue-name">OVO Hydro</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@ovo-hydro.com">accessibility@ovo-hydro.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SEC Armadillo, Glasgow">
+                        <span class="venue-name">SEC Armadillo</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:booking.enquiries@sec.co.uk">booking.enquiries@sec.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Inverness</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Eden Court Theatre, Inverness">
+                        <span class="venue-name">Eden Court Theatre</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@eden-court.co.uk">info@eden-court.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                    <div class="venue-country" data-country="Wales">
+                        <button class="country-button" onclick="toggleCountry(event, this)">
+                            <div class="country-info">
+                                <span class="country-name">🏴󠁧󠁢󠁷󠁬󠁳󠁿 Wales</span>
+                                <span class="country-count">2 cities</span>
+                            </div>
+                            <span class="country-toggle">▶</span>
+                        </button>
+                        <div class="country-regions">
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Cardiff</span>
+                                <span class="region-count">3 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Cardiff City Stadium, Cardiff">
+                        <span class="venue-name">Cardiff City Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:DAO@cardiffcityfc.co.uk">DAO@cardiffcityfc.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Principality Stadium, Cardiff">
+                        <span class="venue-name">Principality Stadium</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:customercare@wru.wales">customercare@wru.wales</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Utilita Arena Cardiff, Cardiff">
+                        <span class="venue-name">Utilita Arena Cardiff</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:liveaccessmotorpointarenacardiff@livenation.co.uk">liveaccessmotorpointarenacardiff@livenation.co.uk</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Swansea</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea Arena, Swansea">
+                        <span class="venue-name">Swansea Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:SwanseaAccess@atgentertainment.com">SwanseaAccess@atgentertainment.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Swansea.com Stadium (Swansea City FC), Swansea">
+                        <span class="venue-name">Swansea.com Stadium (Swansea City FC)</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:accessibility@swanseacity.com">accessibility@swanseacity.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                    <div class="venue-country" data-country="Northern Ireland">
+                        <button class="country-button" onclick="toggleCountry(event, this)">
+                            <div class="country-info">
+                                <span class="country-name">Northern Ireland</span>
+                                <span class="country-count">1 city</span>
+                            </div>
+                            <span class="country-toggle">▶</span>
+                        </button>
+                        <div class="country-regions">
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Belfast</span>
+                                <span class="region-count">2 venues</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="SSE Arena Belfast, Belfast">
+                        <span class="venue-name">SSE Arena Belfast</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@ssearenabelfast.com">info@ssearenabelfast.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="Windsor Park, Belfast">
+                        <span class="venue-name">Windsor Park</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:info@irishfa.com">info@irishfa.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                    <div class="venue-country" data-country="Ireland">
+                        <button class="country-button" onclick="toggleCountry(event, this)">
+                            <div class="country-info">
+                                <span class="country-name">🇮🇪 Ireland</span>
+                                <span class="country-count">1 city</span>
+                            </div>
+                            <span class="country-toggle">▶</span>
+                        </button>
+                        <div class="country-regions">
+<div class="venue-region">
+                        <button class="region-button" onclick="toggleRegion(event, this)">
+                            <div class="region-info">
+                                <span class="region-name">Dublin</span>
+                                <span class="region-count">1 venue</span>
+                            </div>
+                            <span class="region-toggle">▶</span>
+                        </button>
+                        <div class="region-venues">
+
+                    <button class="venue-button" onclick="toggleVenue(event, this)" data-venue="3Arena, Dublin">
+                        <span class="venue-name">3Arena</span>
+                        <span class="venue-toggle">▼</span>
+                    </button>
+                    <div class="venue-details">
+                        <div class="contact-methods">
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-info">
+                                    <strong>Email</strong>
+                                    <a href="mailto:enquiry@3arena.ie">enquiry@3arena.ie</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
 
                 <div id="noResults" class="no-results">
                     <h3>No venues found</h3>
@@ -3893,6 +4093,45 @@
             }
         });
 
+        // Toggle tip accordion (expand/collapse tip body)
+        function toggleTip(header) {
+            const isActive = header.classList.contains('active');
+            const tipBody = header.nextElementSibling;
+
+            // Close all tips
+            document.querySelectorAll('.tip-header').forEach(h => h.classList.remove('active'));
+            document.querySelectorAll('.tip-body').forEach(b => b.classList.remove('show'));
+
+            // Open clicked tip (unless it was already open)
+            if (!isActive) {
+                header.classList.add('active');
+                tipBody.classList.add('show');
+            }
+        }
+
+        // Toggle country (expand/collapse regions for a country)
+        function toggleCountry(event, button) {
+            event.stopPropagation();
+
+            const countryRegions = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+
+            // Close all countries
+            document.querySelectorAll('.country-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.country-regions').forEach(r => r.classList.remove('show'));
+            // Also close any open regions and venues
+            document.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.region-venues').forEach(r => r.classList.remove('show'));
+            document.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+
+            // Open clicked country (unless it was already open)
+            if (!isActive) {
+                button.classList.add('active');
+                countryRegions.classList.add('show');
+            }
+        }
+
         // Toggle region (expand/collapse venue list for a region)
         function toggleRegion(event, button) {
             event.stopPropagation();
@@ -3957,50 +4196,69 @@
 
         function searchVenues() {
             const searchTerm = document.getElementById('venueSearch').value.toLowerCase();
-            const regions = document.querySelectorAll('.venue-region');
+            const countries = document.querySelectorAll('.venue-country');
             const noResults = document.getElementById('noResults');
             let visibleCount = 0;
-            
-            regions.forEach(region => {
-                const venues = region.querySelectorAll('.venue-button');
-                const regionButton = region.querySelector('.region-button');
-                const regionVenues = region.querySelector('.region-venues');
-                let regionHasMatch = false;
-                
-                venues.forEach(venue => {
-                    const venueName = venue.getAttribute('data-venue').toLowerCase();
-                    const venueDetails = venue.nextElementSibling;
-                    
-                    if (venueName.includes(searchTerm)) {
-                        venue.style.display = 'flex';
-                        regionHasMatch = true;
-                        visibleCount++;
+
+            countries.forEach(country => {
+                const regions = country.querySelectorAll('.venue-region');
+                const countryButton = country.querySelector('.country-button');
+                const countryRegions = country.querySelector('.country-regions');
+                let countryHasMatch = false;
+
+                regions.forEach(region => {
+                    const venues = region.querySelectorAll('.venue-button');
+                    const regionButton = region.querySelector('.region-button');
+                    const regionVenues = region.querySelector('.region-venues');
+                    let regionHasMatch = false;
+
+                    venues.forEach(venue => {
+                        const venueName = venue.getAttribute('data-venue').toLowerCase();
+                        const venueDetails = venue.nextElementSibling;
+
+                        if (venueName.includes(searchTerm)) {
+                            venue.style.display = 'flex';
+                            regionHasMatch = true;
+                            countryHasMatch = true;
+                            visibleCount++;
+                        } else {
+                            venue.style.display = 'none';
+                            venue.classList.remove('active');
+                            venueDetails.classList.remove('show');
+                        }
+                    });
+
+                    if (searchTerm === '') {
+                        region.classList.remove('hidden');
+                        regionButton.classList.remove('active');
+                        regionVenues.classList.remove('show');
+                        venues.forEach(v => v.style.display = 'flex');
+                    } else if (regionHasMatch) {
+                        region.classList.remove('hidden');
+                        regionButton.classList.add('active');
+                        regionVenues.classList.add('show');
                     } else {
-                        venue.style.display = 'none';
-                        venue.classList.remove('active');
-                        venueDetails.classList.remove('show');
+                        region.classList.add('hidden');
+                        regionButton.classList.remove('active');
+                        regionVenues.classList.remove('show');
                     }
                 });
-                
+
                 if (searchTerm === '') {
-                    // No search: show all regions collapsed
-                    region.classList.remove('hidden');
-                    regionButton.classList.remove('active');
-                    regionVenues.classList.remove('show');
-                    venues.forEach(v => v.style.display = 'flex');
-                } else if (regionHasMatch) {
-                    // Has matches: show region expanded
-                    region.classList.remove('hidden');
-                    regionButton.classList.add('active');
-                    regionVenues.classList.add('show');
+                    country.classList.remove('hidden');
+                    countryButton.classList.remove('active');
+                    countryRegions.classList.remove('show');
+                } else if (countryHasMatch) {
+                    country.classList.remove('hidden');
+                    countryButton.classList.add('active');
+                    countryRegions.classList.add('show');
                 } else {
-                    // No matches: hide entire region
-                    region.classList.add('hidden');
-                    regionButton.classList.remove('active');
-                    regionVenues.classList.remove('show');
+                    country.classList.add('hidden');
+                    countryButton.classList.remove('active');
+                    countryRegions.classList.remove('show');
                 }
             });
-            
+
             if (visibleCount === 0 && searchTerm !== '') {
                 noResults.classList.add('show');
             } else {
