@@ -1584,7 +1584,7 @@ CATEGORY_KEYWORDS = typeof CATEGORY_KEYWORDS !== 'undefined' ? CATEGORY_KEYWORDS
   'Family': ['family', 'kids', 'children', 'circus', 'dollhouse', 'cbeebies', 'peppa', 'paw patrol', 'bluey'],
   'Festival': ['festival', 'pride', 'fest'],
   'Cultural': ['cultural', 'heritage', 'parade', 'st patrick', 'book launch', 'exhibition'],
-  'Dance': ['dance', 'dancing'],
+  'Dance': ['dance', 'dancing', 'strictly', 'ballroom', 'choreograph'],
   'Talks & Discussions': ['conversation', 'talk', 'discussion', 'lecture', 'in conversation', 'q&a', 'spoken word'],
   'Literature': ['book', 'author', 'literary', 'reading', 'poetry']
 };
