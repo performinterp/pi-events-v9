@@ -1033,8 +1033,12 @@ a {
     height: auto;
     margin: 0 auto var(--spacing-xl);
     display: block;
-    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
+    filter: brightness(0) invert(1) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
     animation: fadeInScale 0.8s ease-out;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 @keyframes fadeInScale {
@@ -3584,6 +3588,7 @@ body.modal-open {
 
     .hero-logo {
         max-width: 250px;
+        filter: brightness(0) invert(1);
     }
 }
 
