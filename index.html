@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.29">
+    <link rel="stylesheet" href="styles.css?v=1.9.30">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -192,10 +192,16 @@
 
        <!-- Category Selection View -->
        <section class="category-selection-section" id="categorySelectionView">
-           <!-- Optimistic UI - shows immediately -->
            <div class="container">
-               <h2 class="category-selection-title">Browse Events by Category</h2>
-               <p class="category-selection-subtitle">Choose a category to explore interpreted events</p>
+               <!-- Category Search Bar -->
+               <div class="category-search-container">
+                   <svg class="category-search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                       <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>
+                   <input type="text" id="categorySearchInput" class="category-search-input" placeholder="Search events, artists, venues..." autocomplete="off">
+                   <button class="category-search-clear" id="categorySearchClear" aria-label="Clear search">&times;</button>
+               </div>
+               <div class="category-search-suggestions" id="categorySearchSuggestions"></div>
                <div class="category-cards-grid" id="categoryCardsContainer">
                    <!-- Will be populated by JavaScript instantly from cache or after fetch -->
                </div>
@@ -841,7 +847,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.29"></script>
+    <script src="app.js?v=1.9.30"></script>
 
     <!-- Tally Embed Script -->
     <script>

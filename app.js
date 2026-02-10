@@ -2278,6 +2278,80 @@ function handleBackNavigation() {
 window.handleBackNavigation = handleBackNavigation;
 
 // ========================================
+// CATEGORY SEARCH BAR
+// ========================================
+
+function initCategorySearch() {
+    const input = document.getElementById('categorySearchInput');
+    const clearBtn = document.getElementById('categorySearchClear');
+    const suggestionsContainer = document.getElementById('categorySearchSuggestions');
+    if (!input) return;
+
+    input.addEventListener('input', () => {
+        const query = input.value.trim().toLowerCase();
+        clearBtn.classList.toggle('visible', query.length > 0);
+
+        if (query.length < 2) {
+            suggestionsContainer.innerHTML = '';
+            return;
+        }
+
+        // Build suggestions from events data
+        const matches = new Set();
+        (AppState.allEvents || []).forEach(event => {
+            const name = (event.event || '').toLowerCase();
+            const venue = (event.venue || '').toLowerCase();
+            const city = (event.city || '').toLowerCase();
+            if (name.includes(query)) matches.add(event.event);
+            if (venue.includes(query)) matches.add(event.venue);
+            if (city.includes(query)) matches.add(event.city);
+        });
+
+        // Show up to 5 suggestion pills
+        const suggestions = [...matches].filter(Boolean).slice(0, 5);
+        suggestionsContainer.innerHTML = suggestions.map(s =>
+            `<button class="category-search-suggestion" onclick="executeCategorySearch('${s.replace(/'/g, "\\'")}')">${s}</button>`
+        ).join('');
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = input.value.trim();
+            if (query) executeCategorySearch(query);
+        }
+    });
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.classList.remove('visible');
+        suggestionsContainer.innerHTML = '';
+    });
+}
+
+function executeCategorySearch(query) {
+    // Jump to events view with this search pre-filled
+    AppState.viewMode = 'events';
+    AppState.selectedCategory = null;
+    AppState.filters.category = 'all';
+    AppState.filters.search = query;
+    switchToEventsView();
+    // Fill the events search bar too
+    if (DOM.searchInput) {
+        DOM.searchInput.value = query;
+        DOM.searchClear.classList.add('visible');
+    }
+    applyFilters();
+    // Clear category search
+    const catInput = document.getElementById('categorySearchInput');
+    const catSuggestions = document.getElementById('categorySearchSuggestions');
+    if (catInput) catInput.value = '';
+    if (catSuggestions) catSuggestions.innerHTML = '';
+    document.getElementById('categorySearchClear')?.classList.remove('visible');
+}
+window.executeCategorySearch = executeCategorySearch;
+
+// ========================================
 // DATA FETCHING
 // ========================================
 
@@ -3342,6 +3416,9 @@ async function init() {
 
         // Initialize Flow 2 search handler (NEW)
         handleFlow2Search();
+
+        // Initialize category search bar
+        initCategorySearch();
 
         // Initialize routing system AFTER everything is loaded (NEW)
         Router.init();
