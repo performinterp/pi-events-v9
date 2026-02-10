@@ -17,3 +17,9 @@ apps-script-link-finder*.js
 
 # Audit reports
 AUDIT-REPORT-*.md
+
+# Large media files
+*.MOV
+*.mov
+*.mp4
+*.avi
