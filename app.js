@@ -1497,14 +1497,14 @@ function createEventCard(event) {
             // Known venue — open modal with VRS/email options
             primaryButton = `
                 <button class="btn-orange" onclick='openRequestBSLModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
-                    ✉️ Request BSL
+                    ✉️ Request Interpreter
                 </button>
             `;
         } else {
             // Unknown venue — go to Flow 3 general request form
             primaryButton = `
                 <a href="${buildRequestInterpreterUrl(event)}" class="btn-orange">
-                    ✉️ Request BSL
+                    ✉️ Request Interpreter
                 </a>
             `;
         }
@@ -1667,9 +1667,9 @@ function createCompactEventCard(event) {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="compact-btn compact-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="compact-btn compact-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn compact-btn-orange">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn compact-btn-orange">✉️ Request Interpreter</a>`;
         }
     }
 
@@ -1721,9 +1721,9 @@ function createListEventItem(event) {
         const venueMatches = findMatchingVenues(event['VENUE'] || '');
         const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
         if (hasVenueInfo) {
-            actionButton = `<button class="list-btn list-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request BSL</button>`;
+            actionButton = `<button class="list-btn list-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
         } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn list-btn-orange">✉️ Request BSL</a>`;
+            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn list-btn-orange">✉️ Request Interpreter</a>`;
         }
     }
 
@@ -3875,8 +3875,8 @@ function displaySearchResults(results, query) {
                 <h3>No events found for "${query}"</h3>
                 ${suggestionsHTML}
                 <p>We couldn't find any events matching your search.</p>
-                <p><strong>But you can still request BSL!</strong></p>
-                <a href="#/flow3" class="btn-primary">Request BSL for This Event →</a>
+                <p><strong>But you can still request an interpreter!</strong></p>
+                <a href="#/flow3" class="btn-primary">Request Interpreter for This Event →</a>
             </div>
         `;
         return;
@@ -3909,7 +3909,7 @@ function displaySearchResults(results, query) {
                         ${badge.canBook ? `
                             <a href="booking-guide.html" class="btn-secondary">How to Book</a>
                         ` : `
-                            <a href="#/flow3" class="btn-primary">Request BSL</a>
+                            <a href="#/flow3" class="btn-primary">Request Interpreter</a>
                         `}
                     </div>
                 </div>
@@ -4592,7 +4592,7 @@ function openRequestBSLModal(event) {
     // Set request-mode title and subtitle
     const titleEl = document.getElementById('accessFirstModalTitle');
     const eventNameEl = document.getElementById('accessFirstEventName');
-    if (titleEl) titleEl.textContent = 'Request BSL Interpretation';
+    if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
 
     // Resolve VRS and email from VENUE_CONTACTS
