@@ -3685,20 +3685,21 @@ select:focus-visible {
 .badge-legend {
     display: flex;
     justify-content: center;
-    gap: var(--spacing-lg);
-    padding: var(--spacing-md) var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    gap: 8px;
+    padding: 4px var(--spacing-sm);
+    margin-bottom: 6px;
 }
 
 .badge-legend-item {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
+    gap: 4px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .badge-legend-green {
