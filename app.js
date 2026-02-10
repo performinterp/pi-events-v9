@@ -1787,19 +1787,18 @@ function renderEvents(events) {
     const resultsHeaderContent = document.querySelector('.results-header-content');
 
     if (AppState.viewMode === 'events' && resultsHeaderContent) {
+        const badgeLegend = `<div class="badge-legend">
+            <span class="badge-legend-item badge-legend-green">✅ Interpreter Booked</span>
+            <span class="badge-legend-item badge-legend-orange">🟠 Request Interpreter</span>
+        </div>`;
+
         // Check if we should show category-specific title or just count
         if (AppState.selectedCategory && hasCategoryFilter) {
-            // Show category with icon and back button
             let categoryDisplay = AppState.selectedCategory;
             let categoryIcon = getCategoryIcon(AppState.selectedCategory);
-            let backButtonText = '← Back to Categories';
-            let backButtonHandler = 'backToCategorySelection()';
 
             // Special handling for Festival sub-categories
             if (AppState.selectedCategory === 'Festival' && AppState.festivalSubcategory) {
-                backButtonText = '← Back to Festival Types';
-                backButtonHandler = 'backToFestivalSubcategories()';
-
                 if (AppState.festivalSubcategory === 'all') {
                     categoryDisplay = 'All Festivals';
                     categoryIcon = '🎪';
@@ -1813,13 +1812,11 @@ function renderEvents(events) {
             }
 
             resultsHeaderContent.innerHTML = `
-                <button onclick="${backButtonHandler}" class="back-button">
-                    ${backButtonText}
-                </button>
+                ${badgeLegend}
                 <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${events.length} ${events.length === 1 ? 'event' : 'events'}</h2>
             `;
         } else {
-            // Show just count with back button
+            // Show just count
             const eventWord = events.length === 1 ? 'event' : 'events';
             const hasActiveFilters = AppState.filters.search ||
                                      AppState.filters.time !== 'all' ||
@@ -1834,9 +1831,7 @@ function renderEvents(events) {
             }
 
             resultsHeaderContent.innerHTML = `
-                <button onclick="backToCategorySelection()" class="back-button">
-                    ← Back to Categories
-                </button>
+                ${badgeLegend}
                 <h2 class="results-title">${titleText}</h2>
             `;
         }
