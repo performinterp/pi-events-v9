@@ -3687,8 +3687,9 @@ select:focus-visible {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 4px var(--spacing-sm);
+    padding: 0;
     margin-bottom: 6px;
+    width: 100%;
 }
 
 .badge-legend-item {

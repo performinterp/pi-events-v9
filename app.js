@@ -897,11 +897,8 @@ const Router = {
         '/event': 'renderEventDetail'
     },
 
-    _isBackNav: false,
-
     init() {
         window.addEventListener('hashchange', () => this.handleRouteChange());
-        window.addEventListener('popstate', () => { this._isBackNav = true; });
         // Don't listen to 'load' - we'll call handleRouteChange() manually after app init
     },
 
@@ -938,14 +935,27 @@ const Router = {
             hero.style.display = isHome ? '' : 'none';
         }
 
-        // On back/forward navigation, let the browser restore scroll position naturally.
-        if (this._isBackNav) {
-            this._isBackNav = false;
-        } else if (!isHome) {
+        // Always scroll to top on navigation
+        if (!isHome || !sessionStorage.getItem('pi-visited')) {
             window.scrollTo(0, 0);
-        } else if (!sessionStorage.getItem('pi-visited')) {
-            window.scrollTo(0, 0);
-            sessionStorage.setItem('pi-visited', '1');
+            if (!sessionStorage.getItem('pi-visited')) {
+                sessionStorage.setItem('pi-visited', '1');
+            }
+        }
+
+        // On mobile, only show about/contact/footer on home page
+        const aboutSection = document.querySelector('.about-section');
+        const contactSection = document.querySelector('.contact-section');
+        const appFooter = document.querySelector('.app-footer');
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            if (aboutSection) aboutSection.style.display = isHome ? '' : 'none';
+            if (contactSection) contactSection.style.display = isHome ? '' : 'none';
+            if (appFooter) appFooter.style.display = isHome ? '' : 'none';
+        } else {
+            if (aboutSection) aboutSection.style.display = '';
+            if (contactSection) contactSection.style.display = '';
+            if (appFooter) appFooter.style.display = '';
         }
 
         // Route to appropriate flow
