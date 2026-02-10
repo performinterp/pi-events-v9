@@ -1925,21 +1925,13 @@ function renderCategorySelection() {
         return;
     }
 
-    // Get unique categories with counts (grouped by event+venue to match card display)
+    // Count individual events per category (matches the count shown in event listings)
     const categoryCounts = {};
-    const categoryGroupKeys = {}; // Track unique event+venue combos per category
 
     for (let i = 0; i < AppState.allEvents.length; i++) {
         const event = AppState.allEvents[i];
 
-        // Skip events without interpreter listed
-        const hasInterpreter = event['INTERPRETERS'] && event['INTERPRETERS'].trim() !== '';
-        if (!hasInterpreter) {
-            continue;
-        }
-
         const categories = parseCategories(event['CATEGORY'] || 'Other');
-        const groupKey = `${normalizeEventName(event['EVENT'])}|${normalizeVenueName(event['VENUE'])}`;
 
         for (const rawCat of categories) {
             let category = rawCat;
@@ -1954,17 +1946,8 @@ function renderCategorySelection() {
                 if (match) category = match;
             }
 
-            // Count unique event+venue combos using same normalization as render grouping
-            if (!categoryGroupKeys[category]) {
-                categoryGroupKeys[category] = new Set();
-            }
-            categoryGroupKeys[category].add(groupKey);
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
         }
-    }
-
-    // Convert Sets to counts
-    for (const cat in categoryGroupKeys) {
-        categoryCounts[cat] = categoryGroupKeys[cat].size;
     }
 
     // Category icons mapping
