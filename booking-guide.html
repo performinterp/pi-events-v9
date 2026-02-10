@@ -1109,6 +1109,7 @@
                 <div class="nav-dropdown">
                     <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
                     <div class="dropdown-menu" id="moreDropdownMenu">
+                        <button onclick="openCommSupportModal()" class="dropdown-item">Communication Support</button>
                         <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
                         <button onclick="openFestivalChecklistModal()" class="dropdown-item">Festival Checklist</button>
                         <button onclick="openKnowYourRightsModal()" class="dropdown-item">Know Your Rights</button>
@@ -1134,6 +1135,7 @@
             <div class="mobile-nav-dropdown">
                 <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
                 <div class="mobile-dropdown-menu" id="mobileMoreMenu">
+                    <button onclick="openCommSupportModal(); closeMobileMenu()" class="mobile-dropdown-item">Communication Support</button>
                     <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
                     <button onclick="openFestivalChecklistModal()" class="mobile-dropdown-item">Festival Checklist</button>
                     <button onclick="openKnowYourRightsModal()" class="mobile-dropdown-item">Know Your Rights</button>
@@ -4010,6 +4012,63 @@
         </div>
     </div>
 
+    <!-- Communication Support Modal -->
+    <div id="commSupportModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="commSupportTitle">
+        <div class="access-modal-overlay" onclick="closeCommSupportModal()"></div>
+        <div class="access-modal-content comm-support-content">
+            <button class="access-modal-close" onclick="closeCommSupportModal()" aria-label="Close dialog">&#10005;</button>
+
+            <h2 class="access-modal-title" id="commSupportTitle">Communication Support</h2>
+
+            <!-- Tab buttons -->
+            <div class="comm-tabs">
+                <button class="comm-tab active" onclick="switchCommTab('card')">Show Staff Card</button>
+                <button class="comm-tab" onclick="switchCommTab('stt')">Speech to Text</button>
+            </div>
+
+            <!-- Tab 1: Staff Awareness Card -->
+            <div id="commCardTab" class="comm-tab-content">
+                <div class="staff-card">
+                    <div class="staff-card-header">Communication Card</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
+                        <p class="staff-card-line">Please face me when speaking</p>
+                        <p class="staff-card-line">Speak clearly at a normal pace</p>
+                        <p class="staff-card-line">Please type or write your message</p>
+                        <p class="staff-card-line staff-card-thanks">Thank you for your patience</p>
+                    </div>
+                </div>
+                <p class="comm-hint">Show this to venue staff on your phone screen</p>
+            </div>
+
+            <!-- Tab 2: Speech to Text -->
+            <div id="commSTTTab" class="comm-tab-content" style="display: none;">
+                <div id="sttSupported">
+                    <div class="stt-display" id="sttDisplay">
+                        <p class="stt-placeholder" id="sttPlaceholder">Press "Start Listening" and ask the other person to speak</p>
+                        <p class="stt-text" id="sttText"></p>
+                    </div>
+                    <div class="stt-controls">
+                        <button class="btn-primary btn-large stt-btn" id="sttToggleBtn" onclick="toggleSTT()">
+                            Start Listening
+                        </button>
+                        <button class="btn-secondary" onclick="clearSTT()">Clear</button>
+                    </div>
+                    <div class="stt-reply">
+                        <label for="sttReplyInput" class="stt-reply-label">Type your reply:</label>
+                        <textarea id="sttReplyInput" class="stt-reply-input" rows="2" placeholder="Type here..."></textarea>
+                    </div>
+                </div>
+                <div id="sttUnsupported" style="display: none;">
+                    <div class="stt-unsupported-msg">
+                        <p>Speech-to-text is not supported in this browser.</p>
+                        <p>Try using <strong>Chrome</strong> or <strong>Edge</strong> for this feature.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="app-footer">
         <div class="container">
@@ -4324,6 +4383,95 @@
                     }
                 }
             });
+        }
+
+        // Communication Support Modal Functions
+        let sttRecognition = null;
+        let sttIsListening = false;
+
+        function openCommSupportModal() {
+            const modal = document.getElementById('commSupportModal');
+            if (!modal) return;
+            const supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            const supportedEl = document.getElementById('sttSupported');
+            const unsupportedEl = document.getElementById('sttUnsupported');
+            if (supportedEl) supportedEl.style.display = supported ? 'block' : 'none';
+            if (unsupportedEl) unsupportedEl.style.display = supported ? 'none' : 'block';
+            switchCommTab('card');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCommSupportModal() {
+            const modal = document.getElementById('commSupportModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+            if (sttRecognition && sttIsListening) {
+                sttRecognition.stop();
+                sttIsListening = false;
+            }
+        }
+
+        function switchCommTab(tab) {
+            const cardTab = document.getElementById('commCardTab');
+            const sttTab = document.getElementById('commSTTTab');
+            const tabs = document.querySelectorAll('.comm-tab');
+            tabs.forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'card' && i === 0) || (tab === 'stt' && i === 1));
+            });
+            if (cardTab) cardTab.style.display = tab === 'card' ? 'block' : 'none';
+            if (sttTab) sttTab.style.display = tab === 'stt' ? 'block' : 'none';
+        }
+
+        function toggleSTT() {
+            if (sttIsListening) { stopSTT(); } else { startSTT(); }
+        }
+
+        function startSTT() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
+            sttRecognition = new SpeechRecognition();
+            sttRecognition.continuous = true;
+            sttRecognition.interimResults = true;
+            sttRecognition.lang = 'en-GB';
+            const display = document.getElementById('sttDisplay');
+            const textEl = document.getElementById('sttText');
+            const placeholder = document.getElementById('sttPlaceholder');
+            const toggleBtn = document.getElementById('sttToggleBtn');
+            let finalTranscript = textEl.textContent || '';
+            sttRecognition.onstart = () => {
+                sttIsListening = true;
+                if (display) display.classList.add('listening');
+                if (placeholder) placeholder.style.display = 'none';
+                if (toggleBtn) { toggleBtn.textContent = 'Stop Listening'; toggleBtn.classList.add('listening'); }
+            };
+            sttRecognition.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript + ' '; }
+                    else { interim += event.results[i][0].transcript; }
+                }
+                if (textEl) { textEl.textContent = finalTranscript + interim; }
+            };
+            sttRecognition.onerror = (event) => { if (event.error !== 'no-speech') console.error('STT error:', event.error); };
+            sttRecognition.onend = () => {
+                sttIsListening = false;
+                if (display) display.classList.remove('listening');
+                if (toggleBtn) { toggleBtn.textContent = 'Start Listening'; toggleBtn.classList.remove('listening'); }
+            };
+            sttRecognition.start();
+        }
+
+        function stopSTT() { if (sttRecognition) sttRecognition.stop(); }
+
+        function clearSTT() {
+            const textEl = document.getElementById('sttText');
+            const placeholder = document.getElementById('sttPlaceholder');
+            if (textEl) textEl.textContent = '';
+            if (placeholder) placeholder.style.display = 'block';
+            if (sttRecognition && sttIsListening) sttRecognition.stop();
         }
 
         // Feedback Modal Functions

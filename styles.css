@@ -4659,6 +4659,8 @@ select:focus-visible {
     color: #1F2937;
     margin-bottom: 0.5rem;
     text-align: center;
+    padding-right: 3rem;
+    padding-left: 3rem;
 }
 
 .access-modal-subtitle {
