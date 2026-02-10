@@ -897,8 +897,11 @@ const Router = {
         '/event': 'renderEventDetail'
     },
 
+    _isBackNav: false,
+
     init() {
         window.addEventListener('hashchange', () => this.handleRouteChange());
+        window.addEventListener('popstate', () => { this._isBackNav = true; });
         // Don't listen to 'load' - we'll call handleRouteChange() manually after app init
     },
 
@@ -917,7 +920,6 @@ const Router = {
         // Hide all flow sections
         this.hideAllFlows();
 
-        // Scroll behaviour: skip hero on return visits, show blue sliver
         const isHome = (route === '/' || route === '');
 
         // Toggle header layout: logo left on home, centred with back arrow elsewhere
@@ -930,13 +932,15 @@ const Router = {
             }
         }
 
-        if (sessionStorage.getItem('pi-visited')) {
-            // Skip past hero on all routes after first visit
-            // Use setTimeout to ensure scroll happens after all rendering completes
+        // On back/forward navigation, let the browser restore scroll position naturally.
+        // Only force scroll on fresh navigations (link clicks, initial load).
+        if (this._isBackNav) {
+            this._isBackNav = false;
+        } else if (sessionStorage.getItem('pi-visited')) {
             setTimeout(() => {
                 const hero = document.querySelector('.hero-section');
                 if (hero) {
-                    const heroBottom = hero.offsetTop + hero.offsetHeight - 20; // 20px of blue showing
+                    const heroBottom = hero.offsetTop + hero.offsetHeight - 20;
                     window.scrollTo(0, heroBottom);
                 }
             }, 50);
