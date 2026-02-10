@@ -932,19 +932,18 @@ const Router = {
             }
         }
 
+        // Show hero only on home page
+        const hero = document.querySelector('.hero-section');
+        if (hero) {
+            hero.style.display = isHome ? '' : 'none';
+        }
+
         // On back/forward navigation, let the browser restore scroll position naturally.
-        // Only force scroll on fresh navigations (link clicks, initial load).
         if (this._isBackNav) {
             this._isBackNav = false;
-        } else if (sessionStorage.getItem('pi-visited')) {
-            setTimeout(() => {
-                const hero = document.querySelector('.hero-section');
-                if (hero) {
-                    const heroBottom = hero.offsetTop + hero.offsetHeight - 20;
-                    window.scrollTo(0, heroBottom);
-                }
-            }, 50);
-        } else {
+        } else if (!isHome) {
+            window.scrollTo(0, 0);
+        } else if (!sessionStorage.getItem('pi-visited')) {
             window.scrollTo(0, 0);
             sessionStorage.setItem('pi-visited', '1');
         }
