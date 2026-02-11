@@ -230,7 +230,7 @@ async function subscribeToNotifications() {
 
         // Show a test notification
         new Notification('🎉 Notifications Enabled!', {
-            body: 'You\'ll now receive updates about new BSL/ISL interpreted events.',
+            body: 'You\'ll now receive updates about new BSL & ISL interpreted events.',
             icon: 'PI Favicon.png',
             badge: 'PI Favicon.png'
         });

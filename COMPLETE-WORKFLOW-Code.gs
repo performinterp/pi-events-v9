@@ -186,7 +186,7 @@ function enrichRawToEnrichedUI() {
     '• Ticket links (automatic search)\n' +
     '• Categories (auto-detect)\n' +
     '• Image URLs (auto-search)\n' +
-    '• Interpretation type (BSL/ISL)\n\n' +
+    '• Interpretation type (BSL & ISL)\n\n' +
     'Continue?',
     ui.ButtonSet.YES_NO
   );

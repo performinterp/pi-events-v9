@@ -244,7 +244,7 @@ self.addEventListener('sync', (event) => {
 
 self.addEventListener('push', (event) => {
     let notificationData = {
-        title: 'New BSL/ISL Event Available!',
+        title: 'New BSL & ISL Event Available!',
         body: 'Check out the latest interpreted events',
         icon: 'PI Favicon.png',
         badge: 'PI Favicon.png',

@@ -1309,7 +1309,7 @@ function generateCalendarFile(event) {
         `DTSTART:${formatICSDate(startDate)}`,
         `DTEND:${formatICSDate(endDate)}`,
         `SUMMARY:${event['EVENT']}`,
-        `DESCRIPTION:${event['DESCRIPTION'] || 'BSL/ISL interpreted event'}\\nInterpreted by: ${event['INTERPRETERS'] || 'TBA'}`,
+        `DESCRIPTION:${event['DESCRIPTION'] || 'BSL & ISL interpreted event'}\\nInterpreted by: ${event['INTERPRETERS'] || 'TBA'}`,
         `LOCATION:${event['VENUE']}`,
         'END:VEVENT',
         'END:VCALENDAR'
@@ -1335,7 +1335,7 @@ function downloadCalendar(event) {
 async function shareEvent(event) {
     const shareData = {
         title: event['EVENT'],
-        text: `${event['EVENT']} - Interpreted by ${event['INTERPRETERS'] || 'Professional BSL/ISL interpreters'}`,
+        text: `${event['EVENT']} - Interpreted by ${event['INTERPRETERS'] || 'Professional BSL & ISL interpreters'}`,
         url: event['EVENT URL'] || event['BOOKING GUIDE'] || window.location.href
     };
     
@@ -4499,7 +4499,7 @@ function closeAccessFirstModal() {
 
 /**
  * Generate Access Email
- * Creates a pre-written email asking for BSL/ISL accessible seating
+ * Creates a pre-written email asking for BSL & ISL accessible seating
  */
 function generateAccessEmail() {
     if (!currentAccessEvent) {

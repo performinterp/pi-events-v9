@@ -60,7 +60,7 @@ Event: Time-driven, Every hour
 Every hour, the script will:
 
 1. ✅ Check ENRICHED sheet for events without STATUS
-2. ✅ Add interpretation (BSL/ISL)
+2. ✅ Add interpretation (BSL & ISL)
 3. ✅ Add category
 4. ✅ Find specific ticket URLs with confidence scoring
 5. ✅ Mark as "Ready" or "Review Links"

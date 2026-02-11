@@ -105,7 +105,7 @@ The script now has permission to:
 3. **You run:** 🎭 Event Automation → **✨ Enrich All Pending Events**
 4. Script processes all events without STATUS
 5. Adds:
-   - Interpretation (BSL/ISL)
+   - Interpretation (BSL & ISL)
    - Category
    - **Specific ticket URL** (with confidence check)
    - Confidence score in LINK_CONFIDENCE column

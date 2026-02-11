@@ -88,7 +88,7 @@ function importAndEnrichUI() {
   const response = ui.alert(
     '📥 Import & Enrich Events',
     'Import from PUBLIC_APPROVED and enrich with:\n\n' +
-    '• Interpretation type (BSL/ISL)\n' +
+    '• Interpretation type (BSL & ISL)\n' +
     '• Categories (auto-detected)\n' +
     '• Ticket links (auto-found)\n' +
     '• Image URLs\n' +

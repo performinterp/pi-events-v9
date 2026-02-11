@@ -190,7 +190,7 @@ npx cap add ios
 ## 📦 What You'll Need for App Stores:
 
 ### Both Stores:
-- [ ] App name: "PI Events - BSL/ISL Interpreted Events" (or similar)
+- [ ] App name: "PI Events - BSL & ISL Interpreted Events" (or similar)
 - [ ] Short description (80 chars): "Find BSL and ISL interpreted events across UK and Ireland"
 - [ ] Full description (4000 chars): Talk about accessibility, event discovery, etc.
 - [ ] App icon: 1024x1024px PNG (can use existing PI Favicon scaled up)

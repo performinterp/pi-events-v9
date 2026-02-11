@@ -76,7 +76,7 @@ function enrichRow(sheet, rowNum, rowData) {
 
   Logger.log(`Processing: ${event} at ${venue}`);
 
-  // Detect interpretation type (BSL/ISL)
+  // Detect interpretation type (BSL & ISL)
   const interpretation = detectInterpretation(venue);
   sheet.getRange(rowNum, 6).setValue(interpretation); // Column F
 

@@ -85,7 +85,7 @@ Created a new **VENUE_ACCESS** tab in the PUBLIC EVENTS FEED Google Sheet to cen
 - **AFTER**: ALL green badge events MUST open access modal first - NO exceptions
 
 ### **New Button Behavior:**
-For ALL green badge (🟢 BSL/ISL Confirmed) events:
+For ALL green badge (🟢 BSL & ISL Confirmed) events:
 - Primary button text: "📋 How to Book BSL Access"
 - Button action: Opens `openAccessFirstModal()` - NEVER direct ticket links
 - This ensures users ALWAYS see access information before proceeding to ticketing
@@ -96,7 +96,7 @@ For ALL green badge (🟢 BSL/ISL Confirmed) events:
 1. **✉️ Generate Access Email** (Always visible)
    - Pre-written email template with event details
    - Uses `ACCESS_EMAIL` or falls back to `VENUE_CONTACT_EMAIL`
-   - Template includes: Event name, venue, date, BSL/ISL language detection
+   - Template includes: Event name, venue, date, BSL & ISL language detection
    - Opens user's default email client with mailto: link
 
 2. **📹 Use Video Relay** (Conditional - shows if `VRS_URL` available)
@@ -116,11 +116,11 @@ For ALL green badge (🟢 BSL/ISL Confirmed) events:
 
 ### **Email Template:**
 ```
-Subject: BSL/ISL Access Request - [EVENT NAME]
+Subject: BSL & ISL Access Request - [EVENT NAME]
 
 Hi,
 
-I am a Deaf BSL/ISL user and would like to attend [EVENT] at [VENUE] on [FORMATTED DATE].
+I am a Deaf BSL & ISL user and would like to attend [EVENT] at [VENUE] on [FORMATTED DATE].
 
 Please can you advise how I can book tickets with a clear view of the interpreter/BSL area?
 
@@ -176,15 +176,15 @@ The modal answers "What do I do next to get access?" in one glance. Even if venu
 ### 1️⃣ **BADGE & INTERPRETATION REFACTOR** ✅ COMPLETE
 
 #### What Changed:
-- **Removed black BSL/ISL pill** from all event cards (regular, compact, list views)
-- **Integrated BSL/ISL into main badge labels**:
+- **Removed black BSL & ISL pill** from all event cards (regular, compact, list views)
+- **Integrated BSL & ISL into main badge labels**:
   - 🟢 Badge now shows "BSL Confirmed" or "ISL Confirmed"
   - 🟠 Badge shows "Request BSL" or "Request ISL"
   - 🔴 Badge shows "No BSL Yet" or "No ISL Yet"
 
 #### Detection Logic (Hierarchy):
 1. **COUNTRY field** → If "Ireland", "IE", "IRL" → ISL
-2. **INTERPRETATION field** → Manual override (BSL/ISL)
+2. **INTERPRETATION field** → Manual override (BSL & ISL)
 3. **Venue heuristics** → Detects Irish locations:
    - Major cities: Dublin, Cork, Galway, Limerick, Belfast, Waterford
    - Counties: Laois, Wicklow, Kildare, Mayo, Donegal, Kerry
@@ -345,7 +345,7 @@ Ticker messages are short (≤8 words), empowering, and rotate automatically. Fa
 5. `openOfficialSite()` - Official site link handler
 
 ### All Functions (Complete List):
-1. `getInterpretationLanguage(event)` - BSL/ISL detection
+1. `getInterpretationLanguage(event)` - BSL & ISL detection
 2. `openGetTicketsModal(event)` - Ticket guidance modal (legacy)
 3. `closeGetTicketsModal()` - Close ticket modal
 4. `continueToTickets()` - Open external ticket link
@@ -394,7 +394,7 @@ Ticker messages are short (≤8 words), empowering, and rotate automatically. Fa
 - [ ] Button opens access-first modal (NOT direct ticket link)
 - [ ] Modal shows event name in subtitle
 - [ ] "Generate Access Email" button always visible
-- [ ] Email opens with correct template (event, venue, date, BSL/ISL)
+- [ ] Email opens with correct template (event, venue, date, BSL & ISL)
 - [ ] Email uses ACCESS_EMAIL if available, falls back to VENUE_CONTACT_EMAIL
 - [ ] VRS button shows when VRS_URL is present
 - [ ] VRS button text adapts to VRS_PROVIDER name
@@ -410,7 +410,7 @@ Ticker messages are short (≤8 words), empowering, and rotate automatically. Fa
 - [ ] UK events show "BSL Confirmed" badges
 - [ ] COUNTRY field override works (Ireland → ISL)
 - [ ] INTERPRETATION field override works
-- [ ] No black BSL/ISL pill visible on cards
+- [ ] No black BSL & ISL pill visible on cards
 
 ### Get Tickets Modal:
 - [ ] "Get Tickets" opens modal (not direct link)

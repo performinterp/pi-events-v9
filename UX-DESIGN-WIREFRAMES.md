@@ -23,7 +23,7 @@
 │      [Performance Interpreting         │
 │            Logo]                       │
 │                                        │
-│     Find Events with BSL/ISL          │
+│     Find Events with BSL & ISL          │
 │                                        │
 │   [Large illustration: Hands signing] │
 │                                        │
@@ -477,7 +477,7 @@
 ```
 ┌─────────────┐
 │  🟢         │  GREEN: Interpreter Booked
-│  Confirmed  │  • BSL/ISL interpreter confirmed
+│  Confirmed  │  • BSL & ISL interpreter confirmed
 └─────────────┘  • Safe to book tickets
                  • Action: "Get Access Info"
 
