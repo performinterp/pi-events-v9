@@ -1218,6 +1218,16 @@ a {
     margin-right: auto;
 }
 
+.categories-disclaimer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: var(--spacing-lg);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .festival-header {
     margin-bottom: var(--spacing-2xl);
 }
