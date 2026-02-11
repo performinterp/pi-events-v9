@@ -4864,14 +4864,18 @@ select:focus-visible {
 .comm-tab {
     flex: 1;
     padding: 0.75rem 1rem;
-    border: 2px solid #E5E7EB;
+    border: 2px solid var(--primary);
     border-radius: 10px;
-    background: white;
+    background: rgba(37, 99, 235, 0.08);
     font-size: 0.95rem;
     font-weight: 600;
-    color: #6B7280;
+    color: var(--primary);
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.comm-tab:hover {
+    background: rgba(37, 99, 235, 0.15);
 }
 
 .comm-tab.active {
