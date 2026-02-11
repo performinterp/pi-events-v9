@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.48">
+    <link rel="stylesheet" href="styles.css?v=1.9.49">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -118,8 +118,8 @@
                 alt="Performance Interpreting"
                 class="hero-logo"
             >
-            <h1 class="hero-title">BSL & ISL Interpreted Events</h1>
-            <p class="hero-subtitle">Discover accessible live events with professional sign language interpretation</p>
+            <h1 class="hero-title">BSL & ISL Events</h1>
+            <p class="hero-subtitle">Find live events with BSL and ISL interpreters</p>
             <button class="bsl-video-btn" onclick="openVideoModal()">▶ Watch BSL Video</button>
         </div>
     </section>
@@ -154,7 +154,7 @@
                        <div class="flow-card-content">
                            <h2 class="flow-card-title">Events with BSL</h2>
                            <p class="flow-card-description">
-                               See events with interpreters<br>
+                               Events with interpreters<br>
                                already booked
                            </p>
                            <a href="#/flow1" class="flow-card-button btn-primary">Browse Events</a>
@@ -165,10 +165,10 @@
                    <div class="flow-card flow-card-blue">
                        <div class="flow-card-icon">🔍</div>
                        <div class="flow-card-content">
-                           <h2 class="flow-card-title">Check if BSL is Booked</h2>
+                           <h2 class="flow-card-title">Is BSL Booked?</h2>
                            <p class="flow-card-description">
-                               Search for any event<br>
-                               Check BSL availability
+                               Search for an event<br>
+                               Find out if BSL is booked
                            </p>
                            <a href="#/flow2" class="flow-card-button btn-primary">Search Events</a>
                        </div>
@@ -180,7 +180,7 @@
                        <div class="flow-card-content">
                            <h2 class="flow-card-title">Request Interpreter</h2>
                            <p class="flow-card-description">
-                               Ask venue to provide<br>
+                               Ask the venue to book<br>
                                an interpreter
                            </p>
                            <a href="#/flow3" class="flow-card-button btn-primary">Make Request</a>
@@ -193,7 +193,7 @@
                        <p class="rights-ticker-label">💪 Know Your Rights:</p>
                        <p id="rightsTicker" class="rights-ticker"></p>
                        <button onclick="openKnowYourRightsModal()" class="btn-secondary" style="margin-top: 16px; display: inline-block;">
-                           Learn More About Your Rights →
+                           Know your rights →
                        </button>
                    </div>
                </div>
@@ -218,7 +218,7 @@
                <div class="category-cards-grid" id="categoryCardsContainer">
                    <!-- Will be populated by JavaScript instantly from cache or after fetch -->
                </div>
-               <p class="categories-disclaimer">Events listed are limited to venues and promoters we have an agreement with to advertise.</p>
+               <p class="categories-disclaimer">We only show events from venues we work with.</p>
            </div>
        </section>
 
@@ -379,8 +379,8 @@
        <div id="flow2Section" style="display: none;">
            <div class="container">
                <div class="flow-header">
-                   <h2 class="flow-title">Check if BSL is Booked</h2>
-                   <p class="flow-subtitle">Search for any event<br>Check BSL availability</p>
+                   <h2 class="flow-title">Is BSL Booked?</h2>
+                   <p class="flow-subtitle">Search for an event<br>Find out if BSL is booked</p>
                </div>
 
                <div class="search-flow-container">
@@ -395,7 +395,7 @@
                </div>
 
                <div id="flow2Results" class="flow-results">
-                   <p class="placeholder-text">🔍 Enter event name to check BSL availability</p>
+                   <p class="placeholder-text">🔍 Type the event name to check BSL</p>
                </div>
            </div>
        </div><!-- End flow2Section -->
@@ -405,7 +405,7 @@
            <div class="container">
                <div class="flow-header">
                    <h2 class="flow-title">Request an Interpreter</h2>
-                   <p class="flow-subtitle">Ask venues to provide an interpreter<br>We help you request</p>
+                   <p class="flow-subtitle">Ask a venue to book an interpreter<br>We help you ask</p>
                </div>
 
                <div class="request-form-container">
@@ -455,10 +455,10 @@
        <div id="bookingGuideSection" class="booking-guide-section" style="display: none;">
            <div class="hero-section" style="padding: 60px 20px 20px;">
                <div class="hero-content">
-                   <h1 class="hero-title">How to Book BSL & ISL Accessible Tickets</h1>
+                   <h1 class="hero-title">How to Book BSL & ISL Tickets</h1>
                    <p class="bg-no-tickets-notice"><span class="bg-no-tickets-chevron">›››</span> <span class="bg-no-tickets-text">We <u>DO NOT</u> sell tickets</span> <span class="bg-no-tickets-chevron bg-no-tickets-chevron-right">‹‹‹</span></p>
-                   <p class="hero-subtitle" style="max-width: 800px;">Below is a guide for booking BSL &amp; ISL accessible tickets</p>
-                   <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list is updated regularly. Information may change.</p>
+                   <p class="hero-subtitle" style="max-width: 800px;">This guide helps you book BSL and ISL tickets at venues.</p>
+                   <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">We update this often. Details may change.</p>
                </div>
            </div>
 
@@ -511,16 +511,18 @@
                         <details class="about-card">
                             <summary><h3>Our Mission</h3></summary>
                             <div class="about-card-body">
-                                <p>Performance Interpreting is dedicated to making live events accessible and inclusive for the Deaf community through professional BSL and ISL interpretation.</p>
-                                <p>We work across the UK and Ireland to make music, sports, comedy, theatre and cultural experiences fully accessible to Deaf audiences. You'll find our interpreters on stage at festivals, arenas, and stadiums—bringing every lyric, goal, and laugh to life in British and Irish Sign Language.</p>
+                                <p>We make live events accessible for Deaf people.</p>
+                                <p>Our BSL and ISL interpreters work at concerts, festivals, sports, comedy, and theatre across the UK and Ireland.</p>
+                                <p>We bring every lyric, goal, and laugh to life in sign language.</p>
                             </div>
                         </details>
 
                         <details class="about-card">
                             <summary><h3>Quality Interpreters</h3></summary>
                             <div class="about-card-body">
-                                <p>Our interpreters are highly skilled performers in their own right. Each is professionally trained and experienced in live interpretation, carefully matched to the genre of the event to capture rhythm, tone, and emotion—not just the words.</p>
-                                <p><strong>All of our interpreters are fully qualified and registered with the NRCPD</strong> (National Registers of Communication Professionals working with Deaf and Deafblind People).</p>
+                                <p>Our interpreters are skilled performers. They are trained for live events and matched to the right type of show.</p>
+                                <p>They don't just sign the words — they show the rhythm, feeling, and emotion too.</p>
+                                <p><strong>All our interpreters are qualified and registered with the NRCPD.</strong></p>
                             </div>
                         </details>
 
@@ -528,11 +530,11 @@
                             <summary><h3>Event Coverage</h3></summary>
                             <div class="about-card-body">
                                 <ul class="coverage-list">
-                                    <li>Music concerts, tours, and major festivals</li>
-                                    <li>Sports and large-scale entertainment events</li>
-                                    <li>Comedy, spoken word, and cultural performances</li>
-                                    <li>Community, educational, and corporate occasions</li>
-                                    <li>High profile and celebrity events</li>
+                                    <li>Concerts, tours, and festivals</li>
+                                    <li>Sports and big events</li>
+                                    <li>Comedy and theatre</li>
+                                    <li>Community and work events</li>
+                                    <li>Celebrity and high-profile events</li>
                                 </ul>
                             </div>
                         </details>
@@ -554,7 +556,7 @@
                         <div class="contact-icon-large">&#127760;</div>
                         <div class="contact-card-content">
                             <h3>Visit Our Website</h3>
-                            <p>Learn more about our interpretation services and how we're making live events more inclusive and accessible for the Deaf community.</p>
+                            <p>Find out more about what we do and how we make events accessible.</p>
                             <a href="https://www.performanceinterpreting.co.uk" target="_blank" rel="noopener" class="contact-btn">
                                 Explore Our Work
                             </a>
@@ -566,7 +568,7 @@
                         <div class="contact-icon-large">&#128172;</div>
                         <div class="contact-card-content">
                             <h3>Share Your Experience</h3>
-                            <p>Share your experience — text or video. Tell us about events you attended, booking challenges, or suggestions</p>
+                            <p>Tell us about your experience. Text or video. What was good? What could be better?</p>
                             <button onclick="openFeedbackModal()" class="contact-btn">
                                 Share Feedback
                             </button>
@@ -578,7 +580,7 @@
                         <div class="contact-icon-large">&#128241;</div>
                         <div class="contact-card-content">
                             <h3>Follow Us</h3>
-                            <p>Stay updated on new interpreted events, exclusive giveaways, and be first to know when tickets are released</p>
+                            <p>Follow us for new events, giveaways, and ticket news</p>
                         <div class="social-icons-large">
                             <a href="https://www.facebook.com/performanceinterpreting" target="_blank" rel="noopener" aria-label="Facebook">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -613,7 +615,7 @@
             <div class="access-modal-content">
                 <button class="access-modal-close" onclick="closeGetAccessModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title" id="getAccessModalTitle">How to Book Accessible Tickets</h2>
+                <h2 class="access-modal-title" id="getAccessModalTitle">How to Book BSL Tickets</h2>
                 <p class="access-modal-subtitle">Follow these 3 simple steps</p>
 
                 <div class="access-steps-grid">
@@ -622,22 +624,22 @@
                         <div class="access-step-number">1</div>
                         <div class="access-step-icon">📞</div>
                         <h3>Contact Venue</h3>
-                        <p>Call or email the venue<br>Ask for accessibility team</p>
+                        <p>Call or email the venue<br>Ask for the access team</p>
                     </div>
 
                     <!-- Step 2 -->
                     <div class="access-step">
                         <div class="access-step-number">2</div>
                         <div class="access-step-icon">🎟️</div>
-                        <h3>Request Access</h3>
-                        <p>Say you need BSL tickets<br>Book accessible seating</p>
+                        <h3>Ask for BSL Tickets</h3>
+                        <p>Tell them you need BSL<br>Ask for seats near the interpreter</p>
                     </div>
 
                     <!-- Step 3 -->
                     <div class="access-step">
                         <div class="access-step-number">3</div>
                         <div class="access-step-icon">✅</div>
-                        <h3>Arrive & Enjoy</h3>
+                        <h3>Arrive & Enjoy!</h3>
                         <p>Show your booking<br>Enjoy the event!</p>
                     </div>
                 </div>
@@ -653,8 +655,8 @@
 
                 <div class="access-modal-note">
                     <strong>💡 Know Your Rights:</strong><br>
-                    Venues must provide access<br>
-                    Under Equality Act 2010
+                    Venues must make events accessible.<br>
+                    This is the law (Equality Act 2010).
                 </div>
             </div>
         </div>
@@ -704,7 +706,7 @@
             <div class="access-modal-content">
                 <button class="access-modal-close" onclick="closeGetTicketsModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title" id="getTicketsModalTitle">How to book accessible tickets</h2>
+                <h2 class="access-modal-title" id="getTicketsModalTitle">How to book BSL tickets</h2>
                 <p class="access-modal-subtitle">Before you buy tickets</p>
 
                 <div class="access-steps-grid">
@@ -712,24 +714,24 @@
                     <div class="access-step">
                         <div class="access-step-number">1</div>
                         <div class="access-step-icon">📧</div>
-                        <h3>Contact Venue First</h3>
-                        <p>Use SignVideo or email<br>Ask for access team</p>
+                        <h3>Contact the Venue First</h3>
+                        <p>Use SignVideo or email<br>Ask for the access team</p>
                     </div>
 
                     <!-- Step 2 -->
                     <div class="access-step">
                         <div class="access-step-number">2</div>
                         <div class="access-step-icon">👁️</div>
-                        <h3>Request Interpreter View</h3>
-                        <p>Ask for seats near interpreter<br>Clear view of signing</p>
+                        <h3>Ask for Good Seats</h3>
+                        <p>Ask for seats near the interpreter<br>You need a clear view of signing</p>
                     </div>
 
                     <!-- Step 3 -->
                     <div class="access-step">
                         <div class="access-step-number">3</div>
                         <div class="access-step-icon">🎟️</div>
-                        <h3>Already Bought Tickets?</h3>
-                        <p>Contact venue to move<br>To BSL accessible area</p>
+                        <h3>Already Got Tickets?</h3>
+                        <p>Contact the venue<br>Ask to move to the BSL area</p>
                     </div>
                 </div>
 
@@ -747,8 +749,8 @@
 
                 <div class="access-modal-note">
                     <strong>💡 Tip:</strong><br>
-                    Don't buy without checking first<br>
-                    Best seats may be reserved
+                    Contact the venue before you buy tickets.<br>
+                    The best seats might be saved for you.
                 </div>
             </div>
         </div>
@@ -800,47 +802,47 @@
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Browse events on the Performance Interpreting app. Each event lists which interpreter(s) will be present.</p>
+                        <p>Look at the events on this app. Each event shows which interpreter will be there.</p>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-step-number">2</span>
-                        <span class="bg-tip-title">Check the Venues Section</span>
+                        <span class="bg-tip-title">Check the Venues List</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Look up your venue in the venues section to see if interpreters are guaranteed at every show or if you need to request one.</p>
+                        <p>Check the venues list. Some venues always have interpreters. Some need you to ask first.</p>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-step-number">3</span>
-                        <span class="bg-tip-title">Call the Accessible Booking Line</span>
+                        <span class="bg-tip-title">Contact the Venue</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Use the contact details from the venues section. SignVideo links are available for many venues for BSL users.</p>
+                        <p>Contact the venue. Use the details in the venues list. Many venues have SignVideo for BSL users.</p>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-step-number">4</span>
-                        <span class="bg-tip-title">Specify Your Requirements</span>
+                        <span class="bg-tip-title">Tell the Venue What You Need</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Clearly state: (1) You need BSL & ISL interpretation, (2) Event name and date, (3) Number of people in your group, (4) Any companion tickets needed.</p>
+                        <p>Tell the venue:<br>— You need BSL or ISL<br>— The event name and date<br>— How many people in your group<br>— If you need companion tickets</p>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-step-number">5</span>
-                        <span class="bg-tip-title">Get Confirmation</span>
+                        <span class="bg-tip-title">Get Email Confirmation</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Request email confirmation that interpretation is arranged. Save this confirmation and bring it with you on the day.</p>
+                        <p>Ask for an email to confirm your booking. Save it. Bring it with you on the day.</p>
                     </div>
                 </div>
                 <div class="bg-tip-item">
@@ -850,7 +852,7 @@
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Give yourself time to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team.</p>
+                        <p>Arrive early. Find the BSL viewing area. If you have a problem, ask venue staff for help.</p>
                     </div>
                 </div>
             </div>
@@ -874,12 +876,12 @@
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-tip-icon">📞</span>
-                        <span class="bg-tip-title">Always Use the Accessible Booking Line</span>
+                        <span class="bg-tip-title">Use the Access Booking Line</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Accessible booking lines are staffed by trained teams who understand BSL & ISL requirements (don't use the general ticketing number).</p>
+                            <p>The access team knows about BSL and ISL. Don't call the normal ticket number.</p>
                         </div>
                     </div>
                 </div>
@@ -891,43 +893,43 @@
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Ask for seats with a clear view of the interpreter. Many venues have BSL viewing areas with the best sightlines.</p>
+                            <p>Ask for seats where you can see the interpreter clearly. Many venues have a BSL viewing area.</p>
                         </div>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-tip-icon">✉️</span>
-                        <span class="bg-tip-title">Get Written Confirmation</span>
+                        <span class="bg-tip-title">Get Email Confirmation</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Always request email confirmation that interpretation has been arranged. Save this confirmation and bring it to the event.</p>
+                            <p>Ask the venue to send you an email to confirm BSL is booked. Save the email. Bring it to the event.</p>
                         </div>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-tip-icon">⏰</span>
-                        <span class="bg-tip-title">Give Yourself Time</span>
+                        <span class="bg-tip-title">Arrive Early</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Give yourself extra time to find the interpretation area and get settled before the event starts.</p>
+                            <p>Come early so you can find the BSL area and get comfortable before the show starts.</p>
                         </div>
                     </div>
                 </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-tip-icon">💬</span>
-                        <span class="bg-tip-title">Share Your Experience</span>
+                        <span class="bg-tip-title">Tell Us How It Went</span>
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Let Performance Interpreting know how your experience was. Your feedback helps improve accessibility for everyone.</p>
+                            <p>We want to hear from you. Your feedback helps us make events better for everyone.</p>
                             <button onclick="openFeedbackModal(); closeBgModal('bgTipsModal');" style="margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Share Your Thoughts</button>
                         </div>
                     </div>
@@ -951,59 +953,59 @@
             </div>
             <div class="bg-modal-body">
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">Do I need to request an interpreter in advance?</span>
+                    <span class="bg-faq-question-text">Do I need to ask for an interpreter before the event?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">It depends on the venue. Some venues provide interpreters at every show (like Wembley Stadium), while others require advance booking (like The O2 Arena). Check the venues section for specific details.</div>
+                    <div class="bg-faq-answer">It depends on the venue. Some venues always have interpreters (like Wembley). Others need you to book ahead (like The O2). Check the venues list to find out.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">How far in advance should I book?</span>
+                    <span class="bg-faq-question-text">How early should I book?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">As soon as possible! For venues that require interpreter requests, contact them immediately after buying your tickets. Some venues need 2-4 weeks notice.</div>
+                    <div class="bg-faq-answer">As soon as you can! Contact the venue as soon as you buy tickets. Some venues need 2 to 4 weeks.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">Are BSL & ISL tickets more expensive?</span>
+                    <span class="bg-faq-question-text">Do BSL or ISL tickets cost more?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">No! BSL and ISL interpretation is provided free of charge as an accessibility service. You only pay the standard ticket price.</div>
+                    <div class="bg-faq-answer">No! BSL and ISL is free. You just pay the normal ticket price.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">Can I bring a companion or personal assistant?</span>
+                    <span class="bg-faq-question-text">Can I bring someone with me?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">Yes! Most venues offer companion tickets at reduced or no cost for personal support workers. Contact the venue's accessibility team when booking.</div>
+                    <div class="bg-faq-answer">Yes! Most venues give free or cheap tickets for a support person. Ask the access team when you book.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">What's the difference between BSL and ISL?</span>
+                    <span class="bg-faq-question-text">What is the difference between BSL and ISL?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">BSL (British Sign Language) is used in the UK and ISL (Irish Sign Language) is used in Ireland. They are distinct languages with different grammar and vocabulary.</div>
+                    <div class="bg-faq-answer">BSL (British Sign Language) is used in the UK. ISL (Irish Sign Language) is used in Ireland. They are different languages.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">Can I request a specific interpreter?</span>
+                    <span class="bg-faq-question-text">Can I choose which interpreter I want?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">Generally, no. Venues work with professional interpretation agencies who assign qualified interpreters based on availability and expertise for that event type.</div>
+                    <div class="bg-faq-answer">Usually, no. The venue picks a qualified interpreter who is right for the event.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
-                    <span class="bg-faq-question-text">Where will the interpreter be positioned?</span>
+                    <span class="bg-faq-question-text">Where will the interpreter be?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">This varies by venue and event. Many concerts have interpreters on stage or in a designated viewing area. The access team will provide details when you book.</div>
+                    <div class="bg-faq-answer">It depends on the venue. At concerts, interpreters are often on stage or in a special area. The access team will tell you when you book.</div>
                 </div>
             </div>
         </div>
@@ -1033,7 +1035,7 @@
                     >
                 </div>
                 <div class="bg-venue-instruction">
-                    <strong>Before purchasing tickets</strong> — contact the venue's accessibility team to request BSL interpretation and ask for seats with the best view of the interpreter.
+                    <strong>Before you buy tickets</strong> — contact the venue's access team. Ask for BSL and ask for seats where you can see the interpreter.
                 </div>
                 <div id="bgVenueContent">
                     <div class="bg-venues-loading">
@@ -1142,9 +1144,9 @@
                     <div class="staff-card-header">Communication Card</div>
                     <div class="staff-card-body">
                         <p class="staff-card-line staff-card-primary">I am Deaf</p>
-                        <p class="staff-card-line">Please face me when speaking</p>
-                        <p class="staff-card-line">Speak clearly at a normal pace</p>
-                        <p class="staff-card-line">Please type or write your message</p>
+                        <p class="staff-card-line">Please face me when you talk</p>
+                        <p class="staff-card-line">Speak clearly, normal speed</p>
+                        <p class="staff-card-line">Please type or write for me</p>
                     </div>
                 </div>
                 <p class="comm-hint">Show this to venue staff on your phone screen</p>
@@ -1179,7 +1181,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.48"></script>
+    <script src="app.js?v=1.9.49"></script>
 
     <!-- Tally Embed Script -->
     <script>
@@ -1285,10 +1287,10 @@
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
                         <li>Tickets ready</li>
-                        <li>Interpreted stage times checked</li>
-                        <li>Map downloaded</li>
-                        <li>Phone charged + power bank packed</li>
-                        <li>Suncream & earplugs in your bag</li>
+                        <li>Check times for interpreted stages</li>
+                        <li>Download the map</li>
+                        <li>Charge your phone + pack a power bank</li>
+                        <li>Pack suncream and earplugs</li>
                     </ul>
                 </div>
 
@@ -1298,10 +1300,10 @@
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
-                        <li>Find the Access / Interpreter Point</li>
-                        <li>Collect wristband (if needed)</li>
-                        <li>Meet the interpreter team</li>
-                        <li>Plan your route between stages</li>
+                        <li>Find the Access Point or Interpreter Area</li>
+                        <li>Get your wristband (if needed)</li>
+                        <li>Say hello to the interpreter team</li>
+                        <li>Plan how to get between stages</li>
                     </ul>
                 </div>
 
@@ -1311,9 +1313,9 @@
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
-                        <li>Keep hydrated</li>
-                        <li>Ask staff for visual access help if needed</li>
-                        <li>Follow live updates on our socials or WhatsApp</li>
+                        <li>Drink plenty of water</li>
+                        <li>Ask staff if you need help seeing the interpreter</li>
+                        <li>Follow us on social media or WhatsApp for updates</li>
                     </ul>
                 </div>
 
@@ -1323,8 +1325,8 @@
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
-                        <li>Share your feedback</li>
-                        <li>Stay connected for more BSL / ISL events</li>
+                        <li>Tell us how it was</li>
+                        <li>Follow us to hear about more BSL and ISL events</li>
                     </ul>
                 </div>
 
@@ -1345,21 +1347,21 @@
             </div>
             <div class="festival-modal-body">
                 <div class="rights-hero-statement">
-                    <p class="rights-hero-main">You have the right to access.</p>
-                    <p class="rights-hero-sub">It's not optional — it's the law.</p>
+                    <p class="rights-hero-main">You have the right to access events.</p>
+                    <p class="rights-hero-sub">It's the law.</p>
                 </div>
 
                 <div class="festival-section festival-section-1">
-                    <p>Under the <strong>Equality Act 2010</strong>, venues must make events accessible for Deaf attendees.</p>
+                    <p>The <strong>Equality Act 2010</strong> says venues must make events accessible for Deaf people.</p>
+                    <p>This includes providing interpreters.</p>
                 </div>
 
                 <div class="festival-section festival-section-2">
-                    <p>Providing interpreters is part of that responsibility.</p>
                     <p><strong>You should never pay for your own interpreter.</strong></p>
                 </div>
 
                 <div class="festival-section festival-section-3">
-                    <p>If an organiser refuses access or you're unsure how to ask, <strong>we can help</strong>.</p>
+                    <p>If a venue says no, or you don't know what to say, <strong>we can help</strong>. Email us.</p>
                     <a href="mailto:office@performanceinterpreting.co.uk?subject=I need help with BSL access&body=Hi PI,%0D%0A%0D%0AI need some help with:%0D%0A%0D%0A(Fill in what's relevant - delete the rest)%0D%0A%0D%0AEvent:%0D%0AVenue:%0D%0ADate:%0D%0A%0D%0AWhat happened:%0D%0A%0D%0A" class="rights-contact-btn">Email Us</a>
                 </div>
             </div>
@@ -1429,8 +1431,8 @@
             </div>
             <div class="festival-modal-body">
                 <p class="festival-subtitle" style="margin-bottom: 24px;">
-                    <strong>100% Anonymous. Zero Data Collection.</strong><br>
-                    Get notified about new events that match your interests. We only store your notification preferences - no names, emails, or personal data.
+                    <strong>100% Private. We collect nothing about you.</strong><br>
+                    Get a notification when new events match what you like. We only save your choices — not your name, email, or any personal details.
                 </p>
 
                 <div class="festival-divider"></div>
