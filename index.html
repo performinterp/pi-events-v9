@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.46">
+    <link rel="stylesheet" href="styles.css?v=1.9.48">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -59,7 +59,7 @@
             <!-- Logo Container (centred) -->
             <a href="#/" class="logo-container" aria-label="Go to Events">
                 <img
-                    src="PI-sidebyside-logo.svg"
+                    src="side_by_side_PI_logo_black.png"
                     alt="Performance Interpreting Logo"
                     class="logo"
                 >
@@ -68,7 +68,7 @@
             <!-- Desktop Navigation -->
 <nav class="desktop-nav">
     <a href="#/flow1" class="nav-link">Events</a>
-    <a href="booking-guide.html" class="nav-link">How to Book</a>
+    <a href="#/how-to-book" class="nav-link">How to Book</a>
     <button onclick="openInstallPrompt()" class="nav-link nav-button">Install App</button>
     <div class="nav-dropdown">
         <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
@@ -94,7 +94,7 @@
       <!-- Mobile Navigation -->
 <nav class="mobile-nav" id="mobileNav">
     <a href="#/flow1" class="mobile-nav-link" onclick="closeMobileMenu()">Events</a>
-    <a href="booking-guide.html" class="mobile-nav-link">How to Book</a>
+    <a href="#/how-to-book" class="mobile-nav-link" onclick="closeMobileMenu()">How to Book</a>
     <button onclick="openInstallPrompt()" class="mobile-nav-link mobile-nav-button">Install App</button>
     <div class="mobile-nav-dropdown">
         <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
@@ -114,7 +114,7 @@
     <section class="hero-section">
         <div class="hero-content">
             <img
-                src="PI-Logo-White.svg"
+                src="pi-logo-white-hires.png"
                 alt="Performance Interpreting"
                 class="hero-logo"
             >
@@ -450,6 +450,56 @@
            </div>
        </div><!-- End flow3Section -->
 
+       <!-- BOOKING GUIDE SECTION (SPA Integration) -->
+       <div id="bookingGuideSection" class="booking-guide-section" style="display: none;">
+           <div class="hero-section" style="padding: 60px 20px 20px;">
+               <div class="hero-content">
+                   <h1 class="hero-title">How to Book BSL/ISL Accessible Tickets</h1>
+                   <p class="bg-no-tickets-notice"><span class="bg-no-tickets-chevron">›››</span> <span class="bg-no-tickets-text">We <u>do not</u> sell tickets</span> <span class="bg-no-tickets-chevron bg-no-tickets-chevron-right">‹‹‹</span></p>
+                   <p class="hero-subtitle" style="max-width: 800px;">Below is a guide for booking BSL &amp; ISL accessible tickets</p>
+                   <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list is updated regularly. Information may change.</p>
+               </div>
+           </div>
+
+           <div class="bg-sections-grid">
+               <div class="bg-section-card" onclick="openBgModal('bgBookingModal')">
+                   <div class="bg-section-header">
+                       <span class="bg-section-icon">✅</span>
+                       <h3 class="bg-section-title">How to Book</h3>
+                       <p class="bg-section-subtitle">Step-by-Step Guide</p>
+                       <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
+                   </div>
+               </div>
+
+               <div class="bg-section-card" onclick="openBgModal('bgVenuesModal')">
+                   <div class="bg-section-header">
+                       <span class="bg-section-icon">🏟️</span>
+                       <h3 class="bg-section-title">Venues</h3>
+                       <p class="bg-section-subtitle">VRS &amp; Email Contact Details</p>
+                       <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
+                   </div>
+               </div>
+
+               <div class="bg-section-card" onclick="openBgModal('bgTipsModal')">
+                   <div class="bg-section-header">
+                       <span class="bg-section-icon">💡</span>
+                       <h3 class="bg-section-title">Quick Tips</h3>
+                       <p class="bg-section-subtitle">Make Booking Easier</p>
+                       <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
+                   </div>
+               </div>
+
+               <div class="bg-section-card" onclick="openBgModal('bgFaqModal')">
+                   <div class="bg-section-header">
+                       <span class="bg-section-icon">❓</span>
+                       <h3 class="bg-section-title">FAQs</h3>
+                       <p class="bg-section-subtitle">Common Questions</p>
+                       <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
+                   </div>
+               </div>
+           </div>
+       </div><!-- End bookingGuideSection -->
+
         <!-- About Section -->
         <section class="about-section">
             <div class="container">
@@ -494,7 +544,7 @@
         <section id="contact" class="contact-section">
             <div class="container">
                 <div class="contact-header">
-                    <img src="PI-Logo-Black.svg" alt="Performance Interpreting" class="contact-logo">
+                    <img src="pi-logo-black-hires.png" alt="Performance Interpreting" class="contact-logo">
                 </div>
 
                 <div class="contact-grid">
@@ -595,7 +645,7 @@
                     <button class="btn-primary btn-large" onclick="emailVenueFromModal()">
                         ✉️ Email Venue
                     </button>
-                    <a href="booking-guide.html" class="btn-secondary btn-large">
+                    <a href="#/how-to-book" class="btn-secondary btn-large">
                         📋 Full Booking Guide
                     </a>
                 </div>
@@ -716,12 +766,260 @@
                 </div>
 
                 <div class="access-modal-actions">
-                    <a href="booking-guide.html" class="btn-secondary btn-large">
+                    <a href="#/how-to-book" class="btn-secondary btn-large">
                         📋 Full Booking Guide
                     </a>
                 </div>
             </div>
         </div>
+
+    <!-- Booking Guide: How to Book Modal -->
+    <div class="bg-modal-overlay" id="bgBookingModal" onclick="closeBgModalOnOverlay(event, 'bgBookingModal')">
+        <div class="bg-modal-container">
+            <div class="bg-modal-header">
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">✅</span>
+                    <div class="bg-modal-header-text">
+                        <h2>How to Book</h2>
+                        <p>Step-by-step guide</p>
+                    </div>
+                </div>
+                <button class="bg-modal-close" onclick="closeBgModal('bgBookingModal')">✕</button>
+            </div>
+            <div class="bg-modal-body">
+                <div class="bg-step-item">
+                    <div class="bg-step-number">1</div>
+                    <div class="bg-step-content">
+                        <h4>Find Your Event</h4>
+                        <p>Browse events on the Performance Interpreting app. Each event lists which interpreter(s) will be present.</p>
+                    </div>
+                </div>
+                <div class="bg-step-item">
+                    <div class="bg-step-number">2</div>
+                    <div class="bg-step-content">
+                        <h4>Check the Venues Section</h4>
+                        <p>Look up your venue in the venues section to see if interpreters are guaranteed at every show or if you need to request one.</p>
+                    </div>
+                </div>
+                <div class="bg-step-item">
+                    <div class="bg-step-number">3</div>
+                    <div class="bg-step-content">
+                        <h4>Call the Accessible Booking Line</h4>
+                        <p>Use the contact details from the venues section. SignVideo links are available for many venues for BSL users.</p>
+                    </div>
+                </div>
+                <div class="bg-step-item">
+                    <div class="bg-step-number">4</div>
+                    <div class="bg-step-content">
+                        <h4>Specify Your Requirements</h4>
+                        <p>Clearly state: (1) You need BSL/ISL interpretation, (2) Event name and date, (3) Number of people in your group, (4) Any companion tickets needed.</p>
+                    </div>
+                </div>
+                <div class="bg-step-item">
+                    <div class="bg-step-number">5</div>
+                    <div class="bg-step-content">
+                        <h4>Get Confirmation</h4>
+                        <p>Request email confirmation that interpretation is arranged. Save this confirmation and bring it with you on the day.</p>
+                    </div>
+                </div>
+                <div class="bg-step-item">
+                    <div class="bg-step-number">6</div>
+                    <div class="bg-step-content">
+                        <h4>Enjoy the Event!</h4>
+                        <p>Give yourself time to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Guide: Tips Modal -->
+    <div class="bg-modal-overlay" id="bgTipsModal" onclick="closeBgModalOnOverlay(event, 'bgTipsModal')">
+        <div class="bg-modal-container">
+            <div class="bg-modal-header">
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">💡</span>
+                    <div class="bg-modal-header-text">
+                        <h2>Quick Tips</h2>
+                        <p>Make booking easier</p>
+                    </div>
+                </div>
+                <button class="bg-modal-close" onclick="closeBgModal('bgTipsModal')">✕</button>
+            </div>
+            <div class="bg-modal-body">
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-tip-icon">📞</span>
+                        <span class="bg-tip-title">Always Use the Accessible Booking Line</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <div class="bg-tip-body-inner">
+                            <p>Accessible booking lines are staffed by trained teams who understand BSL/ISL requirements (don't use the general ticketing number).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-tip-icon">👀</span>
+                        <span class="bg-tip-title">Ask for the Best Seats</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <div class="bg-tip-body-inner">
+                            <p>Ask for seats with a clear view of the interpreter. Many venues have BSL viewing areas with the best sightlines.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-tip-icon">✉️</span>
+                        <span class="bg-tip-title">Get Written Confirmation</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <div class="bg-tip-body-inner">
+                            <p>Always request email confirmation that interpretation has been arranged. Save this confirmation and bring it to the event.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-tip-icon">⏰</span>
+                        <span class="bg-tip-title">Give Yourself Time</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <div class="bg-tip-body-inner">
+                            <p>Give yourself extra time to find the interpretation area and get settled before the event starts.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-tip-icon">💬</span>
+                        <span class="bg-tip-title">Share Your Experience</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <div class="bg-tip-body-inner">
+                            <p>Let Performance Interpreting know how your experience was. Your feedback helps improve accessibility for everyone.</p>
+                            <button onclick="openFeedbackModal(); closeBgModal('bgTipsModal');" style="margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Share Your Thoughts</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Guide: FAQ Modal -->
+    <div class="bg-modal-overlay" id="bgFaqModal" onclick="closeBgModalOnOverlay(event, 'bgFaqModal')">
+        <div class="bg-modal-container">
+            <div class="bg-modal-header">
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">❓</span>
+                    <div class="bg-modal-header-text">
+                        <h2>Frequently Asked Questions</h2>
+                        <p>Everything you need to know</p>
+                    </div>
+                </div>
+                <button class="bg-modal-close" onclick="closeBgModal('bgFaqModal')">✕</button>
+            </div>
+            <div class="bg-modal-body">
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">Do I need to request an interpreter in advance?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">It depends on the venue. Some venues provide interpreters at every show (like Wembley Stadium), while others require advance booking (like The O2 Arena). Check the venues section for specific details.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">How far in advance should I book?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">As soon as possible! For venues that require interpreter requests, contact them immediately after buying your tickets. Some venues need 2-4 weeks notice.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">Are BSL/ISL tickets more expensive?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">No! BSL and ISL interpretation is provided free of charge as an accessibility service. You only pay the standard ticket price.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">Can I bring a companion or personal assistant?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Yes! Most venues offer companion tickets at reduced or no cost for personal support workers. Contact the venue's accessibility team when booking.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">What's the difference between BSL and ISL?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">BSL (British Sign Language) is used in the UK and ISL (Irish Sign Language) is used in Ireland. They are distinct languages with different grammar and vocabulary.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">Can I request a specific interpreter?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Generally, no. Venues work with professional interpretation agencies who assign qualified interpreters based on availability and expertise for that event type.</div>
+                </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-faq-question-text">Where will the interpreter be positioned?</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">This varies by venue and event. Many concerts have interpreters on stage or in a designated viewing area. The access team will provide details when you book.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Guide: Venues Modal (lazy-loaded) -->
+    <div class="bg-modal-overlay" id="bgVenuesModal" onclick="closeBgModalOnOverlay(event, 'bgVenuesModal')">
+        <div class="bg-modal-container">
+            <div class="bg-modal-header">
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">🏟️</span>
+                    <div class="bg-modal-header-text">
+                        <h2>Venues</h2>
+                        <p>109 venues across the UK &amp; Ireland</p>
+                    </div>
+                </div>
+                <button class="bg-modal-close" onclick="closeBgModal('bgVenuesModal')">✕</button>
+            </div>
+            <div class="bg-modal-body">
+                <div class="bg-venue-search">
+                    <input
+                        type="text"
+                        id="bgVenueSearch"
+                        class="bg-venue-search-input"
+                        placeholder="🔍 Search for a venue..."
+                        oninput="searchBgVenues()"
+                    >
+                </div>
+                <div class="bg-venue-instruction">
+                    <strong>Before purchasing tickets</strong> — contact the venue's accessibility team to request BSL interpretation and ask for seats with the best view of the interpreter.
+                </div>
+                <div id="bgVenueContent">
+                    <div class="bg-venues-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading venues...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     </main>
 
@@ -734,7 +1032,7 @@
                     <div class="footer-links">
                         <a href="https://www.performanceinterpreting.co.uk" target="_blank" rel="noopener">Website</a>
                         <a href="#events">Events</a>
-                        <a href="booking-guide.html">How to Book</a>
+                        <a href="#/how-to-book">How to Book</a>
                         <a href="#contact">Contact</a>
                         <a href="#about">About</a>
                         <a href="privacy-policy.html">Privacy Policy</a>
@@ -858,7 +1156,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.46"></script>
+    <script src="app.js?v=1.9.48"></script>
 
     <!-- Tally Embed Script -->
     <script>

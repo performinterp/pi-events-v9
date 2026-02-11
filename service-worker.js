@@ -3,7 +3,7 @@
   Handles offline functionality and caching
   ==========================================================================*/
 
-const CACHE_VERSION = 'pi-events-v1.9.47-network-first'; // INCREMENT THIS FOR EACH UPDATE
+const CACHE_VERSION = 'pi-events-v1.9.48-network-first'; // INCREMENT THIS FOR EACH UPDATE
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 const EXTERNAL_CACHE_NAME = `${CACHE_VERSION}-external`;
@@ -13,14 +13,14 @@ const MAX_EXTERNAL_CACHE_ITEMS = 150; // Cap external resource cache (images, fo
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css?v=1.9.46',
-    '/app.js?v=1.9.46',
+    '/styles.css?v=1.9.48',
+    '/app.js?v=1.9.48',
     '/manifest.json'
 ];
 
 // Additional files to cache on-demand (won't block installation)
 const CACHE_ON_DEMAND = [
-    '/booking-guide.html'
+    '/booking-guide-venues.html'
 ];
 
 // Install event - cache static assets

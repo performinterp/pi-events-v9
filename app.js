@@ -894,7 +894,8 @@ const Router = {
         '/flow1': 'renderFlow1',
         '/flow2': 'renderFlow2',
         '/flow3': 'renderFlow3',
-        '/event': 'renderEventDetail'
+        '/event': 'renderEventDetail',
+        '/how-to-book': 'renderBookingGuide'
     },
 
     init() {
@@ -967,6 +968,8 @@ const Router = {
             this.renderFlow2();
         } else if (route === '/flow3') {
             this.renderFlow3();
+        } else if (route === '/how-to-book') {
+            this.renderBookingGuide();
         } else if (route.startsWith('/event/')) {
             this.renderEventDetail();
         } else {
@@ -975,7 +978,7 @@ const Router = {
     },
 
     hideAllFlows() {
-        const flows = ['homeFlow', 'flow1Section', 'flow2Section', 'flow3Section', 'eventDetailSection'];
+        const flows = ['homeFlow', 'flow1Section', 'flow2Section', 'flow3Section', 'eventDetailSection', 'bookingGuideSection'];
         flows.forEach(flowId => {
             const el = document.getElementById(flowId);
             if (el) el.style.display = 'none';
@@ -1014,6 +1017,18 @@ const Router = {
             // Pre-fill form from URL params if coming from an event card
             setTimeout(prefillRequestForm, 100);
         }
+    },
+
+    renderBookingGuide() {
+        const bgEl = document.getElementById('bookingGuideSection');
+        if (bgEl) {
+            bgEl.style.display = 'block';
+            // Show the inline hero within the section
+            const bgHero = bgEl.querySelector('.hero-section');
+            if (bgHero) bgHero.style.display = '';
+        }
+        // Prefetch venue fragment in background for offline readiness
+        loadBgVenues();
     },
 
     renderEventDetail() {
@@ -2264,6 +2279,8 @@ function handleBackNavigation() {
         }
     } else if (isInFlow1 && AppState.viewMode === 'festival-subcategories') {
         backToCategorySelection();
+    } else if (route === '/how-to-book') {
+        Router.navigate('/');
     } else {
         history.back();
     }
@@ -5029,6 +5046,206 @@ window.closeCommSupportModal = closeCommSupportModal;
 window.switchCommTab = switchCommTab;
 window.toggleSTT = toggleSTT;
 window.clearSTT = clearSTT;
+
+// ========================================
+// BOOKING GUIDE FUNCTIONS
+// ========================================
+
+let bgVenuesLoaded = false;
+
+function openBgModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('active');
+    document.body.classList.add('bg-modal-open');
+    // If opening venues modal, load content if not yet loaded
+    if (id === 'bgVenuesModal' && !bgVenuesLoaded) {
+        loadBgVenues();
+    }
+}
+
+function closeBgModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('active');
+    document.body.classList.remove('bg-modal-open');
+}
+
+function closeBgModalOnOverlay(e, id) {
+    if (e.target.classList.contains('bg-modal-overlay')) {
+        closeBgModal(id);
+    }
+}
+
+function toggleBgTip(header) {
+    const isActive = header.classList.contains('active');
+    const tipBody = header.nextElementSibling;
+    // Close all tips
+    document.querySelectorAll('.bg-tip-header').forEach(h => h.classList.remove('active'));
+    document.querySelectorAll('.bg-tip-body').forEach(b => b.classList.remove('show'));
+    if (!isActive) {
+        header.classList.add('active');
+        tipBody.classList.add('show');
+    }
+}
+
+function toggleBgFaq(e, btn) {
+    e.stopPropagation();
+    const answerContainer = btn.nextElementSibling;
+    const isActive = btn.classList.contains('active');
+    document.querySelectorAll('.bg-faq-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bg-faq-answer-container').forEach(a => a.classList.remove('show'));
+    if (!isActive) {
+        btn.classList.add('active');
+        answerContainer.classList.add('show');
+    }
+}
+
+function toggleBgCountry(event, button) {
+    event.stopPropagation();
+    const countryRegions = button.nextElementSibling;
+    const isActive = button.classList.contains('active');
+    const modal = button.closest('.bg-modal-body');
+    if (!modal) return;
+    modal.querySelectorAll('.country-button').forEach(b => b.classList.remove('active'));
+    modal.querySelectorAll('.country-regions').forEach(r => r.classList.remove('show'));
+    modal.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+    modal.querySelectorAll('.region-venues').forEach(r => r.classList.remove('show'));
+    modal.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+    modal.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+    if (!isActive) {
+        button.classList.add('active');
+        countryRegions.classList.add('show');
+    }
+}
+
+function toggleBgRegion(event, button) {
+    event.stopPropagation();
+    const regionVenues = button.nextElementSibling;
+    const isActive = button.classList.contains('active');
+    const modal = button.closest('.bg-modal-body');
+    if (!modal) return;
+    modal.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+    modal.querySelectorAll('.region-venues').forEach(r => r.classList.remove('show'));
+    modal.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+    modal.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+    if (!isActive) {
+        button.classList.add('active');
+        regionVenues.classList.add('show');
+    }
+}
+
+function toggleBgVenue(event, button) {
+    event.stopPropagation();
+    const details = button.nextElementSibling;
+    const isActive = button.classList.contains('active');
+    const region = button.closest('.region-venues');
+    if (region) {
+        region.querySelectorAll('.venue-button').forEach(b => b.classList.remove('active'));
+        region.querySelectorAll('.venue-details').forEach(d => d.classList.remove('show'));
+    }
+    if (!isActive) {
+        button.classList.add('active');
+        details.classList.add('show');
+    }
+}
+
+function searchBgVenues() {
+    const searchTerm = document.getElementById('bgVenueSearch').value.toLowerCase();
+    const container = document.getElementById('bgVenueContent');
+    if (!container) return;
+    const countries = container.querySelectorAll('.venue-country');
+    const noResults = container.querySelector('.no-results');
+    let visibleCount = 0;
+
+    countries.forEach(country => {
+        const regions = country.querySelectorAll('.venue-region');
+        let countryHasMatch = false;
+
+        regions.forEach(region => {
+            const buttons = region.querySelectorAll('.venue-button');
+            let regionHasMatch = false;
+
+            buttons.forEach(btn => {
+                const venueName = (btn.getAttribute('data-venue') || btn.querySelector('.venue-name')?.textContent || '').toLowerCase();
+                if (!searchTerm || venueName.includes(searchTerm)) {
+                    btn.style.display = '';
+                    btn.nextElementSibling.style.display = '';
+                    regionHasMatch = true;
+                    visibleCount++;
+                } else {
+                    btn.style.display = 'none';
+                    btn.nextElementSibling.style.display = 'none';
+                }
+            });
+
+            region.classList.toggle('hidden', !regionHasMatch);
+            if (regionHasMatch) countryHasMatch = true;
+        });
+
+        country.classList.toggle('hidden', !countryHasMatch);
+
+        // Auto-expand when searching
+        if (searchTerm && countryHasMatch) {
+            country.querySelector('.country-button')?.classList.add('active');
+            country.querySelector('.country-regions')?.classList.add('show');
+            country.querySelectorAll('.venue-region:not(.hidden)').forEach(r => {
+                r.querySelector('.region-button')?.classList.add('active');
+                r.querySelector('.region-venues')?.classList.add('show');
+            });
+        } else if (!searchTerm) {
+            country.querySelector('.country-button')?.classList.remove('active');
+            country.querySelector('.country-regions')?.classList.remove('show');
+            country.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+            country.querySelectorAll('.region-venues').forEach(r => r.classList.remove('show'));
+        }
+    });
+
+    if (noResults) {
+        noResults.classList.toggle('show', searchTerm && visibleCount === 0);
+    }
+}
+
+function loadBgVenues() {
+    if (bgVenuesLoaded) return;
+    const container = document.getElementById('bgVenueContent');
+    if (!container) return;
+
+    fetch('booking-guide-venues.html')
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to load venues');
+            return res.text();
+        })
+        .then(html => {
+            container.innerHTML = html;
+            bgVenuesLoaded = true;
+        })
+        .catch(err => {
+            console.error('Error loading venue data:', err);
+            container.innerHTML = '<p style="text-align:center;padding:40px;color:#64748B;">Unable to load venues. Please try again later.</p>';
+        });
+}
+
+// Expose booking guide functions globally
+window.openBgModal = openBgModal;
+window.closeBgModal = closeBgModal;
+window.closeBgModalOnOverlay = closeBgModalOnOverlay;
+window.toggleBgTip = toggleBgTip;
+window.toggleBgFaq = toggleBgFaq;
+window.toggleBgCountry = toggleBgCountry;
+window.toggleBgRegion = toggleBgRegion;
+window.toggleBgVenue = toggleBgVenue;
+window.searchBgVenues = searchBgVenues;
+
+// Extend ESC key handler for booking guide modals
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const activeBgModal = document.querySelector('.bg-modal-overlay.active');
+        if (activeBgModal) {
+            closeBgModal(activeBgModal.id);
+        }
+    }
+});
 
 // ========================================
 // START THE APP
