@@ -77,8 +77,8 @@
             <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="dropdown-item">Know Your Rights</button>
-            <a href="#about" class="dropdown-item">About PI</a>
-            <a href="#contact" class="dropdown-item">Contact</a>
+            <a href="#about" class="dropdown-item" onclick="scrollToSection('about');">About PI</a>
+            <a href="#contact" class="dropdown-item" onclick="scrollToSection('contact');">Contact</a>
         </div>
     </div>
 </nav>
@@ -103,8 +103,8 @@
             <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="mobile-dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="mobile-dropdown-item">Know Your Rights</button>
-            <a href="#about" class="mobile-dropdown-item" onclick="closeMobileMenu()">About PI</a>
-            <a href="#contact" class="mobile-dropdown-item" onclick="closeMobileMenu()">Contact</a>
+            <a href="#about" class="mobile-dropdown-item" onclick="closeMobileMenu(); scrollToSection('about');">About PI</a>
+            <a href="#contact" class="mobile-dropdown-item" onclick="closeMobileMenu(); scrollToSection('contact');">Contact</a>
         </div>
     </div>
 </nav>

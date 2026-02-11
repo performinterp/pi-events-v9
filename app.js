@@ -3139,6 +3139,27 @@ function closeMobileMenu() {
 // Make closeMobileMenu available globally
 window.closeMobileMenu = closeMobileMenu;
 
+function scrollToSection(id) {
+    // Navigate home first if not already there, then scroll
+    const route = window.location.hash.slice(1) || '/';
+    if (route !== '/' && route !== '') {
+        window.location.hash = '/';
+        // Wait for route change to show sections, then scroll
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    } else {
+        // Already home — make sure sections are visible on mobile then scroll
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = '';
+            el.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+window.scrollToSection = scrollToSection;
+
 function initEventListeners() {
     // Mobile menu toggle
     if (DOM.mobileMenuBtn && DOM.mobileNav) {
