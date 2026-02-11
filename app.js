@@ -3956,7 +3956,7 @@ function displaySearchResults(results, query) {
                     ` : ''}
                     <div class="search-result-actions">
                         ${badge.canBook ? `
-                            <a href="booking-guide.html" class="btn-secondary">How to Book</a>
+                            <a href="#/how-to-book" class="btn-secondary">How to Book</a>
                         ` : `
                             <a href="#/flow3" class="btn-primary">Request Interpreter</a>
                         `}
@@ -4253,7 +4253,7 @@ function openVenueBookingGuide(event) {
         contentEl.innerHTML = `
             <p>Contact ${event.VENUE} to book accessible tickets.</p>
             <p>Ask for seats with clear view of BSL interpreter.</p>
-            <p>See our full booking guide for detailed steps.</p>
+            <p>See our <a href="#/how-to-book" onclick="closeVenueBookingGuideModal()">full booking guide</a> for detailed steps.</p>
         `;
     }
 
@@ -4794,7 +4794,7 @@ function addToCalendar(event) {
         `UID:${Date.now()}@performanceinterpreting.co.uk`,
         `SUMMARY:${eventName} (${interpretation} Interpreted)`,
         `LOCATION:${venue}`,
-        `DESCRIPTION:${interpretation} interpreted event.\\n\\nVenue: ${venue}${event['EVENT URL'] ? '\\n\\nEvent info: ' + event['EVENT URL'] : ''}\\n\\nFor accessible booking info visit: https://app.performanceinterpreting.co.uk`,
+        `DESCRIPTION:${interpretation} interpreted event.\\n\\nVenue: ${venue}${event['EVENT URL'] ? '\\n\\nEvent info: ' + event['EVENT URL'] : ''}\\n\\nFor accessible booking info visit: https://app.performanceinterpreting.co.uk/#/how-to-book`,
         'STATUS:CONFIRMED',
         'END:VEVENT',
         'END:VCALENDAR'

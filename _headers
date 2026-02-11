@@ -1,8 +1,13 @@
 # Cloudflare Pages Headers Configuration
 
-# Don't cache the booking guide or clear cache pages
+# Booking guide redirect stub - don't cache
 /booking-guide.html
   Cache-Control: no-cache, no-store, must-revalidate
+  X-Robots-Tag: noindex
+
+# Booking guide venues fragment - cache for offline
+/booking-guide-venues.html
+  Cache-Control: public, max-age=3600
   X-Robots-Tag: noindex
 
 /clear-cache.html
