@@ -456,7 +456,7 @@
            <div class="hero-section" style="padding: 60px 20px 20px;">
                <div class="hero-content">
                    <h1 class="hero-title">How to Book BSL/ISL Accessible Tickets</h1>
-                   <p class="bg-no-tickets-notice"><span class="bg-no-tickets-chevron">›››</span> <span class="bg-no-tickets-text">We <u>do not</u> sell tickets</span> <span class="bg-no-tickets-chevron bg-no-tickets-chevron-right">‹‹‹</span></p>
+                   <p class="bg-no-tickets-notice"><span class="bg-no-tickets-chevron">›››</span> <span class="bg-no-tickets-text">We <u>DO NOT</u> sell tickets</span> <span class="bg-no-tickets-chevron bg-no-tickets-chevron-right">‹‹‹</span></p>
                    <p class="hero-subtitle" style="max-width: 800px;">Below is a guide for booking BSL &amp; ISL accessible tickets</p>
                    <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">This list is updated regularly. Information may change.</p>
                </div>
@@ -788,45 +788,68 @@
                 <button class="bg-modal-close" onclick="closeBgModal('bgBookingModal')">✕</button>
             </div>
             <div class="bg-modal-body">
-                <div class="bg-step-item">
-                    <div class="bg-step-number">1</div>
-                    <div class="bg-step-content">
-                        <h4>Find Your Event</h4>
+                <div class="bg-booking-bsl-video">
+                    <button class="bg-bsl-video-btn" onclick="/* TODO: link BSL video */">
+                        <span class="bg-bsl-video-icon">&#9658;</span> Watch BSL Video
+                    </button>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">1</span>
+                        <span class="bg-tip-title">Find Your Event</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Browse events on the Performance Interpreting app. Each event lists which interpreter(s) will be present.</p>
                     </div>
                 </div>
-                <div class="bg-step-item">
-                    <div class="bg-step-number">2</div>
-                    <div class="bg-step-content">
-                        <h4>Check the Venues Section</h4>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">2</span>
+                        <span class="bg-tip-title">Check the Venues Section</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Look up your venue in the venues section to see if interpreters are guaranteed at every show or if you need to request one.</p>
                     </div>
                 </div>
-                <div class="bg-step-item">
-                    <div class="bg-step-number">3</div>
-                    <div class="bg-step-content">
-                        <h4>Call the Accessible Booking Line</h4>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">3</span>
+                        <span class="bg-tip-title">Call the Accessible Booking Line</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Use the contact details from the venues section. SignVideo links are available for many venues for BSL users.</p>
                     </div>
                 </div>
-                <div class="bg-step-item">
-                    <div class="bg-step-number">4</div>
-                    <div class="bg-step-content">
-                        <h4>Specify Your Requirements</h4>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">4</span>
+                        <span class="bg-tip-title">Specify Your Requirements</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Clearly state: (1) You need BSL/ISL interpretation, (2) Event name and date, (3) Number of people in your group, (4) Any companion tickets needed.</p>
                     </div>
                 </div>
-                <div class="bg-step-item">
-                    <div class="bg-step-number">5</div>
-                    <div class="bg-step-content">
-                        <h4>Get Confirmation</h4>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">5</span>
+                        <span class="bg-tip-title">Get Confirmation</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Request email confirmation that interpretation is arranged. Save this confirmation and bring it with you on the day.</p>
                     </div>
                 </div>
-                <div class="bg-step-item">
-                    <div class="bg-step-number">6</div>
-                    <div class="bg-step-content">
-                        <h4>Enjoy the Event!</h4>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                        <span class="bg-step-number">6</span>
+                        <span class="bg-tip-title">Enjoy the Event!</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
                         <p>Give yourself time to find the BSL viewing area. If you have any issues on the day, speak to venue staff or the access team.</p>
                     </div>
                 </div>
@@ -1256,8 +1279,11 @@
                 </div>
 
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title">Before You Go</h3>
-                    <ul class="festival-checklist">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>Before You Go</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <ul class="festival-checklist festival-accordion-body">
                         <li>Tickets ready</li>
                         <li>Interpreted stage times checked</li>
                         <li>Map downloaded</li>
@@ -1267,8 +1293,11 @@
                 </div>
 
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title">When You Arrive</h3>
-                    <ul class="festival-checklist">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>When You Arrive</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <ul class="festival-checklist festival-accordion-body">
                         <li>Find the Access / Interpreter Point</li>
                         <li>Collect wristband (if needed)</li>
                         <li>Meet the interpreter team</li>
@@ -1277,8 +1306,11 @@
                 </div>
 
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title">During the Festival</h3>
-                    <ul class="festival-checklist">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>During the Festival</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <ul class="festival-checklist festival-accordion-body">
                         <li>Keep hydrated</li>
                         <li>Ask staff for visual access help if needed</li>
                         <li>Follow live updates on our socials or WhatsApp</li>
@@ -1286,8 +1318,11 @@
                 </div>
 
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title">After the Festival</h3>
-                    <ul class="festival-checklist">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>After the Festival</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <ul class="festival-checklist festival-accordion-body">
                         <li>Share your feedback</li>
                         <li>Stay connected for more BSL / ISL events</li>
                     </ul>

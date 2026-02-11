@@ -863,6 +863,35 @@ a {
     margin: 0 0 var(--spacing-md) 0;
 }
 
+.festival-accordion-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 0;
+    user-select: none;
+}
+
+.festival-toggle-icon {
+    font-size: 12px;
+    color: var(--gray-400);
+    transition: transform 0.3s ease;
+}
+
+.festival-accordion-toggle.active .festival-toggle-icon {
+    transform: rotate(90deg);
+    color: var(--primary);
+}
+
+.festival-accordion-body {
+    display: none;
+    margin-top: var(--spacing-md);
+}
+
+.festival-accordion-body.active {
+    display: block;
+}
+
 .festival-checklist {
     list-style: disc;
     padding-left: var(--spacing-xl);
@@ -5576,8 +5605,8 @@ select:focus-visible {
 }
 
 .bg-step-number {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
     color: white;
     border-radius: 50%;
@@ -5585,9 +5614,39 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 14px;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.bg-booking-bsl-video {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.bg-bsl-video-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.bg-bsl-video-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.bg-bsl-video-icon {
+    font-size: 12px;
 }
 
 .bg-step-content h4 {

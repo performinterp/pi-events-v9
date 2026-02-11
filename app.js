@@ -3160,6 +3160,24 @@ function scrollToSection(id) {
 }
 window.scrollToSection = scrollToSection;
 
+function toggleFestivalSection(header) {
+    const body = header.nextElementSibling;
+    const isActive = header.classList.contains('active');
+    // Close all others in this modal
+    const modal = header.closest('.festival-modal-body');
+    if (modal) {
+        modal.querySelectorAll('.festival-accordion-toggle.active').forEach(h => {
+            h.classList.remove('active');
+            h.nextElementSibling.classList.remove('active');
+        });
+    }
+    if (!isActive) {
+        header.classList.add('active');
+        body.classList.add('active');
+    }
+}
+window.toggleFestivalSection = toggleFestivalSection;
+
 function initEventListeners() {
     // Mobile menu toggle
     if (DOM.mobileMenuBtn && DOM.mobileNav) {
