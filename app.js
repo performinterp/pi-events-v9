@@ -782,7 +782,7 @@ function calculateBadgeStatus(event) {
                 badge: 'green',
                 icon: '✅',
                 label: 'BSL Guaranteed',
-                shortLabel: `${language} at Every Event`,
+                shortLabel: `${language} Interpreted`,
                 action: 'book-tickets',
                 message: venueMatches[0].note || `${language} interpretation provided at this venue as standard`,
                 canBook: true,
