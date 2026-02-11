@@ -50,49 +50,49 @@ function onOpen() {
 const VENUE_BOOKING_GUIDES = {
   'The O2, London': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#the-o2-london',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#the-o2-london',
     venueSlug: 'the-o2-london',
     bookingNote: 'Purchase tickets first, then contact venue for BSL'
   },
   'The O2 Arena, London': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#the-o2-london',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#the-o2-london',
     venueSlug: 'the-o2-london',
     bookingNote: 'Purchase tickets first, then contact venue for BSL'
   },
   'Wembley Stadium': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#wembley-stadium',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#wembley-stadium',
     venueSlug: 'wembley-stadium',
     bookingNote: 'Contact venue before purchasing tickets'
   },
   'Wembley Stadium, London': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#wembley-stadium',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#wembley-stadium',
     venueSlug: 'wembley-stadium',
     bookingNote: 'Contact venue before purchasing tickets'
   },
   'Southbank Centre': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#southbank-centre',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#southbank-centre',
     venueSlug: 'southbank-centre',
     bookingNote: 'Contact venue before purchasing tickets'
   },
   'Southbank Centre, London': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#southbank-centre',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#southbank-centre',
     venueSlug: 'southbank-centre',
     bookingNote: 'Contact venue before purchasing tickets'
   },
   'Motorpoint Arena Nottingham': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#motorpoint-arena-nottingham',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#motorpoint-arena-nottingham',
     venueSlug: 'motorpoint-arena-nottingham',
     bookingNote: 'Purchase tickets first, then contact venue for BSL'
   },
   'Strictly Come Dancing Live Tour 2025': {
     hasGuide: true,
-    guideUrl: 'https://app.performanceinterpreting.co.uk/booking-guide#strictly-come-dancing',
+    guideUrl: 'https://app.performanceinterpreting.co.uk/#/how-to-book#strictly-come-dancing',
     venueSlug: 'strictly-come-dancing',
     bookingNote: 'Booking process varies by venue - check guide'
   }

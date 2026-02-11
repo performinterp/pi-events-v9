@@ -58,7 +58,7 @@ git push -u origin main
 
 1. In Cloudflare Pages project → **Custom domains**
 2. Click **Set up a custom domain**
-3. Enter: `events.performanceinterpreting.co.uk`
+3. Enter: `app.performanceinterpreting.co.uk`
 4. Cloudflare will auto-configure DNS
 5. SSL certificate issued automatically
 
@@ -122,7 +122,7 @@ kv_namespaces = [
 
 # CORS configuration
 [env.production]
-vars = { ALLOWED_ORIGIN = "https://events.performanceinterpreting.co.uk" }
+vars = { ALLOWED_ORIGIN = "https://app.performanceinterpreting.co.uk" }
 ```
 
 ### Step 5: Create Worker Code
@@ -722,7 +722,7 @@ Access with: `https://api.performanceinterpreting.co.uk/analytics?key=YOUR_PASSW
 │     ├─ PWA (HTML/CSS/JS)                   │
 │     ├─ Auto HTTPS                          │
 │     ├─ Global CDN                          │
-│     └─ events.performanceinterpreting.co.uk  │
+│     └─ app.performanceinterpreting.co.uk  │
 │                                             │
 │  ⚡ Cloudflare Workers                      │
 │     ├─ /api/subscribe (POST/DELETE)        │
@@ -793,7 +793,7 @@ wrangler kv:key list --binding SUBSCRIPTIONS
 Everything runs on Cloudflare's global network - super reliable and fast!
 
 **Common URLs after setup:**
-- PWA: `https://events.performanceinterpreting.co.uk`
+- PWA: `https://app.performanceinterpreting.co.uk`
 - API: `https://api.performanceinterpreting.co.uk`
 - Worker Dashboard: `https://dash.cloudflare.com`
 
