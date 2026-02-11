@@ -4794,7 +4794,7 @@ function addToCalendar(event) {
         `UID:${Date.now()}@performanceinterpreting.co.uk`,
         `SUMMARY:${eventName} (${interpretation} Interpreted)`,
         `LOCATION:${venue}`,
-        `DESCRIPTION:${interpretation} interpreted event.\\n\\nVenue: ${venue}\\n\\nFor accessible booking info visit: https://events.performanceinterpreting.co.uk`,
+        `DESCRIPTION:${interpretation} interpreted event.\\n\\nVenue: ${venue}${event['EVENT URL'] ? '\\n\\nEvent info: ' + event['EVENT URL'] : ''}\\n\\nFor accessible booking info visit: https://app.performanceinterpreting.co.uk`,
         'STATUS:CONFIRMED',
         'END:VEVENT',
         'END:VCALENDAR'
@@ -4820,14 +4820,14 @@ async function shareEvent(event) {
     const venue = event['VENUE'] || '';
     const dateStr = event['DATE'] || '';
     const interpretation = event['INTERPRETATION'] || 'BSL';
-    const eventUrl = event['EVENT URL'] || 'https://events.performanceinterpreting.co.uk';
+    const eventUrl = event['EVENT URL'] || 'https://app.performanceinterpreting.co.uk';
 
-    const shareText = `${eventName} - ${interpretation} Interpreted\n📍 ${venue}\n📅 ${dateStr}\n\nFind more accessible events: https://events.performanceinterpreting.co.uk`;
+    const shareText = `${eventName} - ${interpretation} Interpreted\n📍 ${venue}\n📅 ${dateStr}\n\nFind more accessible events: https://app.performanceinterpreting.co.uk`;
 
     const shareData = {
         title: `${eventName} (${interpretation} Interpreted)`,
         text: shareText,
-        url: 'https://events.performanceinterpreting.co.uk'
+        url: eventUrl
     };
 
     // Try Web Share API first (works on mobile)
