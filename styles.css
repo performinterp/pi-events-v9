@@ -5026,7 +5026,9 @@ select:focus-visible {
     }
     
     .access-modal-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
+        padding-right: 2.5rem;
+        padding-left: 2.5rem;
     }
     
     .access-steps-grid {
