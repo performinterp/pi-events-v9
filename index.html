@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.49">
+    <link rel="stylesheet" href="styles.css?v=1.9.51">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -44,6 +44,11 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="18 15 12 9 6 15"></polyline>
         </svg>
+    </button>
+
+    <!-- At the Event Floating Button -->
+    <button id="atEventFab" class="at-event-fab" onclick="openCommSupportModal()" aria-label="At the Event tools">
+        <span class="at-event-fab-icon">🤟</span>
     </button>
 
     <!-- App Header -->
@@ -73,7 +78,7 @@
     <div class="nav-dropdown">
         <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
         <div class="dropdown-menu" id="moreDropdownMenu">
-            <button onclick="openCommSupportModal()" class="dropdown-item">Communication Support</button>
+            <button onclick="openCommSupportModal()" class="dropdown-item">At the Event</button>
             <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="dropdown-item">Know Your Rights</button>
@@ -99,7 +104,7 @@
     <div class="mobile-nav-dropdown">
         <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
         <div class="mobile-dropdown-menu" id="mobileMoreMenu">
-            <button onclick="openCommSupportModal(); closeMobileMenu()" class="mobile-dropdown-item">Communication Support</button>
+            <button onclick="openCommSupportModal(); closeMobileMenu()" class="mobile-dropdown-item">At the Event</button>
             <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
             <button onclick="openFestivalChecklistModal()" class="mobile-dropdown-item">Festival Checklist</button>
             <button onclick="openKnowYourRightsModal()" class="mobile-dropdown-item">Know Your Rights</button>
@@ -145,6 +150,11 @@
                <div class="home-flow-header">
                    <h2 class="home-flow-title">What do you need today?</h2>
                    <p class="home-flow-subtitle">Choose how you want to find accessible events</p>
+                   <div class="bsl-video-link-center">
+                       <button class="bsl-video-link" onclick="playBSLVideo('orientation')">
+                           <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                       </button>
+                   </div>
                </div>
 
                <div class="flow-cards-grid">
@@ -184,6 +194,19 @@
                                an interpreter
                            </p>
                            <a href="#/flow3" class="flow-card-button btn-primary">Make Request</a>
+                       </div>
+                   </div>
+
+                   <!-- Card 4: At the Event -->
+                   <div class="flow-card flow-card-purple">
+                       <div class="flow-card-icon">🤟</div>
+                       <div class="flow-card-content">
+                           <h2 class="flow-card-title">At the Event</h2>
+                           <p class="flow-card-description">
+                               Show staff you are Deaf<br>
+                               Order food, get help
+                           </p>
+                           <button onclick="openCommSupportModal()" class="flow-card-button btn-primary">Open Tools</button>
                        </div>
                    </div>
                </div>
@@ -406,6 +429,11 @@
                <div class="flow-header">
                    <h2 class="flow-title">Request an Interpreter</h2>
                    <p class="flow-subtitle">Ask a venue to book an interpreter<br>We help you ask</p>
+                   <div class="bsl-video-link-center">
+                       <button class="bsl-video-link" onclick="playBSLVideo('request')">
+                           <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                       </button>
+                   </div>
                </div>
 
                <div class="request-form-container">
@@ -655,8 +683,8 @@
 
                 <div class="access-modal-note">
                     <strong>💡 Know Your Rights:</strong><br>
-                    Venues must make events accessible.<br>
-                    This is the law (Equality Act 2010).
+                    You can ask venues for access.<br>
+                    The law says they must consider your request.
                 </div>
             </div>
         </div>
@@ -669,6 +697,12 @@
 
                 <h2 class="access-modal-title" id="accessFirstModalTitle">Book BSL Tickets</h2>
                 <p class="access-modal-subtitle" id="accessFirstEventName">Booking accessible tickets</p>
+
+                <div class="bsl-video-link-center">
+                    <button class="bsl-video-link" onclick="playBSLVideo('booking')">
+                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                    </button>
+                </div>
 
                 <div class="access-modal-actions">
                     <!-- VRS button (primary when available - BSL is users' main language) -->
@@ -791,8 +825,8 @@
             </div>
             <div class="bg-modal-body">
                 <div class="bg-booking-bsl-video">
-                    <button class="bg-bsl-video-btn" onclick="/* TODO: link BSL video */">
-                        <span class="bg-bsl-video-icon">&#9658;</span> Watch BSL Video
+                    <button class="bsl-video-link" onclick="playBSLVideo('how-to-book')">
+                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
                     </button>
                 </div>
                 <div class="bg-tip-item">
@@ -873,6 +907,11 @@
                 <button class="bg-modal-close" onclick="closeBgModal('bgTipsModal')">✕</button>
             </div>
             <div class="bg-modal-body">
+                <div class="bsl-video-link-center">
+                    <button class="bsl-video-link" onclick="playBSLVideo('tips')">
+                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                    </button>
+                </div>
                 <div class="bg-tip-item">
                     <div class="bg-tip-header" onclick="toggleBgTip(this)">
                         <span class="bg-tip-icon">📞</span>
@@ -952,6 +991,11 @@
                 <button class="bg-modal-close" onclick="closeBgModal('bgFaqModal')">✕</button>
             </div>
             <div class="bg-modal-body">
+                <div class="bsl-video-link-center">
+                    <button class="bsl-video-link" onclick="playBSLVideo('faqs')">
+                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                    </button>
+                </div>
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
                     <span class="bg-faq-question-text">Do I need to ask for an interpreter before the event?</span>
                     <span class="bg-faq-toggle">▼</span>
@@ -1124,24 +1168,32 @@
         </div>
     </div>
 
-    <!-- Communication Support Modal -->
+    <!-- At the Event Modal -->
     <div id="commSupportModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="commSupportTitle">
         <div class="access-modal-overlay" onclick="closeCommSupportModal()"></div>
         <div class="access-modal-content comm-support-content">
             <button class="access-modal-close" onclick="closeCommSupportModal()" aria-label="Close dialog">&#10005;</button>
 
-            <h2 class="access-modal-title" id="commSupportTitle">Communication Support</h2>
+            <h2 class="access-modal-title" id="commSupportTitle">At the Event</h2>
+
+            <div class="bsl-video-link-center">
+                <button class="bsl-video-link" onclick="playBSLVideo('at-event')">
+                    <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                </button>
+            </div>
 
             <!-- Tab buttons -->
             <div class="comm-tabs">
-                <button class="comm-tab active" onclick="switchCommTab('card')">Show Staff Card</button>
+                <button class="comm-tab active" onclick="switchCommTab('card')">Show Staff</button>
+                <button class="comm-tab" onclick="switchCommTab('order')">Order</button>
+                <button class="comm-tab" onclick="switchCommTab('emergency')">Emergency</button>
                 <button class="comm-tab" onclick="switchCommTab('stt')">Speech to Text</button>
             </div>
 
-            <!-- Tab 1: Staff Awareness Card -->
+            <!-- Tab 1: Show Staff Card -->
             <div id="commCardTab" class="comm-tab-content">
                 <div class="staff-card">
-                    <div class="staff-card-header">Communication Card</div>
+                    <div class="staff-card-header">Show This to Staff</div>
                     <div class="staff-card-body">
                         <p class="staff-card-line staff-card-primary">I am Deaf</p>
                         <p class="staff-card-line">Please face me when you talk</p>
@@ -1150,9 +1202,98 @@
                     </div>
                 </div>
                 <p class="comm-hint">Show this to venue staff on your phone screen</p>
+
+                <div class="staff-card" style="margin-top: 1rem;">
+                    <div class="staff-card-header">In a Queue</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
+                        <p class="staff-card-line">I cannot hear when it is my turn</p>
+                        <p class="staff-card-line">Please tap my shoulder or wave</p>
+                    </div>
+                </div>
+                <p class="comm-hint">Show this to the person next to you in a queue</p>
             </div>
 
-            <!-- Tab 2: Speech to Text -->
+            <!-- Tab 2: Order Food & Drink -->
+            <div id="commOrderTab" class="comm-tab-content" style="display: none;">
+                <div class="staff-card">
+                    <div class="staff-card-header">Show This to Bar / Food Staff</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
+                        <p class="staff-card-line">I would like to order:</p>
+                    </div>
+                </div>
+                <div class="order-builder">
+                    <div class="order-items" id="orderItems"></div>
+                    <div class="order-quick-picks">
+                        <p class="order-pick-label">Tap to add:</p>
+                        <div class="order-pick-grid">
+                            <button class="order-pick" onclick="addOrderItem(this)">🍺 Beer / Lager</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🍷 Wine</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🥤 Soft Drink</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">💧 Water</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">☕ Tea / Coffee</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🍔 Burger</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🍕 Pizza</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🍟 Chips</button>
+                            <button class="order-pick" onclick="addOrderItem(this)">🌮 Food (other)</button>
+                        </div>
+                    </div>
+                    <div class="order-custom">
+                        <input type="text" id="orderCustomInput" class="order-custom-input" placeholder="Type something else...">
+                        <button class="order-custom-btn" onclick="addCustomOrderItem()">Add</button>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-primary btn-large" onclick="showOrderCard()">Show Order to Staff</button>
+                        <button class="btn-secondary" onclick="clearOrder()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Order display card (shown when ready) -->
+                <div id="orderDisplayCard" class="staff-card" style="display: none; margin-top: 1rem;">
+                    <div class="staff-card-header">My Order</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
+                        <p class="staff-card-line">I would like:</p>
+                        <div id="orderDisplayList" class="order-display-list"></div>
+                        <p class="staff-card-line" style="margin-top: 0.75rem; border-top: 2px solid #E5E7EB; padding-top: 0.75rem; font-style: italic; color: #6B7280;">Thank you</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Emergency -->
+            <div id="commEmergencyTab" class="comm-tab-content" style="display: none;">
+                <div class="staff-card" style="border-color: #DC2626;">
+                    <div class="staff-card-header" style="background: #DC2626;">Emergency — Show to Staff</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary" style="color: #DC2626;">I am Deaf</p>
+                        <p class="staff-card-line">I cannot hear announcements</p>
+                        <p class="staff-card-line">Please tell me what is happening</p>
+                        <p class="staff-card-line">Show me where to go</p>
+                    </div>
+                </div>
+                <p class="comm-hint">Show this to any staff member or steward</p>
+
+                <div class="staff-card" style="margin-top: 1rem; border-color: #F59E0B;">
+                    <div class="staff-card-header" style="background: #F59E0B;">I Need Help</div>
+                    <div class="staff-card-body">
+                        <p class="staff-card-line staff-card-primary" style="color: #F59E0B;">I am Deaf and I need help</p>
+                        <p class="staff-card-line">Please take me to the access team</p>
+                    </div>
+                </div>
+
+                <div class="emergency-tips">
+                    <h3 class="emergency-tips-title">Before the Event</h3>
+                    <ul class="festival-checklist">
+                        <li>Find the exits when you arrive</li>
+                        <li>Find the access / information point</li>
+                        <li>Tell a steward you are Deaf</li>
+                        <li>Agree a meeting point with your group</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 4: Speech to Text -->
             <div id="commSTTTab" class="comm-tab-content" style="display: none;">
                 <div id="sttSupported">
                     <div class="stt-display" id="sttDisplay">
@@ -1181,7 +1322,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.49"></script>
+    <script src="app.js?v=1.9.51"></script>
 
     <!-- Tally Embed Script -->
     <script>
@@ -1347,22 +1488,161 @@
             </div>
             <div class="festival-modal-body">
                 <div class="rights-hero-statement">
-                    <p class="rights-hero-main">You have the right to access events.</p>
-                    <p class="rights-hero-sub">It's the law.</p>
+                    <p class="rights-hero-main">You have the right to enjoy live events.</p>
+                    <p class="rights-hero-sub">The law protects you.</p>
                 </div>
 
+                <div class="bsl-video-link-center">
+                    <button class="bsl-video-link" onclick="playBSLVideo('know-rights')">
+                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                    </button>
+                </div>
+
+                <!-- The Law (UK) -->
                 <div class="festival-section festival-section-1">
-                    <p>The <strong>Equality Act 2010</strong> says venues must make events accessible for Deaf people.</p>
-                    <p>This includes providing interpreters.</p>
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>The Law (UK)</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>The <strong>Equality Act 2010</strong> covers England, Scotland, and Wales. It says venues and event providers must make <strong>"reasonable adjustments"</strong> so Deaf people can access their services.</p>
+                        <p>BSL interpreters are one example of a reasonable adjustment.</p>
+                        <p>In <strong>Northern Ireland</strong>, similar protection comes from the Disability Discrimination Act 1995.</p>
+                    </div>
                 </div>
 
+                <!-- What Are Reasonable Adjustments? -->
                 <div class="festival-section festival-section-2">
-                    <p><strong>You should never pay for your own interpreter.</strong></p>
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>What Are Reasonable Adjustments?</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>"Reasonable adjustments" means changes a venue makes so Deaf people are not left out.</p>
+                        <p>There are three types:</p>
+                        <ul class="festival-checklist">
+                            <li>Change a rule or process</li>
+                            <li>Change something in the building</li>
+                            <li>Provide extra help — like a BSL interpreter</li>
+                        </ul>
+                        <p>What counts as "reasonable" depends on things like the size of the event and the resources of the venue. Courts look at this on a case-by-case basis.</p>
+                    </div>
                 </div>
 
+                <!-- Planning Ahead -->
                 <div class="festival-section festival-section-3">
-                    <p>If a venue says no, or you don't know what to say, <strong>we can help</strong>. Email us.</p>
-                    <a href="mailto:office@performanceinterpreting.co.uk?subject=I need help with BSL access&body=Hi PI,%0D%0A%0D%0AI need some help with:%0D%0A%0D%0A(Fill in what's relevant - delete the rest)%0D%0A%0D%0AEvent:%0D%0AVenue:%0D%0ADate:%0D%0A%0D%0AWhat happened:%0D%0A%0D%0A" class="rights-contact-btn">Email Us</a>
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>Planning Ahead</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>Under the Equality Act 2010, venues have an <strong>"anticipatory duty"</strong>. This means they must think about accessibility before anyone asks.</p>
+                        <p>In practice, this means venues should:</p>
+                        <ul class="festival-checklist">
+                            <li>Have an access policy</li>
+                            <li>Put access information on their website</li>
+                            <li>Have a process for booking BSL interpreters when needed</li>
+                            <li>Train staff so they know how to help</li>
+                        </ul>
+                        <p>This does not mean every event must have a BSL interpreter from the start. But venues should have a plan in place so they can respond when you ask.</p>
+                    </div>
+                </div>
+
+                <!-- You Don't Pay for Access -->
+                <div class="festival-section festival-section-4">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>You Don't Pay for Access</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p><strong>You should not pay extra for access.</strong> The cost of a BSL interpreter is for the venue, not you.</p>
+                        <p>The law says venues cannot pass the cost of reasonable adjustments on to the person who needs them.</p>
+                    </div>
+                </div>
+
+                <!-- Companion / PA Tickets -->
+                <div class="festival-section festival-section-1">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>Companion / PA Tickets</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>Many venues offer a free ticket for a <strong>companion</strong> or <strong>Personal Assistant (PA)</strong>. Ask the access team when you book.</p>
+                        <p>This is standard at most arenas, theatres, and festivals. <a href="https://attitudeiseverything.org.uk" target="_blank" rel="noopener">Attitude Is Everything</a> includes free PA tickets as a basic standard in their venue charter.</p>
+                        <p>If you need a companion to access the event, the venue should try to help. Ask them what they offer.</p>
+                    </div>
+                </div>
+
+                <!-- Common Questions -->
+                <div class="festival-section festival-section-2">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>Common Questions About Access</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p><strong>"The venue has a hearing loop. Is that enough?"</strong><br>A hearing loop helps hearing aid users. It does not help Deaf BSL users. A loop on its own is not access for BSL users.</p>
+                        <p><strong>"The venue offered me a notepad."</strong><br>A notepad is not the same as BSL. English is not the first language of many Deaf people. A notepad is not equal access.</p>
+                        <p><strong>"The venue said it's too expensive."</strong><br>Cost is one factor, but venues must look at what is reasonable for their situation. Many events can afford a BSL interpreter.</p>
+                        <p><strong>"The venue said nobody has asked before."</strong><br>Under the anticipatory duty, venues should have a plan for access — even before someone asks. But you may still need to make a request for a specific event.</p>
+                    </div>
+                </div>
+
+                <!-- BSL Act 2022 -->
+                <div class="festival-section festival-section-3">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>BSL Act 2022</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>The <strong>BSL Act 2022</strong> says BSL is an official language of England, Wales, and Scotland.</p>
+                        <p>The BSL Act does <strong>not</strong> give you new rights at events. It does not force venues to provide BSL.</p>
+                        <p>Your main protection at events comes from the <strong>Equality Act 2010</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Rights in Ireland -->
+                <div class="festival-section festival-section-4">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>Your Rights in Ireland (ISL)</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>Ireland has different laws from the UK.</p>
+                        <p>The <strong>Irish Sign Language Act 2017</strong> says ISL is an official language of Ireland. Government services must provide ISL interpreters.</p>
+                        <p>For events and venues, the <strong>Equal Status Acts 2000–2018</strong> say venues must make "reasonable accommodation" for Deaf people.</p>
+                        <p>If a venue in Ireland refuses, you can complain to the <strong>Workplace Relations Commission (WRC)</strong>.</p>
+                        <ul class="festival-checklist">
+                            <li>Tell the venue in writing within 2 months</li>
+                            <li>File your complaint with the WRC within 6 months</li>
+                            <li>It is free</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- What To Do If a Venue Says No -->
+                <div class="festival-section festival-section-1">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                        <span>What To Do If a Venue Says No</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p><strong>Step 1:</strong> Write to the venue. Ask for a "reasonable adjustment" under the Equality Act 2010. Keep a copy of your message.</p>
+                        <p><strong>Step 2:</strong> If the venue does not help, contact the <strong>Equality Advisory Support Service (EASS)</strong>. They have BSL support.</p>
+                        <ul class="festival-checklist">
+                            <li>Phone: 0808 800 0082</li>
+                            <li>Textphone: 0808 800 0084</li>
+                            <li>BSL support on their website</li>
+                            <li>Open Mon–Fri 9am–7pm, Sat 10am–2pm</li>
+                        </ul>
+                        <p><strong>Step 3:</strong> If the venue still says no, you can take legal action. You have 6 months.</p>
+                        <p>You can also report access issues to <a href="https://attitudeiseverything.org.uk" target="_blank" rel="noopener">Attitude Is Everything</a>. They work with venues to improve access.</p>
+                    </div>
+                </div>
+
+                <!-- Contact PI -->
+                <div class="festival-section festival-cta">
+                    <p>Need help? Not sure what to do? <strong>We are here for you.</strong></p>
+                    <a href="mailto:office@performanceinterpreting.co.uk?subject=I need help with access&body=Hi PI,%0D%0A%0D%0AI need some help with:%0D%0A%0D%0A(Fill in what's relevant - delete the rest)%0D%0A%0D%0AEvent:%0D%0AVenue:%0D%0ADate:%0D%0A%0D%0AWhat happened:%0D%0A%0D%0A" class="rights-contact-btn">Email Us</a>
                 </div>
             </div>
         </div>

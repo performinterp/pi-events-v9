@@ -4954,6 +4954,34 @@ function closeVideoModal() {
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
 
+// BSL Video URL map — update URLs when real recordings are ready
+const bslVideoUrls = {
+    'orientation':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'how-to-book':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'know-rights':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'request':      'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'booking':      'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'faqs':         'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'tips':         'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
+    'at-event':     'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4'
+};
+
+function playBSLVideo(name) {
+    const video = document.getElementById('bslVideo');
+    if (!video) return;
+    const url = bslVideoUrls[name] || bslVideoUrls['orientation'];
+    const source = video.querySelector('source');
+    if (source && source.src !== url) {
+        source.src = url;
+        video.load();
+    }
+    video.currentTime = 0;
+    showVideoModal();
+    video.play().catch(() => {});
+}
+
+window.playBSLVideo = playBSLVideo;
+
 function openCommSupportModal() {
     const modal = document.getElementById('commSupportModal');
     if (!modal) return;
@@ -4986,16 +5014,76 @@ function closeCommSupportModal() {
 }
 
 function switchCommTab(tab) {
-    const cardTab = document.getElementById('commCardTab');
-    const sttTab = document.getElementById('commSTTTab');
+    const tabMap = {
+        card: 'commCardTab',
+        order: 'commOrderTab',
+        emergency: 'commEmergencyTab',
+        stt: 'commSTTTab'
+    };
+    const tabKeys = Object.keys(tabMap);
     const tabs = document.querySelectorAll('.comm-tab');
 
     tabs.forEach((t, i) => {
-        t.classList.toggle('active', (tab === 'card' && i === 0) || (tab === 'stt' && i === 1));
+        t.classList.toggle('active', tabKeys[i] === tab);
     });
 
-    if (cardTab) cardTab.style.display = tab === 'card' ? 'block' : 'none';
-    if (sttTab) sttTab.style.display = tab === 'stt' ? 'block' : 'none';
+    tabKeys.forEach(key => {
+        const el = document.getElementById(tabMap[key]);
+        if (el) el.style.display = key === tab ? 'block' : 'none';
+    });
+}
+
+// Order builder functions
+let currentOrder = [];
+
+function addOrderItem(btn) {
+    currentOrder.push(btn.textContent.trim());
+    renderOrderItems();
+}
+
+function addCustomOrderItem() {
+    const input = document.getElementById('orderCustomInput');
+    if (input && input.value.trim()) {
+        currentOrder.push(input.value.trim());
+        input.value = '';
+        renderOrderItems();
+    }
+}
+
+function removeOrderItem(index) {
+    currentOrder.splice(index, 1);
+    renderOrderItems();
+}
+
+function renderOrderItems() {
+    const container = document.getElementById('orderItems');
+    if (!container) return;
+    if (currentOrder.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = currentOrder.map((item, i) =>
+        `<span class="order-item-tag">${item} <button onclick="removeOrderItem(${i})" aria-label="Remove">&times;</button></span>`
+    ).join('');
+}
+
+function showOrderCard() {
+    if (currentOrder.length === 0) return;
+    const displayCard = document.getElementById('orderDisplayCard');
+    const displayList = document.getElementById('orderDisplayList');
+    if (!displayCard || !displayList) return;
+    displayList.innerHTML = currentOrder.map(item =>
+        `<p class="staff-card-line" style="font-size: 1.4rem; font-weight: 600;">${item}</p>`
+    ).join('');
+    displayCard.style.display = 'block';
+    displayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearOrder() {
+    currentOrder = [];
+    renderOrderItems();
+    const displayCard = document.getElementById('orderDisplayCard');
+    if (displayCard) displayCard.style.display = 'none';
 }
 
 function toggleSTT() {

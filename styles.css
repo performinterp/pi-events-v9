@@ -2863,7 +2863,7 @@ a {
 
 .contact-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-2xl);
     max-width: 1200px;
     margin: 0 auto;
@@ -4354,7 +4354,7 @@ select:focus-visible {
 
 .flow-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
     max-width: 1200px;
     margin: 0 auto 3rem;
@@ -4461,6 +4461,223 @@ select:focus-visible {
 
 .flow-card-orange .flow-card-button:hover {
     background: #D97706;
+}
+
+.flow-card-purple {
+    border-color: #8B5CF6;
+}
+
+.flow-card-purple:hover {
+    background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+}
+
+.flow-card-purple .flow-card-button {
+    background: #8B5CF6;
+}
+
+.flow-card-purple .flow-card-button:hover {
+    background: #7C3AED;
+}
+
+/* BSL Video Link Button (reusable across modals and sections) */
+.bsl-video-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: rgba(37, 99, 235, 0.08);
+    border: 2px solid var(--primary);
+    border-radius: 10px;
+    color: var(--primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0.75rem 0;
+}
+
+.bsl-video-link:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.bsl-video-link-icon {
+    font-size: 0.75rem;
+}
+
+/* Centered variant for modals */
+.bsl-video-link-center {
+    display: flex;
+    justify-content: center;
+    margin: 0.75rem 0;
+}
+
+/* At the Event Floating Action Button */
+.at-event-fab {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #8B5CF6;
+    border: none;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.at-event-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(139, 92, 246, 0.5);
+}
+
+.at-event-fab-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+/* Order builder */
+.order-builder {
+    margin-top: 1rem;
+}
+
+.order-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 2rem;
+    margin-bottom: 1rem;
+}
+
+.order-item-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 20px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.order-item-tag button {
+    background: none;
+    border: none;
+    color: #6B7280;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.order-pick-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6B7280;
+    margin-bottom: 0.5rem;
+}
+
+.order-pick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.order-pick {
+    padding: 0.6rem 0.5rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+
+.order-pick:hover {
+    border-color: var(--primary);
+    background: #EFF6FF;
+}
+
+.order-pick:active {
+    transform: scale(0.95);
+}
+
+.order-custom {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.order-custom-input {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.95rem;
+}
+
+.order-custom-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.order-custom-btn {
+    padding: 0.6rem 1rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.order-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.order-actions .btn-primary {
+    flex: 1;
+}
+
+.order-display-list {
+    text-align: center;
+}
+
+/* Emergency tips */
+.emergency-tips {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #FEF2F2;
+    border-radius: 12px;
+    border: 1px solid #FECACA;
+}
+
+.emergency-tips-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #991B1B;
+    margin-bottom: 0.75rem;
+}
+
+.emergency-tips .festival-checklist {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.emergency-tips .festival-checklist li {
+    color: #1F2937;
+    font-size: 0.95rem;
+    line-height: 1.8;
 }
 
 .home-flow-footer {
@@ -4857,19 +5074,27 @@ select:focus-visible {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.comm-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .comm-tab {
-    flex: 1;
-    padding: 0.75rem 1rem;
+    flex: 0 0 auto;
+    padding: 0.65rem 0.85rem;
     border: 2px solid var(--primary);
     border-radius: 10px;
     background: rgba(37, 99, 235, 0.08);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--primary);
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .comm-tab:hover {
