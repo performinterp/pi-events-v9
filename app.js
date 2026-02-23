@@ -5183,18 +5183,19 @@ let ftmAnimFrame = null;
 let ftmLastHaptic = 0;
 let ftmRollingAvg = 0;
 
-const FTM_COOLDOWN = 80;
+const FTM_COOLDOWN = 100;
 const FTM_FFT_SIZE = 256;
 const FTM_BASS_BINS = 3; // bins 0-2 cover ~0-258Hz at 44.1kHz
 const FTM_BASS_WEIGHT = 0.7;
 const FTM_MID_WEIGHT = 0.3;
 const FTM_ROLLING_ALPHA = 0.15;
 const FTM_DROP_MULTIPLIER = 1.5;
+const FTM_NOISE_FLOOR = 0.12;
 
 function getSensitivityMultiplier() {
     const slider = document.getElementById('ftmSensitivity');
     const val = slider ? parseInt(slider.value) : 3;
-    return [0.4, 0.65, 1.0, 1.5, 2.2][val - 1];
+    return [0.3, 0.5, 0.8, 1.2, 1.8][val - 1];
 }
 
 function ftmAnalyseLoop() {
@@ -5216,21 +5217,23 @@ function ftmAnalyseLoop() {
 
     // Weighted combined level
     const rawLevel = (bassEnergy * FTM_BASS_WEIGHT) + (midEnergy * FTM_MID_WEIGHT);
-    const level = rawLevel * getSensitivityMultiplier();
+    // Gate out ambient noise before applying sensitivity
+    const gatedLevel = rawLevel < FTM_NOISE_FLOOR ? 0 : rawLevel - FTM_NOISE_FLOOR;
+    const level = gatedLevel * getSensitivityMultiplier();
 
     // Rolling average for bass drop detection
     ftmRollingAvg = ftmRollingAvg * (1 - FTM_ROLLING_ALPHA) + level * FTM_ROLLING_ALPHA;
-    const isDrop = level > ftmRollingAvg * FTM_DROP_MULTIPLIER && level > 0.3;
+    const isDrop = level > ftmRollingAvg * FTM_DROP_MULTIPLIER && level > 0.4;
 
     // Map to haptic intensity
     const now = Date.now();
     if (now - ftmLastHaptic >= FTM_COOLDOWN) {
         let intensity = null;
-        if (isDrop || level > 0.6) {
+        if (isDrop || level > 0.7) {
             intensity = 'HEAVY';
-        } else if (level > 0.35) {
+        } else if (level > 0.45) {
             intensity = 'MEDIUM';
-        } else if (level > 0.15) {
+        } else if (level > 0.25) {
             intensity = 'LIGHT';
         }
 
@@ -5274,10 +5277,10 @@ function ftmUpdateVisual(level, isDrop) {
     if (!ring) return;
 
     ring.classList.remove('heavy');
-    if (isDrop || level > 0.6) {
+    if (isDrop || level > 0.7) {
         ring.classList.add('heavy');
         if (status) status.textContent = 'Heavy bass!';
-    } else if (level > 0.15) {
+    } else if (level > 0.25) {
         if (status) status.textContent = 'Feeling the music...';
     } else {
         if (status) status.textContent = 'Listening...';
