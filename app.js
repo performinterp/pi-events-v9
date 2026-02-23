@@ -5011,6 +5011,8 @@ function closeCommSupportModal() {
         sttRecognition.stop();
         sttIsListening = false;
     }
+    // Stop FTM if running
+    if (ftmActive) stopFTM();
 }
 
 function switchCommTab(tab) {
@@ -5018,7 +5020,8 @@ function switchCommTab(tab) {
         card: 'commCardTab',
         order: 'commOrderTab',
         emergency: 'commEmergencyTab',
-        stt: 'commSTTTab'
+        stt: 'commSTTTab',
+        ftm: 'commFTMTab'
     };
     const tabKeys = Object.keys(tabMap);
     const tabs = document.querySelectorAll('.comm-tab');
@@ -5168,11 +5171,201 @@ function clearSTT() {
     }
 }
 
+// ========================================
+// FEEL THE MUSIC (Sound-to-Haptic)
+// ========================================
+
+let ftmActive = false;
+let ftmAudioCtx = null;
+let ftmAnalyser = null;
+let ftmStream = null;
+let ftmAnimFrame = null;
+let ftmLastHaptic = 0;
+let ftmRollingAvg = 0;
+
+const FTM_COOLDOWN = 80;
+const FTM_FFT_SIZE = 256;
+const FTM_BASS_BINS = 3; // bins 0-2 cover ~0-258Hz at 44.1kHz
+const FTM_BASS_WEIGHT = 0.7;
+const FTM_MID_WEIGHT = 0.3;
+const FTM_ROLLING_ALPHA = 0.15;
+const FTM_DROP_MULTIPLIER = 1.5;
+
+function getSensitivityMultiplier() {
+    const slider = document.getElementById('ftmSensitivity');
+    const val = slider ? parseInt(slider.value) : 3;
+    return [0.4, 0.65, 1.0, 1.5, 2.2][val - 1];
+}
+
+function ftmAnalyseLoop() {
+    if (!ftmActive || !ftmAnalyser) return;
+
+    const data = new Uint8Array(ftmAnalyser.frequencyBinCount);
+    ftmAnalyser.getByteFrequencyData(data);
+
+    // Bass energy (bins 0-2)
+    let bassSum = 0;
+    for (let i = 0; i < FTM_BASS_BINS; i++) bassSum += data[i];
+    const bassEnergy = bassSum / (FTM_BASS_BINS * 255);
+
+    // Mid energy (bins 3-15, ~258Hz-2.6kHz)
+    let midSum = 0;
+    const midEnd = Math.min(16, data.length);
+    for (let i = FTM_BASS_BINS; i < midEnd; i++) midSum += data[i];
+    const midEnergy = midSum / ((midEnd - FTM_BASS_BINS) * 255);
+
+    // Weighted combined level
+    const rawLevel = (bassEnergy * FTM_BASS_WEIGHT) + (midEnergy * FTM_MID_WEIGHT);
+    const level = rawLevel * getSensitivityMultiplier();
+
+    // Rolling average for bass drop detection
+    ftmRollingAvg = ftmRollingAvg * (1 - FTM_ROLLING_ALPHA) + level * FTM_ROLLING_ALPHA;
+    const isDrop = level > ftmRollingAvg * FTM_DROP_MULTIPLIER && level > 0.3;
+
+    // Map to haptic intensity
+    const now = Date.now();
+    if (now - ftmLastHaptic >= FTM_COOLDOWN) {
+        let intensity = null;
+        if (isDrop || level > 0.6) {
+            intensity = 'HEAVY';
+        } else if (level > 0.35) {
+            intensity = 'MEDIUM';
+        } else if (level > 0.15) {
+            intensity = 'LIGHT';
+        }
+
+        if (intensity) {
+            ftmLastHaptic = now;
+            ftmFireHaptic(intensity);
+        }
+    }
+
+    // Update visual
+    ftmUpdateVisual(level, isDrop);
+
+    ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
+}
+
+function ftmFireHaptic(intensity) {
+    // Try Capacitor Haptics first (iOS Taptic Engine)
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+        const Haptics = window.Capacitor.Plugins.Haptics;
+        try {
+            Haptics.impact({ style: intensity });
+        } catch (e) {
+            // Fallback to vibrate
+            ftmVibrateNative(intensity);
+        }
+        return;
+    }
+    // Web Vibration API fallback (Android, some browsers)
+    ftmVibrateNative(intensity);
+}
+
+function ftmVibrateNative(intensity) {
+    if (!navigator.vibrate) return;
+    const durations = { HEAVY: 50, MEDIUM: 30, LIGHT: 15 };
+    navigator.vibrate(durations[intensity] || 30);
+}
+
+function ftmUpdateVisual(level, isDrop) {
+    const ring = document.getElementById('ftmPulseRing');
+    const status = document.getElementById('ftmStatus');
+    if (!ring) return;
+
+    ring.classList.remove('heavy');
+    if (isDrop || level > 0.6) {
+        ring.classList.add('heavy');
+        if (status) status.textContent = 'Heavy bass!';
+    } else if (level > 0.15) {
+        if (status) status.textContent = 'Feeling the music...';
+    } else {
+        if (status) status.textContent = 'Listening...';
+    }
+}
+
+async function startFTM() {
+    const errorEl = document.getElementById('ftmError');
+    const ring = document.getElementById('ftmPulseRing');
+    const btn = document.getElementById('ftmToggleBtn');
+    const status = document.getElementById('ftmStatus');
+
+    if (errorEl) errorEl.style.display = 'none';
+
+    try {
+        ftmStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    } catch (err) {
+        if (errorEl) errorEl.style.display = 'block';
+        return;
+    }
+
+    ftmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    ftmAnalyser = ftmAudioCtx.createAnalyser();
+    ftmAnalyser.fftSize = FTM_FFT_SIZE;
+    ftmAnalyser.smoothingTimeConstant = 0.4;
+
+    const source = ftmAudioCtx.createMediaStreamSource(ftmStream);
+    source.connect(ftmAnalyser);
+    // Do NOT connect to destination — prevents mic playback through speaker
+
+    ftmActive = true;
+    ftmRollingAvg = 0;
+    ftmLastHaptic = 0;
+
+    if (ring) ring.classList.add('active');
+    if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
+    if (status) { status.textContent = 'Listening...'; status.classList.add('active'); }
+
+    ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
+}
+
+function stopFTM() {
+    ftmActive = false;
+
+    if (ftmAnimFrame) {
+        cancelAnimationFrame(ftmAnimFrame);
+        ftmAnimFrame = null;
+    }
+
+    if (ftmStream) {
+        ftmStream.getTracks().forEach(t => t.stop());
+        ftmStream = null;
+    }
+
+    if (ftmAudioCtx) {
+        ftmAudioCtx.close().catch(() => {});
+        ftmAudioCtx = null;
+        ftmAnalyser = null;
+    }
+
+    const ring = document.getElementById('ftmPulseRing');
+    const btn = document.getElementById('ftmToggleBtn');
+    const status = document.getElementById('ftmStatus');
+
+    if (ring) { ring.classList.remove('active', 'heavy'); }
+    if (btn) { btn.textContent = 'Start Feeling'; btn.classList.remove('active'); }
+    if (status) { status.textContent = 'Feel the bass through your phone'; status.classList.remove('active'); }
+}
+
+function toggleFTM() {
+    if (ftmActive) {
+        stopFTM();
+    } else {
+        startFTM();
+    }
+}
+
+// Stop FTM when app goes to background
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && ftmActive) stopFTM();
+});
+
 window.openCommSupportModal = openCommSupportModal;
 window.closeCommSupportModal = closeCommSupportModal;
 window.switchCommTab = switchCommTab;
 window.toggleSTT = toggleSTT;
 window.clearSTT = clearSTT;
+window.toggleFTM = toggleFTM;
 
 // ========================================
 // BOOKING GUIDE FUNCTIONS

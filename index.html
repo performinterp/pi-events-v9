@@ -33,7 +33,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.51">
+    <link rel="stylesheet" href="styles.css?v=1.9.52">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -1188,6 +1188,7 @@
                 <button class="comm-tab" onclick="switchCommTab('order')">Order</button>
                 <button class="comm-tab" onclick="switchCommTab('emergency')">Emergency</button>
                 <button class="comm-tab" onclick="switchCommTab('stt')">Speech to Text</button>
+                <button class="comm-tab" onclick="switchCommTab('ftm')">🎵 Feel Music</button>
             </div>
 
             <!-- Tab 1: Show Staff Card -->
@@ -1318,11 +1319,39 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Tab 5: Feel the Music -->
+            <div id="commFTMTab" class="comm-tab-content" style="display: none;">
+                <div class="ftm-container">
+                    <div class="ftm-pulse-ring" id="ftmPulseRing">
+                        <div class="ftm-pulse-inner" id="ftmPulseInner">
+                            <span class="ftm-icon">🎵</span>
+                        </div>
+                    </div>
+                    <p class="ftm-status" id="ftmStatus">Feel the bass through your phone</p>
+                    <button class="btn-primary btn-large ftm-toggle-btn" id="ftmToggleBtn" onclick="toggleFTM()">
+                        Start Feeling
+                    </button>
+                    <div class="ftm-sensitivity">
+                        <label for="ftmSensitivity" class="ftm-sensitivity-label">Sensitivity</label>
+                        <div class="ftm-slider-row">
+                            <span class="ftm-slider-label">Low</span>
+                            <input type="range" id="ftmSensitivity" min="1" max="5" value="3" class="ftm-slider">
+                            <span class="ftm-slider-label">High</span>
+                        </div>
+                    </div>
+                    <div class="ftm-error" id="ftmError" style="display: none;">
+                        <p>Microphone access is needed to feel the music.</p>
+                        <p>Please allow microphone access in your browser or device settings.</p>
+                    </div>
+                    <p class="comm-hint" style="margin-top: 1rem;">Hold your phone or place it against your body to feel the vibrations</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.51"></script>
+    <script src="app.js?v=1.9.52"></script>
 
     <!-- Tally Embed Script -->
     <script>
