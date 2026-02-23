@@ -5321,9 +5321,10 @@ select:focus-visible {
 }
 
 .ftm-toggle-btn {
+    display: block;
     width: 100%;
     max-width: 300px;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
 }
 
 .ftm-toggle-btn.active {
