@@ -5072,24 +5072,19 @@ select:focus-visible {
 
 .comm-tabs {
     display: flex;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
     margin-bottom: 1.5rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.comm-tabs::-webkit-scrollbar {
-    display: none;
+    justify-content: center;
 }
 
 .comm-tab {
     flex: 0 0 auto;
-    padding: 0.65rem 0.85rem;
+    padding: 0.5rem 0.7rem;
     border: 2px solid var(--primary);
     border-radius: 10px;
     background: rgba(37, 99, 235, 0.08);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--primary);
     cursor: pointer;
