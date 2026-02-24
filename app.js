@@ -5242,15 +5242,16 @@ function ftmAnalyseLoop() {
     const raw = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(raw);
 
-    const whitened = ftmWhiten(raw);
-
-    // Kick energy from whitened data (tight 65-108Hz band)
+    // Kick energy from RAW data (not whitened) — tight 65-108Hz band only
     let kickEnergy = 0;
-    for (let i = FTM_KICK_START; i <= FTM_KICK_END; i++) kickEnergy += whitened[i];
+    for (let i = FTM_KICK_START; i <= FTM_KICK_END; i++) kickEnergy += raw[i] / 255;
     kickEnergy /= (FTM_KICK_END - FTM_KICK_START + 1);
 
+    // Absolute noise floor — ignore if kick band is quiet
+    const FTM_NOISE_FLOOR = 0.15;
+
     // Spectral flux (positive only = onset)
-    const kickFlux = Math.max(0, kickEnergy - ftmPrevKick);
+    const kickFlux = kickEnergy > FTM_NOISE_FLOOR ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
     ftmPrevKick = kickEnergy;
 
     // Store in circular buffer
@@ -5264,7 +5265,7 @@ function ftmAnalyseLoop() {
     let isBeat = false;
 
     // Fire only on genuine kick onset, with hard minimum gap
-    if (kickFlux > threshold && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
+    if (kickFlux > threshold && kickFlux > 0.02 && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
         ftmLastHaptic = now;
         ftmBeatDecay = 1.0;
         isBeat = true;
