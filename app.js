@@ -5172,15 +5172,15 @@ function clearSTT() {
 }
 
 // ========================================
-// FEEL THE MUSIC (Sound-to-Haptic) v5
-// Tempo-locked with intensity slider (subdivision) + auto-recalibration
+// FEEL THE MUSIC (Sound-to-Haptic) v6
+// AudioContext.currentTime precision + rAF loop + proper grid catchup
 // ========================================
 
 let ftmActive = false;
 let ftmAudioCtx = null;
 let ftmAnalyser = null;
 let ftmStream = null;
-let ftmInterval = null;
+let ftmRAF = null; // requestAnimationFrame ID
 let ftmBeatDecay = 0;
 let ftmPrevKick = 0;
 let ftmFrameCount = 0;
@@ -5190,25 +5190,25 @@ const FTM_HISTORY_SIZE = 43;
 const ftmKickHistory = new Float32Array(FTM_HISTORY_SIZE);
 let ftmHistoryIdx = 0;
 
-// Tempo locking
-const FTM_CALIBRATION_MS = 3500;
-let ftmCalibStartTime = 0;
-let ftmOnsets = [];
-let ftmBeatInterval = 0;
-let ftmNextBeat = 0;
+// Tempo locking — all times in SECONDS (AudioContext.currentTime)
+const FTM_CALIBRATION_S = 3.5;
+let ftmCalibStartTime = 0; // seconds
+let ftmOnsets = []; // onset times in seconds
+let ftmBeatInterval = 0; // seconds per beat
+let ftmNextBeat = 0; // next beat time in seconds
 let ftmLocked = false;
 let ftmBPM = 0;
 const FTM_PHASE_CORRECTION = 0.15;
-const FTM_BEAT_WINDOW = 60;
+const FTM_BEAT_WINDOW = 0.06; // 60ms tolerance in seconds
 const FTM_MIN_BPM = 70;
 const FTM_MAX_BPM = 180;
 
-// Auto-recalibration: track consecutive grid beats with no nearby onset
+// Auto-recalibration
 let ftmMissCount = 0;
 const FTM_MISS_LIMIT = 8;
 
-// Subdivision grid for intensity slider
-let ftmSubNextBeat = 0; // next subdivision beat time
+// Subdivision grid
+let ftmSubNextBeat = 0;
 
 // FFT config
 const FTM_FFT_SIZE = 2048;
@@ -5217,7 +5217,6 @@ const FTM_KICK_END = 5;
 const FTM_NUM_BARS = 16;
 const FTM_VIS_BINS = 186;
 
-// Intensity: 1=quarter, 2=quarter+and, 3=8ths, 4=8th triplets, 5=16ths
 function ftmGetIntensity() {
     const slider = document.getElementById('ftmIntensity');
     return slider ? parseInt(slider.value) : 1;
@@ -5225,7 +5224,7 @@ function ftmGetIntensity() {
 
 function ftmGetSubdivision() {
     const level = ftmGetIntensity();
-    return [1, 2, 2, 3, 4][level - 1]; // subdivisions per beat
+    return [1, 2, 2, 3, 4][level - 1];
 }
 
 function ftmAdaptiveThreshold() {
@@ -5247,12 +5246,12 @@ function ftmEstimateTempo(onsets) {
     const iois = [];
     for (let i = 1; i < onsets.length; i++) {
         const gap = onsets[i] - onsets[i - 1];
-        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) iois.push(gap);
+        if (gap >= 60 / FTM_MAX_BPM && gap <= 60 / FTM_MIN_BPM) iois.push(gap);
     }
     if (iois.length < 3) return 0;
     for (let i = 2; i < onsets.length; i++) {
         const gap = (onsets[i] - onsets[i - 2]) / 2;
-        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) iois.push(gap);
+        if (gap >= 60 / FTM_MAX_BPM && gap <= 60 / FTM_MIN_BPM) iois.push(gap);
     }
     iois.sort((a, b) => a - b);
     const median = iois[Math.floor(iois.length / 2)];
@@ -5268,14 +5267,16 @@ function ftmRecalibrate() {
     ftmMissCount = 0;
     ftmHistoryIdx = 0;
     ftmKickHistory.fill(0);
-    ftmCalibStartTime = Date.now();
+    ftmCalibStartTime = ftmAudioCtx ? ftmAudioCtx.currentTime : 0;
     const status = document.getElementById('ftmStatus');
     if (status) status.textContent = 'Re-syncing...';
 }
 
 function ftmAnalyseLoop() {
-    if (!ftmActive || !ftmAnalyser) return;
+    if (!ftmActive || !ftmAnalyser || !ftmAudioCtx) return;
+    ftmRAF = requestAnimationFrame(ftmAnalyseLoop);
 
+    const now = ftmAudioCtx.currentTime; // high-precision audio clock (seconds)
     const raw = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(raw);
 
@@ -5291,82 +5292,79 @@ function ftmAnalyseLoop() {
     ftmFrameCount++;
 
     const threshold = ftmAdaptiveThreshold();
-    const now = Date.now();
     let isBeat = false;
     const isOnset = kickFlux > threshold && kickFlux > 0.02;
 
     if (!ftmLocked) {
-        // === CALIBRATION: collect onsets to estimate tempo ===
+        // === CALIBRATION: collect onsets ===
         if (isOnset) {
             const lastOnset = ftmOnsets.length > 0 ? ftmOnsets[ftmOnsets.length - 1] : 0;
-            if (now - lastOnset > 150) ftmOnsets.push(now);
+            if (now - lastOnset > 0.15) ftmOnsets.push(now); // 150ms debounce
         }
         if (!document.hidden) {
             const status = document.getElementById('ftmStatus');
             if (status) {
                 const elapsed = now - ftmCalibStartTime;
-                const pct = Math.min(100, Math.round(elapsed / FTM_CALIBRATION_MS * 100));
+                const pct = Math.min(100, Math.round(elapsed / FTM_CALIBRATION_S * 100));
                 status.textContent = `Finding the beat... ${pct}%`;
             }
         }
-        if (now - ftmCalibStartTime >= FTM_CALIBRATION_MS) {
+        if (now - ftmCalibStartTime >= FTM_CALIBRATION_S) {
             ftmBeatInterval = ftmEstimateTempo(ftmOnsets);
             if (ftmBeatInterval > 0) {
                 ftmLocked = true;
-                ftmBPM = Math.round(60000 / ftmBeatInterval);
+                ftmBPM = Math.round(60 / ftmBeatInterval);
                 ftmMissCount = 0;
                 const lastOnset = ftmOnsets[ftmOnsets.length - 1];
                 ftmNextBeat = lastOnset + ftmBeatInterval;
                 ftmSubNextBeat = ftmNextBeat;
             } else {
-                ftmCalibStartTime = now - FTM_CALIBRATION_MS + 1500;
+                ftmCalibStartTime = now - FTM_CALIBRATION_S + 1.5;
                 ftmOnsets = [];
             }
         }
     } else {
-        // === GRID MODE ===
+        // === GRID MODE with precise audio clock ===
         const subdivisions = ftmGetSubdivision();
         const subInterval = ftmBeatInterval / subdivisions;
 
         // Phase correction from real onsets
-        let onsetNearGrid = false;
         if (isOnset) {
             const distToNext = ftmNextBeat - now;
             const distToPrev = now - (ftmNextBeat - ftmBeatInterval);
-            const nearestDist = Math.min(Math.abs(distToNext), Math.abs(distToPrev));
-            if (nearestDist < FTM_BEAT_WINDOW) {
+            if (Math.min(Math.abs(distToNext), Math.abs(distToPrev)) < FTM_BEAT_WINDOW) {
                 const error = Math.abs(distToNext) < Math.abs(distToPrev) ? -distToNext : distToPrev;
                 ftmNextBeat += error * FTM_PHASE_CORRECTION;
-                onsetNearGrid = true;
             }
         }
 
-        // Main beat grid
+        // Main beat — advance grid past any missed beats, fire once
         if (now >= ftmNextBeat) {
-            ftmNextBeat += ftmBeatInterval;
-            // Re-sync subdivision grid to main beat
-            ftmSubNextBeat = ftmNextBeat;
-            // Track misses for auto-recalibration
-            if (isOnset || onsetNearGrid) {
-                ftmMissCount = Math.max(0, ftmMissCount - 1);
-            } else {
+            // Catch up: skip past any beats we missed (e.g. tab was backgrounded)
+            while (ftmNextBeat + ftmBeatInterval <= now) {
+                ftmNextBeat += ftmBeatInterval;
                 ftmMissCount++;
             }
-            // Song changed? Re-lock.
+            ftmNextBeat += ftmBeatInterval;
+            ftmSubNextBeat = now + subInterval; // align sub grid from now
+
+            // Track misses for auto-recalibration
+            if (isOnset) ftmMissCount = Math.max(0, ftmMissCount - 1);
+            else ftmMissCount++;
+
             if (ftmMissCount >= FTM_MISS_LIMIT) {
                 ftmRecalibrate();
                 return;
             }
-            // Always fire HEAVY on the main beat
+
             ftmBeatDecay = 1.0;
             isBeat = true;
             ftmFireHaptic('HEAVY');
         }
 
-        // Subdivision beats (only for intensity > 1)
+        // Subdivision beats
         if (subdivisions > 1 && now >= ftmSubNextBeat && !isBeat) {
             ftmSubNextBeat += subInterval;
-            // Keep sub grid aligned — don't let it drift past main beat
             if (ftmSubNextBeat > ftmNextBeat) ftmSubNextBeat = ftmNextBeat;
             ftmBeatDecay = 0.6;
             isBeat = true;
@@ -5472,14 +5470,14 @@ async function startFTM() {
     ftmLocked = false;
     ftmBPM = 0;
     ftmMissCount = 0;
-    ftmCalibStartTime = Date.now();
+    ftmCalibStartTime = ftmAudioCtx.currentTime;
 
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
     if (status) { status.textContent = 'Finding the beat...'; status.classList.add('active'); }
     const recalBtn = document.getElementById('ftmRecalibrateBtn');
     if (recalBtn) recalBtn.style.display = '';
 
-    ftmInterval = setInterval(ftmAnalyseLoop, 16);
+    ftmRAF = requestAnimationFrame(ftmAnalyseLoop);
     ftmRequestWakeLock();
 }
 
@@ -5500,7 +5498,7 @@ function ftmReleaseWakeLock() {
 
 function stopFTM() {
     ftmActive = false;
-    if (ftmInterval) { clearInterval(ftmInterval); ftmInterval = null; }
+    if (ftmRAF) { cancelAnimationFrame(ftmRAF); ftmRAF = null; }
     if (ftmStream) { ftmStream.getTracks().forEach(t => t.stop()); ftmStream = null; }
     if (ftmAudioCtx) { ftmAudioCtx.close().catch(() => {}); ftmAudioCtx = null; ftmAnalyser = null; }
     ftmReleaseWakeLock();
