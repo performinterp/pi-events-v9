@@ -5185,24 +5185,24 @@ let ftmBeatDecay = 0;
 let ftmLastHaptic = 0;
 let ftmPrevKick = 0;
 let ftmFrameCount = 0;
-const FTM_CALIBRATION_FRAMES = 120; // ~2 seconds at 60fps
+let ftmArmed = true; // Schmitt trigger: must re-arm between beats
+let ftmPeakEnergy = 0; // Track peak for re-arm threshold
+const FTM_CALIBRATION_FRAMES = 120;
 
 // Patin adaptive threshold — circular buffer + variance
 const FTM_HISTORY_SIZE = 43;
 const ftmKickHistory = new Float32Array(FTM_HISTORY_SIZE);
 let ftmHistoryIdx = 0;
 
-// Adaptive whitening — per-bin running max
-let ftmBinMax = null;
-const FTM_WHITENING_DECAY = 0.997;
-
 // FFT config — 2048 gives ~21.5Hz per bin at 44.1kHz
 const FTM_FFT_SIZE = 2048;
 // Kick drum: 65-108Hz (bins 3-5 at 21.5Hz/bin)
 const FTM_KICK_START = 3;
 const FTM_KICK_END = 5;
-// Hard minimum gap between haptics (ms) — prevents buzzing
-const FTM_MIN_GAP = 200;
+// Hard minimum gap between haptics (ms)
+const FTM_MIN_GAP = 250;
+// Re-arm: energy must drop to this fraction of peak before next beat fires
+const FTM_REARM_RATIO = 0.5;
 // Visualiser
 const FTM_NUM_BARS = 16;
 const FTM_VIS_BINS = 186;
@@ -5234,7 +5234,7 @@ function ftmAdaptiveThreshold() {
         varSum += d * d;
     }
     const variance = varSum / FTM_HISTORY_SIZE;
-    const C = Math.max(1.2, Math.min(-15 * variance + 1.55, 2.0));
+    const C = Math.max(1.4, Math.min(-15 * variance + 1.55, 2.2));
     return C * mean;
 }
 
@@ -5244,41 +5244,47 @@ function ftmAnalyseLoop() {
     const raw = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(raw);
 
-    // Kick energy from RAW data (not whitened) — tight 65-108Hz band only
+    // Kick energy from RAW data — tight 65-108Hz band only
     let kickEnergy = 0;
     for (let i = FTM_KICK_START; i <= FTM_KICK_END; i++) kickEnergy += raw[i] / 255;
     kickEnergy /= (FTM_KICK_END - FTM_KICK_START + 1);
 
-    // Absolute noise floor — ignore if kick band is quiet
-    const FTM_NOISE_FLOOR = 0.15;
-
-    // Spectral flux (positive only = onset)
-    const kickFlux = kickEnergy > FTM_NOISE_FLOOR ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
+    // Spectral flux (positive only = onset), gated by noise floor
+    const kickFlux = kickEnergy > 0.15 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
     ftmPrevKick = kickEnergy;
 
-    // Store in circular buffer
+    // Store in circular buffer for Patin threshold
     ftmKickHistory[ftmHistoryIdx] = kickFlux;
     ftmHistoryIdx = (ftmHistoryIdx + 1) % FTM_HISTORY_SIZE;
 
     ftmFrameCount++;
 
-    // Patin threshold with sensitivity
-    const threshold = ftmAdaptiveThreshold() / ftmGetSensitivity();
+    // Schmitt trigger re-arm: energy must drop below peak * ratio
+    if (!ftmArmed) {
+        if (kickEnergy < ftmPeakEnergy * FTM_REARM_RATIO) {
+            ftmArmed = true;
+        }
+    }
 
+    // Track rolling peak (slow decay)
+    ftmPeakEnergy = Math.max(kickEnergy, ftmPeakEnergy * 0.995);
+
+    const threshold = ftmAdaptiveThreshold() / ftmGetSensitivity();
     const now = Date.now();
     let isBeat = false;
     const calibrating = ftmFrameCount < FTM_CALIBRATION_FRAMES;
 
-    // Update status during calibration
     if (calibrating && !document.hidden) {
         const status = document.getElementById('ftmStatus');
         if (status) status.textContent = 'Finding the beat...';
     }
 
-    // Fire only on genuine kick onset, with hard minimum gap (skip during calibration)
-    if (!calibrating && kickFlux > threshold && kickFlux > 0.02 && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
+    // Fire only when: armed, past min gap, flux exceeds threshold, flux is meaningful
+    if (!calibrating && ftmArmed && kickFlux > threshold && kickFlux > 0.03 && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
         ftmLastHaptic = now;
         ftmBeatDecay = 1.0;
+        ftmArmed = false; // Must re-arm before next beat
+        ftmPeakEnergy = kickEnergy; // Set peak from this beat
         isBeat = true;
         const strength = threshold > 0 ? kickFlux / threshold : 1;
         ftmFireHaptic(strength > 2.5 ? 'HEAVY' : strength > 1.5 ? 'MEDIUM' : 'LIGHT');
@@ -5369,6 +5375,8 @@ async function startFTM() {
     ftmBeatDecay = 0;
     ftmHistoryIdx = 0;
     ftmFrameCount = 0;
+    ftmArmed = true;
+    ftmPeakEnergy = 0;
     ftmKickHistory.fill(0);
     ftmBinMax = null;
 
