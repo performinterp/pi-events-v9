@@ -5205,7 +5205,8 @@ const FTM_MAX_BPM = 180;
 
 // Auto-recalibration
 let ftmMissCount = 0;
-const FTM_MISS_LIMIT = 8;
+const FTM_MISS_LIMIT = 12;
+let ftmLastOnsetTime = 0; // track when last real onset was detected
 
 // Subdivision grid
 let ftmSubNextBeat = 0;
@@ -5295,6 +5296,9 @@ function ftmAnalyseLoop() {
     let isBeat = false;
     const isOnset = kickFlux > threshold && kickFlux > 0.02;
 
+    // Track when we last detected a real onset (used for miss counting)
+    if (isOnset) ftmLastOnsetTime = now;
+
     if (!ftmLocked) {
         // === CALIBRATION: collect onsets ===
         if (isOnset) {
@@ -5348,8 +5352,9 @@ function ftmAnalyseLoop() {
             ftmNextBeat += ftmBeatInterval;
             ftmSubNextBeat = now + subInterval; // align sub grid from now
 
-            // Track misses for auto-recalibration
-            if (isOnset) ftmMissCount = Math.max(0, ftmMissCount - 1);
+            // Track misses: was there any onset in the last beat interval?
+            const hadRecentOnset = (now - ftmLastOnsetTime) < ftmBeatInterval * 1.5;
+            if (hadRecentOnset) ftmMissCount = Math.max(0, ftmMissCount - 1);
             else ftmMissCount++;
 
             if (ftmMissCount >= FTM_MISS_LIMIT) {
@@ -5470,6 +5475,7 @@ async function startFTM() {
     ftmLocked = false;
     ftmBPM = 0;
     ftmMissCount = 0;
+    ftmLastOnsetTime = 0;
     ftmCalibStartTime = ftmAudioCtx.currentTime;
 
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
