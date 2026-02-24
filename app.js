@@ -5285,7 +5285,7 @@ function ftmAnalyseLoop() {
     for (let i = FTM_KICK_START; i <= FTM_KICK_END; i++) kickEnergy += raw[i] / 255;
     kickEnergy /= (FTM_KICK_END - FTM_KICK_START + 1);
 
-    const kickFlux = kickEnergy > 0.05 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
+    const kickFlux = kickEnergy > 0.02 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
     ftmPrevKick = kickEnergy;
 
     ftmKickHistory[ftmHistoryIdx] = kickFlux;
@@ -5294,7 +5294,7 @@ function ftmAnalyseLoop() {
 
     const threshold = ftmAdaptiveThreshold();
     let isBeat = false;
-    const isOnset = kickFlux > threshold && kickFlux > 0.02;
+    const isOnset = kickFlux > threshold && kickFlux > 0.003;
 
     // Track when we last detected a real onset (used for miss counting)
     if (isOnset) ftmLastOnsetTime = now;
@@ -5310,7 +5310,7 @@ function ftmAnalyseLoop() {
             if (status) {
                 const elapsed = now - ftmCalibStartTime;
                 const pct = Math.min(100, Math.round(elapsed / FTM_CALIBRATION_S * 100));
-                status.textContent = `Finding the beat... ${pct}%`;
+                status.textContent = `Finding the beat... ${pct}% (${ftmOnsets.length} hits)`;
             }
         }
         if (now - ftmCalibStartTime >= FTM_CALIBRATION_S) {
