@@ -5247,7 +5247,7 @@ select:focus-visible {
     background: #0F172A;
     border-radius: 16px;
     overflow: hidden;
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
     margin: 0 auto 1.25rem;
     max-width: 360px;
 }
@@ -5289,7 +5289,7 @@ select:focus-visible {
     align-items: flex-end;
     justify-content: center;
     gap: 3px;
-    height: 140px;
+    height: 70px;
     position: relative;
     z-index: 1;
 }
