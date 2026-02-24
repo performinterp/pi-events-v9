@@ -5172,94 +5172,258 @@ function clearSTT() {
 }
 
 // ========================================
-// FEEL THE MUSIC (Sound-to-Haptic)
+// FEEL THE MUSIC (Sound-to-Haptic) v2
+// Patin adaptive threshold + tempo tracking + predictive beats
 // ========================================
 
 let ftmActive = false;
 let ftmAudioCtx = null;
 let ftmAnalyser = null;
 let ftmStream = null;
-let ftmAnimFrame = null;
-let ftmLastBassHaptic = 0;
-let ftmLastMidHaptic = 0;
-let ftmPrevBass = 0;
-let ftmPrevMid = 0;
-let ftmAvgBassFlux = 0;
-let ftmAvgMidFlux = 0;
+let ftmInterval = null;
 let ftmBeatDecay = 0;
 
-const FTM_FFT_SIZE = 512;
-const FTM_SUB_BASS_END = 3;
-const FTM_BASS_END = 6;
-const FTM_MID_START = 6;
-const FTM_MID_END = 18;
-const FTM_MIN_BASS_GAP = 180;
-const FTM_MIN_MID_GAP = 120;
-const FTM_FLUX_ALPHA = 0.06;
-const FTM_BASS_THRESHOLD = 1.8;
-const FTM_MID_THRESHOLD = 2.0;
-const FTM_NOISE_FLOOR = 0.06;
+// Haptic timing
+let ftmLastBassHaptic = 0;
+let ftmLastMidHaptic = 0;
 
-function getSensitivityMultiplier() {
+// Adaptive threshold — circular buffer + variance (Patin method)
+const FTM_HISTORY_SIZE = 43; // ~1 second at 60fps
+const ftmKickHistory = new Float32Array(FTM_HISTORY_SIZE);
+const ftmSnareHistory = new Float32Array(FTM_HISTORY_SIZE);
+let ftmHistoryIdx = 0;
+
+// Adaptive whitening — per-bin running max
+let ftmBinMax = null;
+const FTM_WHITENING_DECAY = 0.997;
+
+// Tempo tracking
+const FTM_ONSET_BUF_SIZE = 256;
+const ftmOnsetBuffer = new Float32Array(FTM_ONSET_BUF_SIZE);
+let ftmOnsetIdx = 0;
+let ftmEstimatedBPM = 0;
+let ftmBeatInterval = 0;
+let ftmLastBeatTime = 0;
+let ftmTempoFrameCount = 0;
+
+// Previous frame energy for flux
+let ftmPrevKick = 0;
+let ftmPrevSnare = 0;
+
+// FFT config — 2048 gives ~21.5Hz per bin at 44.1kHz
+const FTM_FFT_SIZE = 2048;
+// Kick drum: 65-108Hz (bins 3-5)
+const FTM_KICK_START = 3;
+const FTM_KICK_END = 5;
+// Snare body + attack: 150-430Hz (bins 7-20)
+const FTM_SNARE_START = 7;
+const FTM_SNARE_END = 20;
+// Number of visualiser bars
+const FTM_NUM_BARS = 16;
+// Visualiser range: 0 to ~4kHz (bins 0-186)
+const FTM_VIS_BINS = 186;
+
+function ftmGetSensitivity() {
     const slider = document.getElementById('ftmSensitivity');
     const val = slider ? parseInt(slider.value) : 3;
-    return [0.4, 0.55, 0.75, 1.1, 1.6][val - 1];
+    return [0.5, 0.7, 1.0, 1.4, 2.0][val - 1];
+}
+
+function ftmWhiten(data) {
+    if (!ftmBinMax) {
+        ftmBinMax = new Float32Array(data.length).fill(0.001);
+    }
+    const whitened = new Float32Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+        const val = data[i] / 255;
+        ftmBinMax[i] = Math.max(val, ftmBinMax[i] * FTM_WHITENING_DECAY);
+        whitened[i] = ftmBinMax[i] > 0.001 ? val / ftmBinMax[i] : 0;
+    }
+    return whitened;
+}
+
+function ftmBandEnergy(whitened, start, end) {
+    let sum = 0;
+    for (let i = start; i <= end; i++) sum += whitened[i];
+    return sum / (end - start + 1);
+}
+
+function ftmAdaptiveThreshold(history) {
+    let sum = 0;
+    for (let i = 0; i < FTM_HISTORY_SIZE; i++) sum += history[i];
+    const mean = sum / FTM_HISTORY_SIZE;
+    let varSum = 0;
+    for (let i = 0; i < FTM_HISTORY_SIZE; i++) {
+        const d = history[i] - mean;
+        varSum += d * d;
+    }
+    const variance = varSum / FTM_HISTORY_SIZE;
+    // Patin: C = -15*variance + 1.55, clamped
+    const C = Math.max(1.1, Math.min(-15 * variance + 1.55, 1.8));
+    return C * mean;
+}
+
+function ftmUpdateTempo(onsetStrength) {
+    ftmOnsetBuffer[ftmOnsetIdx] = onsetStrength;
+    ftmOnsetIdx = (ftmOnsetIdx + 1) % FTM_ONSET_BUF_SIZE;
+    ftmTempoFrameCount++;
+    // Run autocorrelation every ~1 second
+    if (ftmTempoFrameCount % 60 !== 0) return;
+
+    let bestLag = 0, bestCorr = 0;
+    // Scan 60-180 BPM range: at ~60fps, lag 20=180BPM, lag 60=60BPM
+    for (let lag = 20; lag < 60; lag++) {
+        let corr = 0;
+        for (let i = 0; i < FTM_ONSET_BUF_SIZE - lag; i++) {
+            const a = (ftmOnsetIdx + i) % FTM_ONSET_BUF_SIZE;
+            const b = (ftmOnsetIdx + i + lag) % FTM_ONSET_BUF_SIZE;
+            corr += ftmOnsetBuffer[a] * ftmOnsetBuffer[b];
+        }
+        if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+    }
+    if (bestLag > 0 && bestCorr > 0.5) {
+        ftmEstimatedBPM = (60 * 60) / bestLag;
+        ftmBeatInterval = (60 / ftmEstimatedBPM) * 1000;
+    }
+}
+
+function ftmShouldFire(onsetStrength, threshold, now, lastBeat) {
+    const timeSince = now - lastBeat;
+    const sensitivity = ftmGetSensitivity();
+    const adjThreshold = threshold / sensitivity;
+
+    // No tempo lock yet — pure onset detection
+    if (ftmBeatInterval === 0) {
+        return onsetStrength > adjThreshold;
+    }
+
+    // Dynamic min gap based on tempo (40% of beat interval)
+    const minGap = ftmBeatInterval * 0.4;
+    if (timeSince < minGap) return false;
+
+    // Prediction window: beat expected within +/- 20% of interval
+    const earlyWindow = ftmBeatInterval * 0.8;
+    const lateWindow = ftmBeatInterval * 1.2;
+
+    if (timeSince >= earlyWindow && timeSince <= lateWindow) {
+        // In prediction window — lower threshold (we expect a beat)
+        return onsetStrength > adjThreshold * 0.55;
+    }
+
+    // Past the window — strong onset still fires (handles tempo changes)
+    if (timeSince > lateWindow && onsetStrength > adjThreshold) {
+        return true;
+    }
+
+    // Way past expected beat — fire phantom to maintain pulse
+    if (timeSince > ftmBeatInterval * 1.4 && ftmBeatInterval > 0) {
+        return true;
+    }
+
+    // Strong onset outside window — possible tempo shift
+    return onsetStrength > adjThreshold * 1.3;
 }
 
 function ftmAnalyseLoop() {
     if (!ftmActive || !ftmAnalyser) return;
 
-    const data = new Uint8Array(ftmAnalyser.frequencyBinCount);
-    ftmAnalyser.getByteFrequencyData(data);
+    const raw = new Uint8Array(ftmAnalyser.frequencyBinCount);
+    ftmAnalyser.getByteFrequencyData(raw);
 
-    let bassEnergy = 0;
-    for (let i = 0; i < FTM_BASS_END; i++) {
-        const weight = i < FTM_SUB_BASS_END ? 1.0 : 0.6;
-        bassEnergy += (data[i] / 255) * weight;
-    }
-    bassEnergy /= FTM_BASS_END;
+    const whitened = ftmWhiten(raw);
 
-    let midEnergy = 0;
-    for (let i = FTM_MID_START; i < FTM_MID_END; i++) {
-        midEnergy += data[i] / 255;
-    }
-    midEnergy /= (FTM_MID_END - FTM_MID_START);
+    // Band energies on whitened data
+    const kickEnergy = ftmBandEnergy(whitened, FTM_KICK_START, FTM_KICK_END);
+    const snareEnergy = ftmBandEnergy(whitened, FTM_SNARE_START, FTM_SNARE_END);
 
-    const bassFlux = Math.max(0, bassEnergy - ftmPrevBass);
-    const midFlux = Math.max(0, midEnergy - ftmPrevMid);
-    ftmPrevBass = bassEnergy;
-    ftmPrevMid = midEnergy;
+    // Spectral flux (positive only)
+    const kickFlux = Math.max(0, kickEnergy - ftmPrevKick);
+    const snareFlux = Math.max(0, snareEnergy - ftmPrevSnare);
+    ftmPrevKick = kickEnergy;
+    ftmPrevSnare = snareEnergy;
 
-    ftmAvgBassFlux = ftmAvgBassFlux * (1 - FTM_FLUX_ALPHA) + bassFlux * FTM_FLUX_ALPHA;
-    ftmAvgMidFlux = ftmAvgMidFlux * (1 - FTM_FLUX_ALPHA) + midFlux * FTM_FLUX_ALPHA;
+    // Store in circular buffers
+    ftmKickHistory[ftmHistoryIdx] = kickFlux;
+    ftmSnareHistory[ftmHistoryIdx] = snareFlux;
+    ftmHistoryIdx = (ftmHistoryIdx + 1) % FTM_HISTORY_SIZE;
 
-    const sensitivity = getSensitivityMultiplier();
-    const bassThresh = Math.max(FTM_NOISE_FLOOR, ftmAvgBassFlux * FTM_BASS_THRESHOLD) / sensitivity;
-    const midThresh = Math.max(FTM_NOISE_FLOOR, ftmAvgMidFlux * FTM_MID_THRESHOLD) / sensitivity;
+    // Adaptive thresholds with variance
+    const kickThresh = ftmAdaptiveThreshold(ftmKickHistory);
+    const snareThresh = ftmAdaptiveThreshold(ftmSnareHistory);
+
+    // Feed tempo tracker with combined onset strength
+    ftmUpdateTempo(kickFlux + snareFlux * 0.5);
 
     const now = Date.now();
     let isBeat = false;
+    let isBass = false;
 
-    if (bassFlux > bassThresh && (now - ftmLastBassHaptic) >= FTM_MIN_BASS_GAP) {
-        const strength = bassFlux / bassThresh;
+    // Kick detection with predictive triggering
+    if (ftmShouldFire(kickFlux, kickThresh, now, ftmLastBassHaptic)) {
         ftmLastBassHaptic = now;
+        ftmLastBeatTime = now;
         ftmBeatDecay = 1.0;
         isBeat = true;
-        ftmFireHaptic(strength > 2.5 ? 'HEAVY' : 'MEDIUM', 'bass');
+        isBass = true;
+        const strength = kickThresh > 0 ? kickFlux / kickThresh : 1;
+        ftmFireHaptic(strength > 2 ? 'HEAVY' : 'MEDIUM', 'bass');
     }
 
-    if (midFlux > midThresh && (now - ftmLastMidHaptic) >= FTM_MIN_MID_GAP) {
-        if (now - ftmLastBassHaptic > 30) {
+    // Snare detection (only if kick didn't just fire)
+    if (!isBeat && ftmShouldFire(snareFlux, snareThresh, now, ftmLastMidHaptic)) {
+        if (now - ftmLastBassHaptic > 50) {
             ftmLastMidHaptic = now;
-            if (!isBeat) ftmBeatDecay = 0.6;
+            ftmBeatDecay = Math.max(ftmBeatDecay, 0.6);
             isBeat = true;
             ftmFireHaptic('LIGHT', 'mid');
         }
     }
 
-    ftmBeatDecay = Math.max(0, ftmBeatDecay - 0.04);
+    ftmBeatDecay = Math.max(0, ftmBeatDecay - 0.035);
+
+    // Update visualiser bars + glow
     if (!document.hidden) {
-        ftmUpdateVisual(ftmBeatDecay, isBeat, bassFlux > bassThresh, bassEnergy);
+        ftmUpdateBars(raw);
+        ftmUpdateGlow(isBeat, isBass, kickEnergy);
+    }
+}
+
+function ftmUpdateBars(raw) {
+    const bars = document.querySelectorAll('.ftm-bar');
+    if (!bars.length) return;
+    const binsPerBar = Math.floor(FTM_VIS_BINS / FTM_NUM_BARS);
+    for (let i = 0; i < bars.length; i++) {
+        let sum = 0;
+        const start = i * binsPerBar;
+        for (let j = start; j < start + binsPerBar && j < raw.length; j++) {
+            sum += raw[j];
+        }
+        const avg = sum / binsPerBar / 255;
+        // Power curve makes small values smaller, big values bigger
+        const scaled = Math.pow(avg, 1.5);
+        bars[i].style.setProperty('--bar-scale', Math.max(0.03, scaled).toFixed(3));
+    }
+}
+
+function ftmUpdateGlow(isBeat, isBass, energy) {
+    const vis = document.getElementById('ftmVisualiser');
+    const status = document.getElementById('ftmStatus');
+    if (!vis) return;
+
+    const glow = Math.min(1, energy * 2.5);
+    vis.style.setProperty('--glow-opacity', glow.toFixed(3));
+    vis.style.setProperty('--glow-scale', (0.3 + glow * 0.7).toFixed(3));
+
+    if (isBeat) {
+        vis.style.setProperty('--beat-flash', '1');
+        setTimeout(() => vis.style.setProperty('--beat-flash', '0'), 80);
+    }
+
+    if (status) {
+        if (isBeat && isBass) status.textContent = 'Feeling the music...';
+        else if (isBeat) status.textContent = 'Feeling the music...';
+        else if (ftmBeatDecay > 0.2) status.textContent = 'Feeling the music...';
+        else status.textContent = 'Listening...';
     }
 }
 
@@ -5286,39 +5450,8 @@ function ftmVibrateNative(intensity) {
     navigator.vibrate(durations[intensity] || 30);
 }
 
-function ftmUpdateVisual(decay, isBeat, isBass, energy) {
-    const ring = document.getElementById('ftmPulseRing');
-    const inner = document.getElementById('ftmPulseInner');
-    const status = document.getElementById('ftmStatus');
-    if (!ring) return;
-
-    const scale = 1 + (decay * 0.2);
-    ring.style.transform = 'scale(' + scale.toFixed(3) + ')';
-
-    const glow = Math.min(1, energy * 3);
-    if (inner) {
-        inner.style.background = isBass
-            ? 'rgba(239, 68, 68, ' + (0.1 + glow * 0.3).toFixed(2) + ')'
-            : 'rgba(37, 99, 235, ' + (0.08 + glow * 0.25).toFixed(2) + ')';
-    }
-
-    ring.classList.remove('heavy');
-    if (isBeat && isBass) {
-        ring.classList.add('heavy');
-        if (status) status.textContent = 'BASS!';
-    } else if (isBeat) {
-        if (status) status.textContent = 'BEAT!';
-    } else if (decay > 0.3) {
-        if (status) status.textContent = 'Feeling the music...';
-    } else {
-        ring.style.transform = 'scale(1)';
-        if (status) status.textContent = 'Listening...';
-    }
-}
-
 async function startFTM() {
     const errorEl = document.getElementById('ftmError');
-    const ring = document.getElementById('ftmPulseRing');
     const btn = document.getElementById('ftmToggleBtn');
     const status = document.getElementById('ftmStatus');
 
@@ -5334,25 +5467,35 @@ async function startFTM() {
     ftmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
     ftmAnalyser = ftmAudioCtx.createAnalyser();
     ftmAnalyser.fftSize = FTM_FFT_SIZE;
-    ftmAnalyser.smoothingTimeConstant = 0.3;
+    ftmAnalyser.smoothingTimeConstant = 0.2;
+    ftmAnalyser.minDecibels = -90;
+    ftmAnalyser.maxDecibels = -10;
 
     const source = ftmAudioCtx.createMediaStreamSource(ftmStream);
     source.connect(ftmAnalyser);
 
+    // Reset all state
     ftmActive = true;
-    ftmPrevBass = 0;
-    ftmPrevMid = 0;
-    ftmAvgBassFlux = 0;
-    ftmAvgMidFlux = 0;
+    ftmPrevKick = 0;
+    ftmPrevSnare = 0;
     ftmLastBassHaptic = 0;
     ftmLastMidHaptic = 0;
     ftmBeatDecay = 0;
+    ftmHistoryIdx = 0;
+    ftmKickHistory.fill(0);
+    ftmSnareHistory.fill(0);
+    ftmBinMax = null;
+    ftmOnsetBuffer.fill(0);
+    ftmOnsetIdx = 0;
+    ftmEstimatedBPM = 0;
+    ftmBeatInterval = 0;
+    ftmLastBeatTime = 0;
+    ftmTempoFrameCount = 0;
 
-    if (ring) ring.classList.add('active');
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
     if (status) { status.textContent = 'Listening...'; status.classList.add('active'); }
 
-    ftmAnimFrame = setInterval(ftmAnalyseLoop, 16);
+    ftmInterval = setInterval(ftmAnalyseLoop, 16);
     ftmRequestWakeLock();
 }
 
@@ -5377,10 +5520,7 @@ function ftmReleaseWakeLock() {
 function stopFTM() {
     ftmActive = false;
 
-    if (ftmAnimFrame) {
-        clearInterval(ftmAnimFrame);
-        ftmAnimFrame = null;
-    }
+    if (ftmInterval) { clearInterval(ftmInterval); ftmInterval = null; }
 
     if (ftmStream) {
         ftmStream.getTracks().forEach(t => t.stop());
@@ -5395,28 +5535,26 @@ function stopFTM() {
 
     ftmReleaseWakeLock();
 
-    const ring = document.getElementById('ftmPulseRing');
     const btn = document.getElementById('ftmToggleBtn');
     const status = document.getElementById('ftmStatus');
+    const vis = document.getElementById('ftmVisualiser');
 
-    if (ring) { ring.classList.remove('active', 'heavy'); ring.style.transform = ''; }
+    // Reset bars
+    document.querySelectorAll('.ftm-bar').forEach(b => b.style.setProperty('--bar-scale', '0.03'));
+    if (vis) {
+        vis.style.setProperty('--glow-opacity', '0');
+        vis.style.setProperty('--beat-flash', '0');
+    }
     if (btn) { btn.textContent = 'Start Feeling'; btn.classList.remove('active'); }
     if (status) { status.textContent = 'Feel the bass through your phone'; status.classList.remove('active'); }
 }
 
 function toggleFTM() {
-    if (ftmActive) {
-        stopFTM();
-    } else {
-        startFTM();
-    }
+    if (ftmActive) stopFTM(); else startFTM();
 }
 
-// Re-acquire Wake Lock when screen comes back on
 document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && ftmActive && !ftmWakeLock) {
-        ftmRequestWakeLock();
-    }
+    if (!document.hidden && ftmActive && !ftmWakeLock) ftmRequestWakeLock();
 });
 
 window.openCommSupportModal = openCommSupportModal;
