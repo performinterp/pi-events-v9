@@ -5181,21 +5181,21 @@ let ftmAnalyser = null;
 let ftmStream = null;
 let ftmAnimFrame = null;
 let ftmLastHaptic = 0;
-let ftmRollingAvg = 0;
+let ftmPrevEnergy = 0;
+let ftmAvgFlux = 0;
+let ftmBeatDecay = 0;
 
-const FTM_COOLDOWN = 100;
-const FTM_FFT_SIZE = 256;
-const FTM_BASS_BINS = 3; // bins 0-2 cover ~0-258Hz at 44.1kHz
-const FTM_BASS_WEIGHT = 0.7;
-const FTM_MID_WEIGHT = 0.3;
-const FTM_ROLLING_ALPHA = 0.15;
-const FTM_DROP_MULTIPLIER = 1.5;
-const FTM_NOISE_FLOOR = 0.12;
+const FTM_FFT_SIZE = 512;
+const FTM_BASS_END = 6;       // bins 0-5 (~0-516Hz at 44.1kHz)
+const FTM_MIN_BEAT_GAP = 150; // ms — fastest beat ~400 BPM, typical kick ~120-150 BPM
+const FTM_FLUX_ALPHA = 0.08;  // slow-moving average of flux for adaptive threshold
+const FTM_BEAT_THRESHOLD = 1.6; // flux must exceed average by this multiplier
+const FTM_NOISE_FLOOR = 0.05;
 
 function getSensitivityMultiplier() {
     const slider = document.getElementById('ftmSensitivity');
     const val = slider ? parseInt(slider.value) : 3;
-    return [0.3, 0.5, 0.8, 1.2, 1.8][val - 1];
+    return [0.5, 0.7, 1.0, 1.4, 2.0][val - 1];
 }
 
 function ftmAnalyseLoop() {
@@ -5204,64 +5204,58 @@ function ftmAnalyseLoop() {
     const data = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(data);
 
-    // Bass energy (bins 0-2)
-    let bassSum = 0;
-    for (let i = 0; i < FTM_BASS_BINS; i++) bassSum += data[i];
-    const bassEnergy = bassSum / (FTM_BASS_BINS * 255);
+    // Current bass energy (weighted toward sub-bass)
+    let bassEnergy = 0;
+    for (let i = 0; i < FTM_BASS_END; i++) {
+        const weight = 1 - (i / FTM_BASS_END) * 0.5;
+        bassEnergy += (data[i] / 255) * weight;
+    }
+    bassEnergy /= FTM_BASS_END;
 
-    // Mid energy (bins 3-15, ~258Hz-2.6kHz)
-    let midSum = 0;
-    const midEnd = Math.min(16, data.length);
-    for (let i = FTM_BASS_BINS; i < midEnd; i++) midSum += data[i];
-    const midEnergy = midSum / ((midEnd - FTM_BASS_BINS) * 255);
+    // Spectral flux: how much did bass energy INCREASE since last frame?
+    const flux = Math.max(0, bassEnergy - ftmPrevEnergy);
+    ftmPrevEnergy = bassEnergy;
 
-    // Weighted combined level
-    const rawLevel = (bassEnergy * FTM_BASS_WEIGHT) + (midEnergy * FTM_MID_WEIGHT);
-    // Gate out ambient noise before applying sensitivity
-    const gatedLevel = rawLevel < FTM_NOISE_FLOOR ? 0 : rawLevel - FTM_NOISE_FLOOR;
-    const level = gatedLevel * getSensitivityMultiplier();
+    // Adaptive threshold: rolling average of flux
+    ftmAvgFlux = ftmAvgFlux * (1 - FTM_FLUX_ALPHA) + flux * FTM_FLUX_ALPHA;
 
-    // Rolling average for bass drop detection
-    ftmRollingAvg = ftmRollingAvg * (1 - FTM_ROLLING_ALPHA) + level * FTM_ROLLING_ALPHA;
-    const isDrop = level > ftmRollingAvg * FTM_DROP_MULTIPLIER && level > 0.4;
-
-    // Map to haptic intensity
+    // Beat detection: flux exceeds threshold AND meets minimum gap
+    const sensitivity = getSensitivityMultiplier();
+    const threshold = Math.max(FTM_NOISE_FLOOR, ftmAvgFlux * FTM_BEAT_THRESHOLD) / sensitivity;
     const now = Date.now();
-    if (now - ftmLastHaptic >= FTM_COOLDOWN) {
-        let intensity = null;
-        if (isDrop || level > 0.7) {
+    const isBeat = flux > threshold && (now - ftmLastHaptic) >= FTM_MIN_BEAT_GAP;
+
+    if (isBeat) {
+        const beatStrength = flux / threshold;
+        let intensity;
+        if (beatStrength > 3.0) {
             intensity = 'HEAVY';
-        } else if (level > 0.45) {
+        } else if (beatStrength > 1.8) {
             intensity = 'MEDIUM';
-        } else if (level > 0.25) {
+        } else {
             intensity = 'LIGHT';
         }
-
-        if (intensity) {
-            ftmLastHaptic = now;
-            ftmFireHaptic(intensity);
-        }
+        ftmLastHaptic = now;
+        ftmBeatDecay = 1.0;
+        ftmFireHaptic(intensity);
     }
 
-    // Update visual
-    ftmUpdateVisual(level, isDrop);
+    ftmBeatDecay = Math.max(0, ftmBeatDecay - 0.04);
+    ftmUpdateVisual(ftmBeatDecay, isBeat);
 
     ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
 }
 
 function ftmFireHaptic(intensity) {
-    // Try Capacitor Haptics first (iOS Taptic Engine)
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
         const Haptics = window.Capacitor.Plugins.Haptics;
         try {
             Haptics.impact({ style: intensity });
         } catch (e) {
-            // Fallback to vibrate
             ftmVibrateNative(intensity);
         }
         return;
     }
-    // Web Vibration API fallback (Android, some browsers)
     ftmVibrateNative(intensity);
 }
 
@@ -5271,16 +5265,16 @@ function ftmVibrateNative(intensity) {
     navigator.vibrate(durations[intensity] || 30);
 }
 
-function ftmUpdateVisual(level, isDrop) {
+function ftmUpdateVisual(decay, isBeat) {
     const ring = document.getElementById('ftmPulseRing');
     const status = document.getElementById('ftmStatus');
     if (!ring) return;
 
     ring.classList.remove('heavy');
-    if (isDrop || level > 0.7) {
+    if (isBeat) {
         ring.classList.add('heavy');
-        if (status) status.textContent = 'Heavy bass!';
-    } else if (level > 0.25) {
+        if (status) status.textContent = 'BEAT!';
+    } else if (decay > 0.3) {
         if (status) status.textContent = 'Feeling the music...';
     } else {
         if (status) status.textContent = 'Listening...';
@@ -5305,15 +5299,16 @@ async function startFTM() {
     ftmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
     ftmAnalyser = ftmAudioCtx.createAnalyser();
     ftmAnalyser.fftSize = FTM_FFT_SIZE;
-    ftmAnalyser.smoothingTimeConstant = 0.4;
+    ftmAnalyser.smoothingTimeConstant = 0.3;
 
     const source = ftmAudioCtx.createMediaStreamSource(ftmStream);
     source.connect(ftmAnalyser);
-    // Do NOT connect to destination — prevents mic playback through speaker
 
     ftmActive = true;
-    ftmRollingAvg = 0;
+    ftmPrevEnergy = 0;
+    ftmAvgFlux = 0;
     ftmLastHaptic = 0;
+    ftmBeatDecay = 0;
 
     if (ring) ring.classList.add('active');
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
