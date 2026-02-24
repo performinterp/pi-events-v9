@@ -5270,7 +5270,7 @@ function ftmAnalyseLoop() {
     kickEnergy /= (FTM_KICK_END - FTM_KICK_START + 1);
 
     // Spectral flux (positive onset), gated by noise floor
-    const kickFlux = kickEnergy > 0.15 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
+    const kickFlux = kickEnergy > 0.05 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
     ftmPrevKick = kickEnergy;
 
     ftmKickHistory[ftmHistoryIdx] = kickFlux;
@@ -5334,12 +5334,12 @@ function ftmAnalyseLoop() {
         // Fire when we've reached or passed the next predicted beat
         if (now >= ftmNextBeat) {
             ftmNextBeat += ftmBeatInterval;
-            // Only fire if there's some bass energy (don't pulse during silence)
-            if (kickEnergy > 0.08) {
+            // Trust the grid — if we locked, there's music. Only skip on near-silence.
+            if (kickEnergy > 0.01) {
                 ftmBeatDecay = 1.0;
                 isBeat = true;
-                const strength = kickEnergy > 0.5 ? 'HEAVY' : kickEnergy > 0.25 ? 'MEDIUM' : 'LIGHT';
-                ftmFireHaptic(strength);
+                // Scale strength relative to recent energy, not absolute
+                ftmFireHaptic(kickEnergy > 0.3 ? 'HEAVY' : kickEnergy > 0.1 ? 'MEDIUM' : 'LIGHT');
             }
         }
     }
