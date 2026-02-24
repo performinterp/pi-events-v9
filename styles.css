@@ -3682,7 +3682,7 @@ body.modal-open {
 
     .date-badge {
         width: 70px;
-        height: 70px;
+        height: 40px;
     }
 
     .date-badge-day {
@@ -5289,7 +5289,7 @@ select:focus-visible {
     align-items: flex-end;
     justify-content: center;
     gap: 3px;
-    height: 70px;
+    height: 40px;
     position: relative;
     z-index: 1;
 }
