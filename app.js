@@ -5184,6 +5184,8 @@ let ftmInterval = null;
 let ftmBeatDecay = 0;
 let ftmLastHaptic = 0;
 let ftmPrevKick = 0;
+let ftmFrameCount = 0;
+const FTM_CALIBRATION_FRAMES = 120; // ~2 seconds at 60fps
 
 // Patin adaptive threshold — circular buffer + variance
 const FTM_HISTORY_SIZE = 43;
@@ -5258,14 +5260,23 @@ function ftmAnalyseLoop() {
     ftmKickHistory[ftmHistoryIdx] = kickFlux;
     ftmHistoryIdx = (ftmHistoryIdx + 1) % FTM_HISTORY_SIZE;
 
+    ftmFrameCount++;
+
     // Patin threshold with sensitivity
     const threshold = ftmAdaptiveThreshold() / ftmGetSensitivity();
 
     const now = Date.now();
     let isBeat = false;
+    const calibrating = ftmFrameCount < FTM_CALIBRATION_FRAMES;
 
-    // Fire only on genuine kick onset, with hard minimum gap
-    if (kickFlux > threshold && kickFlux > 0.02 && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
+    // Update status during calibration
+    if (calibrating && !document.hidden) {
+        const status = document.getElementById('ftmStatus');
+        if (status) status.textContent = 'Finding the beat...';
+    }
+
+    // Fire only on genuine kick onset, with hard minimum gap (skip during calibration)
+    if (!calibrating && kickFlux > threshold && kickFlux > 0.02 && (now - ftmLastHaptic) >= FTM_MIN_GAP) {
         ftmLastHaptic = now;
         ftmBeatDecay = 1.0;
         isBeat = true;
@@ -5357,11 +5368,12 @@ async function startFTM() {
     ftmLastHaptic = 0;
     ftmBeatDecay = 0;
     ftmHistoryIdx = 0;
+    ftmFrameCount = 0;
     ftmKickHistory.fill(0);
     ftmBinMax = null;
 
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
-    if (status) { status.textContent = 'Listening...'; status.classList.add('active'); }
+    if (status) { status.textContent = 'Finding the beat...'; status.classList.add('active'); }
 
     ftmInterval = setInterval(ftmAnalyseLoop, 16);
     ftmRequestWakeLock();
