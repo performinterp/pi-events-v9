@@ -5172,8 +5172,8 @@ function clearSTT() {
 }
 
 // ========================================
-// FEEL THE MUSIC (Sound-to-Haptic) v4
-// Tempo-locked: calibrate BPM from onsets, then fire on a steady beat grid
+// FEEL THE MUSIC (Sound-to-Haptic) v5
+// Tempo-locked with intensity slider (subdivision) + auto-recalibration
 // ========================================
 
 let ftmActive = false;
@@ -5191,17 +5191,24 @@ const ftmKickHistory = new Float32Array(FTM_HISTORY_SIZE);
 let ftmHistoryIdx = 0;
 
 // Tempo locking
-const FTM_CALIBRATION_MS = 3500; // 3.5 seconds to collect onsets
+const FTM_CALIBRATION_MS = 3500;
 let ftmCalibStartTime = 0;
-let ftmOnsets = []; // timestamps of detected onsets during calibration
-let ftmBeatInterval = 0; // locked beat interval in ms (e.g. 500ms = 120 BPM)
-let ftmNextBeat = 0; // predicted time of next beat
-let ftmLocked = false; // true once tempo is locked
-let ftmBPM = 0; // display BPM
-const FTM_PHASE_CORRECTION = 0.15; // gently pull grid toward real onsets
-const FTM_BEAT_WINDOW = 60; // ms tolerance for onset-to-grid matching
+let ftmOnsets = [];
+let ftmBeatInterval = 0;
+let ftmNextBeat = 0;
+let ftmLocked = false;
+let ftmBPM = 0;
+const FTM_PHASE_CORRECTION = 0.15;
+const FTM_BEAT_WINDOW = 60;
 const FTM_MIN_BPM = 70;
 const FTM_MAX_BPM = 180;
+
+// Auto-recalibration: track consecutive grid beats with no nearby onset
+let ftmMissCount = 0;
+const FTM_MISS_LIMIT = 8;
+
+// Subdivision grid for intensity slider
+let ftmSubNextBeat = 0; // next subdivision beat time
 
 // FFT config
 const FTM_FFT_SIZE = 2048;
@@ -5210,10 +5217,15 @@ const FTM_KICK_END = 5;
 const FTM_NUM_BARS = 16;
 const FTM_VIS_BINS = 186;
 
-function ftmGetSensitivity() {
-    const slider = document.getElementById('ftmSensitivity');
-    const val = slider ? parseInt(slider.value) : 3;
-    return [0.5, 0.7, 1.0, 1.4, 2.0][val - 1];
+// Intensity: 1=quarter, 2=quarter+and, 3=8ths, 4=8th triplets, 5=16ths
+function ftmGetIntensity() {
+    const slider = document.getElementById('ftmIntensity');
+    return slider ? parseInt(slider.value) : 1;
+}
+
+function ftmGetSubdivision() {
+    const level = ftmGetIntensity();
+    return [1, 2, 2, 3, 4][level - 1]; // subdivisions per beat
 }
 
 function ftmAdaptiveThreshold() {
@@ -5232,30 +5244,30 @@ function ftmAdaptiveThreshold() {
 
 function ftmEstimateTempo(onsets) {
     if (onsets.length < 4) return 0;
-    // Collect all inter-onset intervals
     const iois = [];
     for (let i = 1; i < onsets.length; i++) {
         const gap = onsets[i] - onsets[i - 1];
-        // Only consider intervals in valid BPM range
-        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) {
-            iois.push(gap);
-        }
+        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) iois.push(gap);
     }
     if (iois.length < 3) return 0;
-    // Also check double-intervals (half-time beats)
     for (let i = 2; i < onsets.length; i++) {
         const gap = (onsets[i] - onsets[i - 2]) / 2;
-        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) {
-            iois.push(gap);
-        }
+        if (gap >= 60000 / FTM_MAX_BPM && gap <= 60000 / FTM_MIN_BPM) iois.push(gap);
     }
-    // Find median IOI — robust against outliers
     iois.sort((a, b) => a - b);
     const median = iois[Math.floor(iois.length / 2)];
-    // Cluster IOIs near the median (within 15%) and average them
     const cluster = iois.filter(v => Math.abs(v - median) / median < 0.15);
     if (cluster.length < 2) return median;
     return cluster.reduce((s, v) => s + v, 0) / cluster.length;
+}
+
+function ftmRecalibrate() {
+    ftmLocked = false;
+    ftmOnsets = [];
+    ftmMissCount = 0;
+    ftmHistoryIdx = 0;
+    ftmKickHistory.fill(0);
+    ftmCalibStartTime = Date.now();
 }
 
 function ftmAnalyseLoop() {
@@ -5264,12 +5276,10 @@ function ftmAnalyseLoop() {
     const raw = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(raw);
 
-    // Kick energy — tight 65-108Hz band
     let kickEnergy = 0;
     for (let i = FTM_KICK_START; i <= FTM_KICK_END; i++) kickEnergy += raw[i] / 255;
     kickEnergy /= (FTM_KICK_END - FTM_KICK_START + 1);
 
-    // Spectral flux (positive onset), gated by noise floor
     const kickFlux = kickEnergy > 0.05 ? Math.max(0, kickEnergy - ftmPrevKick) : 0;
     ftmPrevKick = kickEnergy;
 
@@ -5277,18 +5287,17 @@ function ftmAnalyseLoop() {
     ftmHistoryIdx = (ftmHistoryIdx + 1) % FTM_HISTORY_SIZE;
     ftmFrameCount++;
 
-    const threshold = ftmAdaptiveThreshold() / ftmGetSensitivity();
+    const threshold = ftmAdaptiveThreshold();
     const now = Date.now();
     let isBeat = false;
     const isOnset = kickFlux > threshold && kickFlux > 0.02;
 
     if (!ftmLocked) {
-        // === CALIBRATION PHASE: collect onsets to estimate tempo ===
+        // === CALIBRATION: collect onsets to estimate tempo ===
         if (isOnset) {
             const lastOnset = ftmOnsets.length > 0 ? ftmOnsets[ftmOnsets.length - 1] : 0;
-            if (now - lastOnset > 150) ftmOnsets.push(now); // debounce 150ms
+            if (now - lastOnset > 150) ftmOnsets.push(now);
         }
-        // Update status
         if (!document.hidden) {
             const status = document.getElementById('ftmStatus');
             if (status) {
@@ -5297,50 +5306,68 @@ function ftmAnalyseLoop() {
                 status.textContent = `Finding the beat... ${pct}%`;
             }
         }
-        // Try to lock after calibration period
         if (now - ftmCalibStartTime >= FTM_CALIBRATION_MS) {
             ftmBeatInterval = ftmEstimateTempo(ftmOnsets);
             if (ftmBeatInterval > 0) {
                 ftmLocked = true;
                 ftmBPM = Math.round(60000 / ftmBeatInterval);
-                // Align grid to most recent onset
+                ftmMissCount = 0;
                 const lastOnset = ftmOnsets[ftmOnsets.length - 1];
                 ftmNextBeat = lastOnset + ftmBeatInterval;
-                if (!document.hidden) {
-                    const status = document.getElementById('ftmStatus');
-                    if (status) status.textContent = `Locked: ${ftmBPM} BPM`;
-                }
+                ftmSubNextBeat = ftmNextBeat;
             } else {
-                // Not enough onsets — extend calibration
-                ftmCalibStartTime = now - FTM_CALIBRATION_MS + 1500; // retry in 1.5s
+                ftmCalibStartTime = now - FTM_CALIBRATION_MS + 1500;
                 ftmOnsets = [];
             }
         }
     } else {
-        // === GRID MODE: fire on predicted beats, phase-correct from real onsets ===
+        // === GRID MODE ===
+        const subdivisions = ftmGetSubdivision();
+        const subInterval = ftmBeatInterval / subdivisions;
 
-        // Phase correction: if a real onset lands near the predicted beat, nudge grid
+        // Phase correction from real onsets
+        let onsetNearGrid = false;
         if (isOnset) {
             const distToNext = ftmNextBeat - now;
             const distToPrev = now - (ftmNextBeat - ftmBeatInterval);
             const nearestDist = Math.min(Math.abs(distToNext), Math.abs(distToPrev));
             if (nearestDist < FTM_BEAT_WINDOW) {
-                // Onset is close to grid — gently pull grid toward it
                 const error = Math.abs(distToNext) < Math.abs(distToPrev) ? -distToNext : distToPrev;
                 ftmNextBeat += error * FTM_PHASE_CORRECTION;
+                onsetNearGrid = true;
             }
         }
 
-        // Fire when we've reached or passed the next predicted beat
+        // Main beat grid
         if (now >= ftmNextBeat) {
             ftmNextBeat += ftmBeatInterval;
-            // Trust the grid — if we locked, there's music. Only skip on near-silence.
-            if (kickEnergy > 0.01) {
-                ftmBeatDecay = 1.0;
-                isBeat = true;
-                // Scale strength relative to recent energy, not absolute
-                ftmFireHaptic(kickEnergy > 0.3 ? 'HEAVY' : kickEnergy > 0.1 ? 'MEDIUM' : 'LIGHT');
+            // Re-sync subdivision grid to main beat
+            ftmSubNextBeat = ftmNextBeat;
+            // Track misses for auto-recalibration
+            if (isOnset || onsetNearGrid) {
+                ftmMissCount = Math.max(0, ftmMissCount - 1);
+            } else {
+                ftmMissCount++;
             }
+            // Song changed? Re-lock.
+            if (ftmMissCount >= FTM_MISS_LIMIT) {
+                ftmRecalibrate();
+                return;
+            }
+            // Always fire HEAVY on the main beat
+            ftmBeatDecay = 1.0;
+            isBeat = true;
+            ftmFireHaptic('HEAVY');
+        }
+
+        // Subdivision beats (only for intensity > 1)
+        if (subdivisions > 1 && now >= ftmSubNextBeat && !isBeat) {
+            ftmSubNextBeat += subInterval;
+            // Keep sub grid aligned — don't let it drift past main beat
+            if (ftmSubNextBeat > ftmNextBeat) ftmSubNextBeat = ftmNextBeat;
+            ftmBeatDecay = 0.6;
+            isBeat = true;
+            ftmFireHaptic('HEAVY');
         }
     }
 
@@ -5381,7 +5408,9 @@ function ftmUpdateGlow(isBeat, energy) {
 
     if (status) {
         if (ftmLocked) {
-            if (ftmBeatDecay > 0.2) status.textContent = `Feeling the beat (${ftmBPM} BPM)`;
+            const labels = ['Quarter', '& beats', '8ths', 'Triplets', '16ths'];
+            const label = labels[ftmGetIntensity() - 1];
+            if (ftmBeatDecay > 0.2) status.textContent = `${ftmBPM} BPM - ${label}`;
             else status.textContent = `Locked: ${ftmBPM} BPM`;
         } else {
             status.textContent = 'Finding the beat...';
@@ -5436,8 +5465,10 @@ async function startFTM() {
     ftmOnsets = [];
     ftmBeatInterval = 0;
     ftmNextBeat = 0;
+    ftmSubNextBeat = 0;
     ftmLocked = false;
     ftmBPM = 0;
+    ftmMissCount = 0;
     ftmCalibStartTime = Date.now();
 
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
