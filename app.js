@@ -5180,22 +5180,30 @@ let ftmAudioCtx = null;
 let ftmAnalyser = null;
 let ftmStream = null;
 let ftmAnimFrame = null;
-let ftmLastHaptic = 0;
-let ftmPrevEnergy = 0;
-let ftmAvgFlux = 0;
+let ftmLastBassHaptic = 0;
+let ftmLastMidHaptic = 0;
+let ftmPrevBass = 0;
+let ftmPrevMid = 0;
+let ftmAvgBassFlux = 0;
+let ftmAvgMidFlux = 0;
 let ftmBeatDecay = 0;
 
 const FTM_FFT_SIZE = 512;
-const FTM_BASS_END = 6;       // bins 0-5 (~0-516Hz at 44.1kHz)
-const FTM_MIN_BEAT_GAP = 150; // ms — fastest beat ~400 BPM, typical kick ~120-150 BPM
-const FTM_FLUX_ALPHA = 0.08;  // slow-moving average of flux for adaptive threshold
-const FTM_BEAT_THRESHOLD = 1.6; // flux must exceed average by this multiplier
-const FTM_NOISE_FLOOR = 0.05;
+const FTM_SUB_BASS_END = 3;
+const FTM_BASS_END = 6;
+const FTM_MID_START = 6;
+const FTM_MID_END = 18;
+const FTM_MIN_BASS_GAP = 180;
+const FTM_MIN_MID_GAP = 120;
+const FTM_FLUX_ALPHA = 0.06;
+const FTM_BASS_THRESHOLD = 1.8;
+const FTM_MID_THRESHOLD = 2.0;
+const FTM_NOISE_FLOOR = 0.06;
 
 function getSensitivityMultiplier() {
     const slider = document.getElementById('ftmSensitivity');
     const val = slider ? parseInt(slider.value) : 3;
-    return [0.5, 0.7, 1.0, 1.4, 2.0][val - 1];
+    return [0.4, 0.55, 0.75, 1.1, 1.6][val - 1];
 }
 
 function ftmAnalyseLoop() {
@@ -5204,53 +5212,66 @@ function ftmAnalyseLoop() {
     const data = new Uint8Array(ftmAnalyser.frequencyBinCount);
     ftmAnalyser.getByteFrequencyData(data);
 
-    // Current bass energy (weighted toward sub-bass)
     let bassEnergy = 0;
     for (let i = 0; i < FTM_BASS_END; i++) {
-        const weight = 1 - (i / FTM_BASS_END) * 0.5;
+        const weight = i < FTM_SUB_BASS_END ? 1.0 : 0.6;
         bassEnergy += (data[i] / 255) * weight;
     }
     bassEnergy /= FTM_BASS_END;
 
-    // Spectral flux: how much did bass energy INCREASE since last frame?
-    const flux = Math.max(0, bassEnergy - ftmPrevEnergy);
-    ftmPrevEnergy = bassEnergy;
+    let midEnergy = 0;
+    for (let i = FTM_MID_START; i < FTM_MID_END; i++) {
+        midEnergy += data[i] / 255;
+    }
+    midEnergy /= (FTM_MID_END - FTM_MID_START);
 
-    // Adaptive threshold: rolling average of flux
-    ftmAvgFlux = ftmAvgFlux * (1 - FTM_FLUX_ALPHA) + flux * FTM_FLUX_ALPHA;
+    const bassFlux = Math.max(0, bassEnergy - ftmPrevBass);
+    const midFlux = Math.max(0, midEnergy - ftmPrevMid);
+    ftmPrevBass = bassEnergy;
+    ftmPrevMid = midEnergy;
 
-    // Beat detection: flux exceeds threshold AND meets minimum gap
+    ftmAvgBassFlux = ftmAvgBassFlux * (1 - FTM_FLUX_ALPHA) + bassFlux * FTM_FLUX_ALPHA;
+    ftmAvgMidFlux = ftmAvgMidFlux * (1 - FTM_FLUX_ALPHA) + midFlux * FTM_FLUX_ALPHA;
+
     const sensitivity = getSensitivityMultiplier();
-    const threshold = Math.max(FTM_NOISE_FLOOR, ftmAvgFlux * FTM_BEAT_THRESHOLD) / sensitivity;
-    const now = Date.now();
-    const isBeat = flux > threshold && (now - ftmLastHaptic) >= FTM_MIN_BEAT_GAP;
+    const bassThresh = Math.max(FTM_NOISE_FLOOR, ftmAvgBassFlux * FTM_BASS_THRESHOLD) / sensitivity;
+    const midThresh = Math.max(FTM_NOISE_FLOOR, ftmAvgMidFlux * FTM_MID_THRESHOLD) / sensitivity;
 
-    if (isBeat) {
-        const beatStrength = flux / threshold;
-        let intensity;
-        if (beatStrength > 3.0) {
-            intensity = 'HEAVY';
-        } else if (beatStrength > 1.8) {
-            intensity = 'MEDIUM';
-        } else {
-            intensity = 'LIGHT';
-        }
-        ftmLastHaptic = now;
+    const now = Date.now();
+    let isBeat = false;
+
+    if (bassFlux > bassThresh && (now - ftmLastBassHaptic) >= FTM_MIN_BASS_GAP) {
+        const strength = bassFlux / bassThresh;
+        ftmLastBassHaptic = now;
         ftmBeatDecay = 1.0;
-        ftmFireHaptic(intensity);
+        isBeat = true;
+        ftmFireHaptic(strength > 2.5 ? 'HEAVY' : 'MEDIUM', 'bass');
+    }
+
+    if (midFlux > midThresh && (now - ftmLastMidHaptic) >= FTM_MIN_MID_GAP) {
+        if (now - ftmLastBassHaptic > 30) {
+            ftmLastMidHaptic = now;
+            if (!isBeat) ftmBeatDecay = 0.6;
+            isBeat = true;
+            ftmFireHaptic('LIGHT', 'mid');
+        }
     }
 
     ftmBeatDecay = Math.max(0, ftmBeatDecay - 0.04);
-    ftmUpdateVisual(ftmBeatDecay, isBeat);
+    ftmUpdateVisual(ftmBeatDecay, isBeat, bassFlux > bassThresh);
 
     ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
 }
 
-function ftmFireHaptic(intensity) {
+function ftmFireHaptic(intensity, band) {
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
         const Haptics = window.Capacitor.Plugins.Haptics;
         try {
-            Haptics.impact({ style: intensity });
+            if (band === 'bass') {
+                Haptics.impact({ style: intensity });
+            } else {
+                Haptics.notification({ type: 'SUCCESS' });
+            }
         } catch (e) {
             ftmVibrateNative(intensity);
         }
@@ -5265,14 +5286,16 @@ function ftmVibrateNative(intensity) {
     navigator.vibrate(durations[intensity] || 30);
 }
 
-function ftmUpdateVisual(decay, isBeat) {
+function ftmUpdateVisual(decay, isBeat, isBass) {
     const ring = document.getElementById('ftmPulseRing');
     const status = document.getElementById('ftmStatus');
     if (!ring) return;
 
     ring.classList.remove('heavy');
-    if (isBeat) {
+    if (isBeat && isBass) {
         ring.classList.add('heavy');
+        if (status) status.textContent = 'BASS!';
+    } else if (isBeat) {
         if (status) status.textContent = 'BEAT!';
     } else if (decay > 0.3) {
         if (status) status.textContent = 'Feeling the music...';
@@ -5305,9 +5328,12 @@ async function startFTM() {
     source.connect(ftmAnalyser);
 
     ftmActive = true;
-    ftmPrevEnergy = 0;
-    ftmAvgFlux = 0;
-    ftmLastHaptic = 0;
+    ftmPrevBass = 0;
+    ftmPrevMid = 0;
+    ftmAvgBassFlux = 0;
+    ftmAvgMidFlux = 0;
+    ftmLastBassHaptic = 0;
+    ftmLastMidHaptic = 0;
     ftmBeatDecay = 0;
 
     if (ring) ring.classList.add('active');
