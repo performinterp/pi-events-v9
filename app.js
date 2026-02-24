@@ -5262,12 +5262,15 @@ function ftmEstimateTempo(onsets) {
 }
 
 function ftmRecalibrate() {
+    if (!ftmActive) return;
     ftmLocked = false;
     ftmOnsets = [];
     ftmMissCount = 0;
     ftmHistoryIdx = 0;
     ftmKickHistory.fill(0);
     ftmCalibStartTime = Date.now();
+    const status = document.getElementById('ftmStatus');
+    if (status) status.textContent = 'Re-syncing...';
 }
 
 function ftmAnalyseLoop() {
@@ -5473,6 +5476,8 @@ async function startFTM() {
 
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
     if (status) { status.textContent = 'Finding the beat...'; status.classList.add('active'); }
+    const recalBtn = document.getElementById('ftmRecalibrateBtn');
+    if (recalBtn) recalBtn.style.display = '';
 
     ftmInterval = setInterval(ftmAnalyseLoop, 16);
     ftmRequestWakeLock();
@@ -5507,6 +5512,8 @@ function stopFTM() {
     if (vis) { vis.style.setProperty('--glow-opacity', '0'); vis.style.setProperty('--beat-flash', '0'); }
     if (btn) { btn.textContent = 'Start Feeling'; btn.classList.remove('active'); }
     if (status) { status.textContent = 'Feel the bass through your phone'; status.classList.remove('active'); }
+    const recalBtn = document.getElementById('ftmRecalibrateBtn');
+    if (recalBtn) recalBtn.style.display = 'none';
 }
 
 function toggleFTM() { if (ftmActive) stopFTM(); else startFTM(); }
