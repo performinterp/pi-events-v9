@@ -5258,9 +5258,9 @@ function ftmAnalyseLoop() {
     }
 
     ftmBeatDecay = Math.max(0, ftmBeatDecay - 0.04);
-    ftmUpdateVisual(ftmBeatDecay, isBeat, bassFlux > bassThresh);
-
-    ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
+    if (!document.hidden) {
+        ftmUpdateVisual(ftmBeatDecay, isBeat, bassFlux > bassThresh, bassEnergy);
+    }
 }
 
 function ftmFireHaptic(intensity, band) {
@@ -5286,10 +5286,21 @@ function ftmVibrateNative(intensity) {
     navigator.vibrate(durations[intensity] || 30);
 }
 
-function ftmUpdateVisual(decay, isBeat, isBass) {
+function ftmUpdateVisual(decay, isBeat, isBass, energy) {
     const ring = document.getElementById('ftmPulseRing');
+    const inner = document.getElementById('ftmPulseInner');
     const status = document.getElementById('ftmStatus');
     if (!ring) return;
+
+    const scale = 1 + (decay * 0.2);
+    ring.style.transform = 'scale(' + scale.toFixed(3) + ')';
+
+    const glow = Math.min(1, energy * 3);
+    if (inner) {
+        inner.style.background = isBass
+            ? 'rgba(239, 68, 68, ' + (0.1 + glow * 0.3).toFixed(2) + ')'
+            : 'rgba(37, 99, 235, ' + (0.08 + glow * 0.25).toFixed(2) + ')';
+    }
 
     ring.classList.remove('heavy');
     if (isBeat && isBass) {
@@ -5300,6 +5311,7 @@ function ftmUpdateVisual(decay, isBeat, isBass) {
     } else if (decay > 0.3) {
         if (status) status.textContent = 'Feeling the music...';
     } else {
+        ring.style.transform = 'scale(1)';
         if (status) status.textContent = 'Listening...';
     }
 }
@@ -5340,14 +5352,33 @@ async function startFTM() {
     if (btn) { btn.textContent = 'Stop'; btn.classList.add('active'); }
     if (status) { status.textContent = 'Listening...'; status.classList.add('active'); }
 
-    ftmAnimFrame = requestAnimationFrame(ftmAnalyseLoop);
+    ftmAnimFrame = setInterval(ftmAnalyseLoop, 16);
+    ftmRequestWakeLock();
+}
+
+let ftmWakeLock = null;
+
+async function ftmRequestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            ftmWakeLock = await navigator.wakeLock.request('screen');
+            ftmWakeLock.addEventListener('release', () => { ftmWakeLock = null; });
+        }
+    } catch (e) {}
+}
+
+function ftmReleaseWakeLock() {
+    if (ftmWakeLock) {
+        ftmWakeLock.release().catch(() => {});
+        ftmWakeLock = null;
+    }
 }
 
 function stopFTM() {
     ftmActive = false;
 
     if (ftmAnimFrame) {
-        cancelAnimationFrame(ftmAnimFrame);
+        clearInterval(ftmAnimFrame);
         ftmAnimFrame = null;
     }
 
@@ -5362,11 +5393,13 @@ function stopFTM() {
         ftmAnalyser = null;
     }
 
+    ftmReleaseWakeLock();
+
     const ring = document.getElementById('ftmPulseRing');
     const btn = document.getElementById('ftmToggleBtn');
     const status = document.getElementById('ftmStatus');
 
-    if (ring) { ring.classList.remove('active', 'heavy'); }
+    if (ring) { ring.classList.remove('active', 'heavy'); ring.style.transform = ''; }
     if (btn) { btn.textContent = 'Start Feeling'; btn.classList.remove('active'); }
     if (status) { status.textContent = 'Feel the bass through your phone'; status.classList.remove('active'); }
 }
@@ -5379,9 +5412,11 @@ function toggleFTM() {
     }
 }
 
-// Stop FTM when app goes to background
+// Re-acquire Wake Lock when screen comes back on
 document.addEventListener('visibilitychange', function() {
-    if (document.hidden && ftmActive) stopFTM();
+    if (!document.hidden && ftmActive && !ftmWakeLock) {
+        ftmRequestWakeLock();
+    }
 });
 
 window.openCommSupportModal = openCommSupportModal;

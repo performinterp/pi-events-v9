@@ -5251,17 +5251,13 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    transition: border-color 0.3s;
+    transition: transform 0.08s ease-out, border-color 0.15s;
     position: relative;
+    will-change: transform;
 }
 
 .ftm-pulse-ring.active {
     border-color: var(--primary);
-    animation: ftm-pulse 1.5s ease-in-out infinite;
-}
-
-.ftm-pulse-ring.active .ftm-pulse-inner {
-    animation: ftm-inner-pulse 1.5s ease-in-out infinite;
 }
 
 .ftm-pulse-inner {
@@ -5272,40 +5268,15 @@ select:focus-visible {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s;
-}
-
-.ftm-pulse-ring.active .ftm-pulse-inner {
-    background: rgba(37, 99, 235, 0.15);
+    transition: background 0.1s ease-out;
 }
 
 .ftm-icon {
     font-size: 2.5rem;
 }
 
-@keyframes ftm-pulse {
-    0%, 100% { transform: scale(1); border-color: var(--primary); }
-    50% { transform: scale(1.08); border-color: #3B82F6; }
-}
-
-@keyframes ftm-inner-pulse {
-    0%, 100% { transform: scale(1); background: rgba(37, 99, 235, 0.15); }
-    50% { transform: scale(1.06); background: rgba(37, 99, 235, 0.25); }
-}
-
 .ftm-pulse-ring.heavy {
     border-color: #EF4444;
-    animation: ftm-pulse-heavy 0.4s ease-in-out infinite;
-}
-
-.ftm-pulse-ring.heavy .ftm-pulse-inner {
-    background: rgba(239, 68, 68, 0.2);
-    animation: none;
-}
-
-@keyframes ftm-pulse-heavy {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
 }
 
 .ftm-status {
