@@ -5819,6 +5819,14 @@ select:focus-visible {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: 1px solid #E2E8F0;
+    /* Button reset for semantic <button> element */
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .bg-section-card:hover {

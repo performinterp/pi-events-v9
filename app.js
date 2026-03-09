@@ -4,6 +4,36 @@
   ==========================================================================*/
 
 // ========================================
+// SECURITY UTILITIES
+// ========================================
+
+/**
+ * Escape HTML special characters to prevent XSS when inserting
+ * external data (e.g. spreadsheet fields) into innerHTML templates.
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Safely encode an object as a JSON string for use in an HTML attribute.
+ * Escapes characters that could break out of the attribute or HTML context.
+ */
+function safeJsonAttr(obj) {
+    return JSON.stringify(obj)
+        .replace(/&/g, '&amp;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+// ========================================
 // CONFIGURATION
 // ========================================
 const CONFIG = {
@@ -626,7 +656,7 @@ function setupVenueEmailLookup() {
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ');
             const vrsIndicator = m.vrs ? ' 📹' : '';
-            return `<button type="button" class="venue-match-btn" data-email="${m.email}" data-venue="${displayName}" data-vrs="${m.vrs || ''}" data-vrs-label="${m.vrsLabel || ''}">${displayName}${vrsIndicator}</button>`;
+            return `<button type="button" class="venue-match-btn" data-email="${escapeHtml(m.email)}" data-venue="${escapeHtml(displayName)}" data-vrs="${escapeHtml(m.vrs || '')}" data-vrs-label="${escapeHtml(m.vrsLabel || '')}">${escapeHtml(displayName)}${vrsIndicator}</button>`;
         }).join('');
 
         venueMatches.innerHTML = html;
@@ -1507,7 +1537,7 @@ function createEventCard(event) {
     if (badge.canBook) {
         // Green badge - open access-first modal for booking guidance
         primaryButton = `
-            <button class="btn-primary" onclick='openAccessFirstModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
+            <button class="btn-primary" onclick='openAccessFirstModal(${safeJsonAttr(event)})'>
                 🎟️ Book BSL Tickets
             </button>
         `;
@@ -1521,7 +1551,7 @@ function createEventCard(event) {
         if (hasVenueInfo) {
             // Known venue — open modal with VRS/email options
             primaryButton = `
-                <button class="btn-orange" onclick='openRequestBSLModal(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
+                <button class="btn-orange" onclick='openRequestBSLModal(${safeJsonAttr(event)})'>
                     ✉️ Request Interpreter
                 </button>
             `;
@@ -1540,9 +1570,9 @@ function createEventCard(event) {
     if (isGrouped) {
         const datesList = event.allDates.map(d => `
             <div class="expandable-date-item">
-                <span class="date-item-date">📅 ${d.day} ${d.month}</span>
-                ${d.time ? `<span class="date-item-time">🕐 ${d.time}</span>` : ''}
-                ${d.interpreters ? `<span class="date-item-interpreters">👥 ${d.interpreters}</span>` : ''}
+                <span class="date-item-date">📅 ${escapeHtml(d.day)} ${escapeHtml(d.month)}</span>
+                ${d.time ? `<span class="date-item-time">🕐 ${escapeHtml(d.time)}</span>` : ''}
+                ${d.interpreters ? `<span class="date-item-interpreters">👥 ${escapeHtml(d.interpreters)}</span>` : ''}
             </div>
         `).join('');
 
@@ -1597,14 +1627,14 @@ function createEventCard(event) {
             </div>
             ` : badge.badge === 'green' ? `
             <div class="event-badge-indicator badge-green">
-                <span class="badge-label">${badge.shortLabel}</span>
+                <span class="badge-label">${escapeHtml(badge.shortLabel)}</span>
             </div>
             ` : ''}
 
             <div class="event-image-container">
                 <img
-                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? event['IMAGE URL'] : CONFIG.defaultImage}"
-                    alt="${event['EVENT']}"
+                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : CONFIG.defaultImage}"
+                    alt="${escapeHtml(event['EVENT'])}"
                     class="event-image"
                     onerror="this.src='${CONFIG.defaultImage}'"
                 >
@@ -1615,18 +1645,18 @@ function createEventCard(event) {
             </div>
 
             <div class="event-content">
-                <h3 class="event-title">${event['EVENT']}</h3>
+                <h3 class="event-title">${escapeHtml(event['EVENT'])}</h3>
 
                 <div class="event-meta-simple">
-                    📍 ${event['VENUE']}<br>
-                    ${!isGrouped && event['TIME'] ? `🕐 ${event['TIME']}` : ''}
+                    📍 ${escapeHtml(event['VENUE'])}<br>
+                    ${!isGrouped && event['TIME'] ? `🕐 ${escapeHtml(event['TIME'])}` : ''}
                 </div>
 
                 ${expandableDates}
 
                 ${!isGrouped && event['INTERPRETERS'] && badge.badge === 'green' ? `
                     <div class="event-interpreters-simple">
-                        👥 ${event['INTERPRETERS']}
+                        👥 ${escapeHtml(event['INTERPRETERS'])}
                     </div>
                 ` : ''}
 
@@ -1635,7 +1665,7 @@ function createEventCard(event) {
                 </div>
 
                 <div class="event-utility-actions">
-                    <button class="utility-btn" onclick='addToCalendar(${JSON.stringify(event).replace(/'/g, "&apos;")})' aria-label="Add to calendar">
+                    <button class="utility-btn" onclick='addToCalendar(${safeJsonAttr(event)})' aria-label="Add to calendar">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -1644,7 +1674,7 @@ function createEventCard(event) {
                         </svg>
                         <span>Calendar</span>
                     </button>
-                    <button class="utility-btn" onclick='shareEvent(${JSON.stringify(event).replace(/'/g, "&apos;")})' aria-label="Share event">
+                    <button class="utility-btn" onclick='shareEvent(${safeJsonAttr(event)})' aria-label="Share event">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                             <polyline points="16 6 12 2 8 6"></polyline>
@@ -1683,7 +1713,7 @@ function toggleDates(eventId) {
 function createCompactEventCard(event) {
     const date = formatDate(event['DATE']);
     const badge = calculateBadgeStatus(event);
-    const eventJson = JSON.stringify(event).replace(/'/g, "&apos;");
+    const eventJson = safeJsonAttr(event);
 
     let actionButton = '';
     if (badge.canBook) {
@@ -1711,20 +1741,20 @@ function createCompactEventCard(event) {
             ${badgeIndicator}
             <div class="compact-image-container">
                 <img
-                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? event['IMAGE URL'] : CONFIG.defaultImage}"
-                    alt="${event['EVENT']}"
+                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : CONFIG.defaultImage}"
+                    alt="${escapeHtml(event['EVENT'])}"
                     class="compact-image"
                     onerror="this.src='${CONFIG.defaultImage}'"
                 >
                 <div class="compact-date-badge">
-                    <span class="compact-badge-day">${date.day}</span>
-                    <span class="compact-badge-month">${date.month}</span>
+                    <span class="compact-badge-day">${escapeHtml(date.day)}</span>
+                    <span class="compact-badge-month">${escapeHtml(date.month)}</span>
                 </div>
             </div>
 
             <div class="compact-content">
-                <h3 class="compact-title">${event['EVENT']}</h3>
-                <div class="compact-venue">📍 ${event['VENUE']}</div>
+                <h3 class="compact-title">${escapeHtml(event['EVENT'])}</h3>
+                <div class="compact-venue">📍 ${escapeHtml(event['VENUE'])}</div>
                 ${actionButton}
             </div>
         </article>
@@ -1737,7 +1767,7 @@ function createCompactEventCard(event) {
 function createListEventItem(event) {
     const date = formatDate(event['DATE']);
     const badge = calculateBadgeStatus(event);
-    const eventJson = JSON.stringify(event).replace(/'/g, "&apos;");
+    const eventJson = safeJsonAttr(event);
 
     let actionButton = '';
     if (badge.canBook) {
@@ -1763,15 +1793,15 @@ function createListEventItem(event) {
     return `
         <article class="event-list-item ${isCancelled ? 'event-cancelled' : ''}" data-event-id="${Date.now()}-${Math.random()}">
             <div class="list-date">
-                <span class="list-date-day">${date.day}</span>
-                <span class="list-date-month">${date.month}</span>
+                <span class="list-date-day">${escapeHtml(date.day)}</span>
+                <span class="list-date-month">${escapeHtml(date.month)}</span>
             </div>
 
             <div class="list-content">
-                <h3 class="list-title">${event['EVENT']}</h3>
+                <h3 class="list-title">${escapeHtml(event['EVENT'])}</h3>
                 <div class="list-meta">
-                    <span class="list-venue">📍 ${event['VENUE']}</span>
-                    ${event['TIME'] ? `<span class="list-time">🕐 ${event['TIME']}</span>` : ''}
+                    <span class="list-venue">📍 ${escapeHtml(event['VENUE'])}</span>
+                    ${event['TIME'] ? `<span class="list-time">🕐 ${escapeHtml(event['TIME'])}</span>` : ''}
                     ${statusBadge}
                 </div>
             </div>
@@ -1852,7 +1882,7 @@ function renderEvents(events) {
 
             resultsHeaderContent.innerHTML = `
                 ${badgeLegend}
-                <h2 class="results-title">${categoryIcon} ${categoryDisplay}: ${events.length} ${events.length === 1 ? 'event' : 'events'}</h2>
+                <h2 class="results-title">${categoryIcon} ${escapeHtml(categoryDisplay)}: ${events.length} ${events.length === 1 ? 'event' : 'events'}</h2>
             `;
         } else {
             // Show just count
@@ -2320,7 +2350,7 @@ function initCategorySearch() {
         // Show up to 5 suggestion pills
         const suggestions = [...matches].filter(Boolean).slice(0, 5);
         suggestionsContainer.innerHTML = suggestions.map(s =>
-            `<button class="category-search-suggestion" onclick="executeCategorySearch('${s.replace(/'/g, "\\'")}')">${s}</button>`
+            `<button class="category-search-suggestion" onclick="executeCategorySearch('${escapeHtml(s.replace(/'/g, "\\'"))}')">${escapeHtml(s)}</button>`
         ).join('');
     });
 
@@ -2816,7 +2846,7 @@ function showSearchSuggestions(query) {
 
     // Build suggestion buttons
     itemsContainer.innerHTML = suggestions.map(term =>
-        `<button class="suggestion-item" onclick="applySuggestion('${term.replace(/'/g, "\\'")}')">${term}</button>`
+        `<button class="suggestion-item" onclick="applySuggestion('${escapeHtml(term.replace(/'/g, "\\'"))}')">${escapeHtml(term)}</button>`
     ).join('');
 
     container.style.display = 'block';
@@ -2863,7 +2893,7 @@ function populateFilters() {
     }).filter(Boolean))];
     locations.sort();
     DOM.locationFilter.innerHTML = '<option value="all">All Locations</option>' +
-        locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+        locations.map(loc => `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`).join('');
     
     // Populate month filter
     populateMonthFilter();
@@ -2941,11 +2971,11 @@ function generateCategoryTabs() {
         tabsHtml += `
             <button 
                 class="category-tab" 
-                data-category="${category}"
-                onclick="selectCategory('${category.replace(/'/g, "\\'")}')"
+                data-category="${escapeHtml(category)}"
+                onclick="selectCategory('${escapeHtml(category.replace(/'/g, "\\'"))}')"
             >
                 <span class="category-tab-icon">${icon}</span>
-                <span>${category}</span>
+                <span>${escapeHtml(category)}</span>
                 <span class="category-tab-count">${count}</span>
             </button>
         `;
@@ -3019,7 +3049,7 @@ function updateActiveFilters() {
     if (AppState.filters.search) {
         activeFiltersHtml.push(`
             <div class="filter-pill">
-                Search: "${AppState.filters.search}"
+                Search: "${escapeHtml(AppState.filters.search)}"
                 <button class="filter-pill-remove" onclick="clearFilter('search')">×</button>
             </div>
         `);
@@ -3049,7 +3079,7 @@ function updateActiveFilters() {
     if (AppState.filters.interpretation !== 'all') {
         activeFiltersHtml.push(`
             <div class="filter-pill">
-                ${AppState.filters.interpretation}
+                ${escapeHtml(AppState.filters.interpretation)}
                 <button class="filter-pill-remove" onclick="clearFilter('interpretation')">×</button>
             </div>
         `);
@@ -3058,7 +3088,7 @@ function updateActiveFilters() {
     if (AppState.filters.category !== 'all') {
         activeFiltersHtml.push(`
             <div class="filter-pill">
-                ${AppState.filters.category}
+                ${escapeHtml(AppState.filters.category)}
                 <button class="filter-pill-remove" onclick="clearFilter('category')">×</button>
             </div>
         `);
@@ -3067,7 +3097,7 @@ function updateActiveFilters() {
     if (AppState.filters.location !== 'all') {
         activeFiltersHtml.push(`
             <div class="filter-pill">
-                ${AppState.filters.location}
+                ${escapeHtml(AppState.filters.location)}
                 <button class="filter-pill-remove" onclick="clearFilter('location')">×</button>
             </div>
         `);
@@ -3133,6 +3163,7 @@ function closeMobileMenu() {
     if (mobileMenuBtn && mobileNav) {
         mobileMenuBtn.classList.remove('active');
         mobileNav.classList.remove('active');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
     }
 }
 
@@ -3185,6 +3216,7 @@ function initEventListeners() {
             e.stopPropagation();
             DOM.mobileMenuBtn.classList.toggle('active');
             DOM.mobileNav.classList.toggle('active');
+            DOM.mobileMenuBtn.setAttribute('aria-expanded', DOM.mobileNav.classList.contains('active'));
         });
 
         // Close mobile menu when clicking outside
@@ -3193,6 +3225,7 @@ function initEventListeners() {
                 if (!DOM.mobileNav.contains(e.target) && !DOM.mobileMenuBtn.contains(e.target)) {
                     DOM.mobileMenuBtn.classList.remove('active');
                     DOM.mobileNav.classList.remove('active');
+                    DOM.mobileMenuBtn.setAttribute('aria-expanded', 'false');
                 }
             }
         });
@@ -3313,11 +3346,14 @@ function initEventListeners() {
         // Close dropdowns when scrolling
         if (moreDropdownMenu && moreDropdownMenu.classList.contains('active')) {
             moreDropdownMenu.classList.remove('active');
+            const dBtn = document.getElementById('moreDropdownBtn');
+            if (dBtn) dBtn.setAttribute('aria-expanded', 'false');
         }
         if (DOM.mobileNav && DOM.mobileNav.classList.contains('active')) {
             DOM.mobileNav.classList.remove('active');
             if (DOM.mobileMenuBtn) {
                 DOM.mobileMenuBtn.classList.remove('active');
+                DOM.mobileMenuBtn.setAttribute('aria-expanded', 'false');
             }
         }
     });
@@ -3367,6 +3403,7 @@ function initEventListeners() {
         moreDropdownBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             moreDropdownMenu.classList.toggle('active');
+            moreDropdownBtn.setAttribute('aria-expanded', moreDropdownMenu.classList.contains('active'));
         });
 
         // Close dropdown when clicking outside
@@ -3374,6 +3411,7 @@ function initEventListeners() {
             if (moreDropdownMenu.classList.contains('active')) {
                 if (!moreDropdownMenu.contains(e.target) && !moreDropdownBtn.contains(e.target)) {
                     moreDropdownMenu.classList.remove('active');
+                    moreDropdownBtn.setAttribute('aria-expanded', 'false');
                 }
             }
         });
@@ -3387,9 +3425,9 @@ function initEventListeners() {
         mobileMoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             mobileMoreMenu.classList.toggle('active');
+            mobileMoreBtn.setAttribute('aria-expanded', mobileMoreMenu.classList.contains('active'));
 
             // Rotate the arrow
-            const arrow = mobileMoreBtn.textContent.includes('▾') ? '▴' : '▾';
             mobileMoreBtn.textContent = mobileMoreMenu.classList.contains('active') ? 'More ▴' : 'More ▾';
         });
     }
@@ -3912,7 +3950,7 @@ function displaySearchResults(results, query) {
                 <span class="suggestion-label">Did you mean:</span>
                 <div class="suggestion-items">
                     ${suggestions.map(term =>
-                        `<button class="suggestion-item" onclick="applyFlow2Suggestion('${term.replace(/'/g, "\\'")}')">${term}</button>`
+                        `<button class="suggestion-item" onclick="applyFlow2Suggestion('${escapeHtml(term.replace(/'/g, "\\'"))}')">${escapeHtml(term)}</button>`
                     ).join('')}
                 </div>
             </div>
@@ -3921,7 +3959,7 @@ function displaySearchResults(results, query) {
         resultsContainer.innerHTML = `
             <div class="search-no-results">
                 <div class="no-results-icon">🔴</div>
-                <h3>No events found for "${query}"</h3>
+                <h3>No events found for "${escapeHtml(query)}"</h3>
                 ${suggestionsHTML}
                 <p>We couldn't find any events matching your search.</p>
                 <p><strong>But you can still request an interpreter!</strong></p>
@@ -3940,18 +3978,18 @@ function displaySearchResults(results, query) {
             <div class="search-result-card">
                 <div class="search-result-badge badge-${badge.badge}">
                     <span class="badge-icon">${badge.icon}</span>
-                    <span class="badge-label">${badge.shortLabel}</span>
+                    <span class="badge-label">${escapeHtml(badge.shortLabel)}</span>
                 </div>
                 <div class="search-result-content">
-                    <h3 class="search-result-title">${event.EVENT}</h3>
+                    <h3 class="search-result-title">${escapeHtml(event.EVENT)}</h3>
                     <p class="search-result-meta">
-                        📍 ${event.VENUE}<br>
-                        🗓️ ${event.DATE}
-                        ${event.TIME ? `<br>🕐 ${event.TIME}` : ''}
+                        📍 ${escapeHtml(event.VENUE)}<br>
+                        🗓️ ${escapeHtml(event.DATE)}
+                        ${event.TIME ? `<br>🕐 ${escapeHtml(event.TIME)}` : ''}
                     </p>
                     ${event.INTERPRETERS ? `
                         <p class="search-result-interpreters">
-                            👥 <strong>Interpreters:</strong> ${event.INTERPRETERS}
+                            👥 <strong>Interpreters:</strong> ${escapeHtml(event.INTERPRETERS)}
                         </p>
                     ` : ''}
                     <div class="search-result-actions">
@@ -4046,7 +4084,7 @@ function openGetAccessModal(event) {
     // Update Step 1 with specific venue name
     const step1Text = modal.querySelector('.access-step:nth-child(1) p');
     if (step1Text) {
-        step1Text.innerHTML = `Contact ${event.VENUE}<br>Ask for accessibility team`;
+        step1Text.innerHTML = `Contact ${escapeHtml(event.VENUE)}<br>Ask for accessibility team`;
     }
 
     modal.style.display = 'flex';
@@ -4244,14 +4282,14 @@ function openVenueBookingGuide(event) {
             .split('\n')
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => `<p>${line}</p>`)
+            .map(line => `<p>${escapeHtml(line)}</p>`)
             .join('');
 
         contentEl.innerHTML = guideHtml;
     } else if (contentEl) {
         // Fallback generic message
         contentEl.innerHTML = `
-            <p>Contact ${event.VENUE} to book accessible tickets.</p>
+            <p>Contact ${escapeHtml(event.VENUE)} to book accessible tickets.</p>
             <p>Ask for seats with clear view of BSL interpreter.</p>
             <p>See our <a href="#/how-to-book" onclick="closeVenueBookingGuideModal()">full booking guide</a> for detailed steps.</p>
         `;
@@ -4399,7 +4437,7 @@ function openAccessFirstModal(event) {
     const noteEl = modal.querySelector('.access-modal-note');
     if (noteEl) {
         if (venueNote) {
-            noteEl.innerHTML = `<strong>✅ ${venueNote}</strong>`;
+            noteEl.innerHTML = `<strong>✅ ${escapeHtml(venueNote)}</strong>`;
         } else {
             noteEl.innerHTML = '<strong>💡 Tip:</strong><br>Contact venue before buying tickets<br>Ask for BSL accessible seating';
         }

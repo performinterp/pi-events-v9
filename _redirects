@@ -1,0 +1,156 @@
+# PI Events App - Block non-public files from being served
+# Cloudflare Pages deploys all tracked git files. This redirects sensitive ones to homepage.
+
+# Admin panels
+/admin-panel / 302
+/admin-panel.html / 302
+/admin-panel-v2 / 302
+/admin-panel-v2.html / 302
+/admin-panel-with-api / 302
+/admin-panel-with-api.html / 302
+/admin-tools / 302
+/admin-tools.html / 302
+
+# Google Apps Script source files
+/API.gs / 302
+/AutoPublish.gs / 302
+/AutoPublish-config-only.gs / 302
+/COMPLETE-Code.gs / 302
+/COMPLETE-IMPROVED-Code.gs / 302
+/COMPLETE-WORKFLOW-Code.gs / 302
+/FINAL-Code.gs / 302
+/IMPROVED-Code.gs / 302
+/PI-WORK-FLOW-CATEGORY-SETUP.gs / 302
+/PI-WORK-FLOW-COMPLETE-WITH-CATEGORY.gs / 302
+/SIMPLIFIED-WORKFLOW.gs / 302
+
+# Non-app JavaScript files
+/apps-script-booking-guide-enricher.js / 302
+/apps-script-fixed.js / 302
+/apps-script-intelligent-links-v2-fuzzy-matching.js / 302
+/apps-script-intelligent-links.js / 302
+/apps-script-multi-date-grouper-v2.js / 302
+/apps-script-multi-date-grouper.js / 302
+/apps-script-source-approval-gate-v2.js / 302
+/apps-script-source-approval-gate.js / 302
+/apps-script-source-approval-gate.js.backup / 302
+/apps-script-source-typo-checker.js / 302
+/apps-script-with-auto-sync.js / 302
+/cloudflare-worker-tracking.js / 302
+/Code-gs-CONSOLIDATED.js / 302
+/refresh-booking-guides-function.js / 302
+
+# Python scripts
+/apply-deletion-to-sheets.py / 302
+/build-restructured-sheet.py / 302
+/cleanup-temp-sheets.py / 302
+/combine-and-prepare-upload.py / 302
+/complete-restructure-and-upload.py / 302
+/copy-o2-events.py / 302
+/fetch-and-sync.py / 302
+/finalize-upload-data.py / 302
+/hide_sheets.py / 302
+/o2-scraper-enhanced.py / 302
+/o2-scraper.py / 302
+/o2-sync-api.py / 302
+/o2-sync-complete.py / 302
+/o2-sync-to-sheet.py / 302
+/prepare-final-sheet-data.py / 302
+/restructure-pre-approved.py / 302
+/run-o2-sync-with-sheets.py / 302
+/save-o2-events.py / 302
+/save-sheet-data.py / 302
+/temp-save-sheets.py / 302
+/update-sheet-data-files.py / 302
+/upload-complete-dataset.py / 302
+
+# JSON data files
+/batch-0.json / 302
+/batch-1.json / 302
+/batch-2.json / 302
+/batch-3.json / 302
+/batch-4.json / 302
+/batch-ranges.json / 302
+/batch-update-compact.json / 302
+/batch-update-ranges.json / 302
+/batch-write-plan.json / 302
+/cleaned-pre-approved.json / 302
+/cleaned-public-approved.json / 302
+/complete-upload-data.json / 302
+/curated-data.json / 302
+/existing-batch1.json / 302
+/existing-batch2.json / 302
+/final-upload-instructions.json / 302
+/final-upload-plan.json / 302
+/headers-and-existing-upload.json / 302
+/o2-copy-plan.json / 302
+/o2-events-all.json / 302
+/o2-events-from-public-feed.json / 302
+/o2-events-scraped.json / 302
+/pre-approved-data.json / 302
+/public-approved-data.json / 302
+/ready-for-claude-final-step.json / 302
+/ready-for-final-upload.json / 302
+/remaining-130-rows.json / 302
+/remaining-rows.json / 302
+/restructured-existing-events.json / 302
+/rows-to-write.json / 302
+/save-real-sheet-data.json / 302
+/sync-output.json / 302
+/temp-pre-approved.json / 302
+/temp-public-approved.json / 302
+/test-rows.json / 302
+/upload-complete-summary.json / 302
+/upload-ready-confirmation.json / 302
+/upload-structure.json / 302
+/write-batch-1.json / 302
+/write-batch-2.json / 302
+/write-batch-3.json / 302
+/write-batch-4.json / 302
+/write-batch-5.json / 302
+
+# Documentation
+/ACTION-PLAN-THURSDAY-DEADLINE.md / 302
+/ARCHITECTURE-PLAN.md / 302
+/CLOUDFLARE-DEPLOYMENT.md / 302
+/FINAL-MIGRATION-COMPLETE.md / 302
+/FIX-ENRICHED-AUTO-SYNC.md / 302
+/IMPLEMENTATION-STATUS.md / 302
+/INTELLIGENT-LINKS-INSTALLATION.md / 302
+/MANUAL-CLEANUP-INSTRUCTIONS.md / 302
+/MIGRATION-COMPLETE-FINAL.md / 302
+/NOTIFICATION-BACKEND-SETUP.md / 302
+/O2-API-README.md / 302
+/O2-DELETION-UPDATE.md / 302
+/O2-IMPLEMENTATION-COMPLETE.md / 302
+/O2-PRUNE-FEATURE.md / 302
+/O2-PRUNE-SUMMARY.md / 302
+/O2-SCRAPER-NOTES.md / 302
+/O2-SETUP-GUIDE.md / 302
+/O2-SYNC-UPDATES.md / 302
+/O2-SYNC-VERIFICATION.md / 302
+/PHASE-1-COMPLETE.md / 302
+/PHASE-1-FEATURES-COMPLETE.md / 302
+/PIPELINE-README.md / 302
+/PROJECT_CONSTITUTION.md / 302
+/PWA-DEPLOYMENT-FIX.md / 302
+/RUN-DELETION-NOW.md / 302
+/SETUP-HOURLY-TRIGGER.md / 302
+/UX-DESIGN-WIREFRAMES.md / 302
+/VENUE-ACCESS-NOTES.md / 302
+
+# Shell scripts
+/start-o2-api.sh / 302
+/write-batches.sh / 302
+
+# Misc sensitive files
+/.gitignore / 302
+/.DS_Store / 302
+
+# Directories (dynamic redirects)
+/migration/* / 302
+/pipeline/* / 302
+
+# Old/obsolete HTML
+/o2-page-full.html / 302
+/clear-cache-v9.html / 302

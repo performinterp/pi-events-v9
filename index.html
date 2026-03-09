@@ -33,11 +33,11 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.70">
+    <link rel="stylesheet" href="styles.css?v=1.9.71">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
-    <a href="#/flow1" class="skip-to-content">Skip to main content</a>
+    <a href="#mainContent" class="skip-to-content">Skip to main content</a>
 
     <!-- Scroll to Top Button -->
     <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Back to top">
@@ -76,7 +76,7 @@
     <a href="#/how-to-book" class="nav-link">How to Book</a>
     <button onclick="openInstallPrompt()" class="nav-link nav-button">Install App</button>
     <div class="nav-dropdown">
-        <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn">More ▾</button>
+        <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn" aria-expanded="false" aria-haspopup="true">More ▾</button>
         <div class="dropdown-menu" id="moreDropdownMenu">
             <button onclick="openCommSupportModal()" class="dropdown-item">At the Event</button>
             <button onclick="openFeedbackModal()" class="dropdown-item">Share Your Thoughts</button>
@@ -89,7 +89,7 @@
 </nav>
             
             <!-- Mobile Menu Button -->
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu" aria-expanded="false">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
@@ -102,7 +102,7 @@
     <a href="#/how-to-book" class="mobile-nav-link" onclick="closeMobileMenu()">How to Book</a>
     <button onclick="openInstallPrompt()" class="mobile-nav-link mobile-nav-button">Install App</button>
     <div class="mobile-nav-dropdown">
-        <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn">More ▾</button>
+        <button class="mobile-nav-link mobile-nav-button mobile-dropdown-toggle" id="mobileMoreBtn" aria-expanded="false" aria-haspopup="true">More ▾</button>
         <div class="mobile-dropdown-menu" id="mobileMoreMenu">
             <button onclick="openCommSupportModal(); closeMobileMenu()" class="mobile-dropdown-item">At the Event</button>
             <button onclick="openFeedbackModal()" class="mobile-dropdown-item">Share Your Thoughts</button>
@@ -136,6 +136,7 @@
             <button class="access-modal-close" onclick="closeVideoModal()" aria-label="Close">&#10005;</button>
             <video id="bslVideo" controls playsinline preload="metadata" style="width:100%; display:block; border-radius: 8px; max-height: 85vh;">
                 <source src="https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4" type="video/mp4">
+                <track kind="captions" label="English captions" srclang="en" default>
                 Your browser does not support video playback.
             </video>
         </div>
@@ -143,6 +144,7 @@
 
     <!-- Main Content -->
     <main class="main-content" id="events">
+        <span id="mainContent" tabindex="-1"></span>
 
        <!-- HOME FLOW: 3-Card Navigation Hub (NEW) -->
        <div id="homeFlow" style="display: none;">
@@ -483,7 +485,7 @@
        <div id="bookingGuideSection" class="booking-guide-section" style="display: none;">
            <div class="hero-section" style="padding: 60px 20px 20px;">
                <div class="hero-content">
-                   <h1 class="hero-title">How to Book BSL & ISL Tickets</h1>
+                   <h2 class="hero-title">How to Book BSL & ISL Tickets</h2>
                    <p class="bg-no-tickets-notice"><span class="bg-no-tickets-chevron">›››</span> <span class="bg-no-tickets-text">We <u>DO NOT</u> sell tickets</span> <span class="bg-no-tickets-chevron bg-no-tickets-chevron-right">‹‹‹</span></p>
                    <p class="hero-subtitle" style="max-width: 800px;">This guide helps you book BSL and ISL tickets at venues.</p>
                    <p class="hero-subtitle" style="margin-top: 15px; opacity: 0.9;">We update this often. Details may change.</p>
@@ -491,41 +493,41 @@
            </div>
 
            <div class="bg-sections-grid">
-               <div class="bg-section-card" onclick="openBgModal('bgBookingModal')">
+               <button class="bg-section-card" onclick="openBgModal('bgBookingModal')">
                    <div class="bg-section-header">
                        <span class="bg-section-icon">✅</span>
                        <h3 class="bg-section-title">How to Book</h3>
                        <p class="bg-section-subtitle">Step-by-Step Guide</p>
                        <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
                    </div>
-               </div>
+               </button>
 
-               <div class="bg-section-card" onclick="openBgModal('bgVenuesModal')">
+               <button class="bg-section-card" onclick="openBgModal('bgVenuesModal')">
                    <div class="bg-section-header">
                        <span class="bg-section-icon">🏟️</span>
                        <h3 class="bg-section-title">Venues</h3>
                        <p class="bg-section-subtitle">VRS &amp; Email Contact Details</p>
                        <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
                    </div>
-               </div>
+               </button>
 
-               <div class="bg-section-card" onclick="openBgModal('bgTipsModal')">
+               <button class="bg-section-card" onclick="openBgModal('bgTipsModal')">
                    <div class="bg-section-header">
                        <span class="bg-section-icon">💡</span>
                        <h3 class="bg-section-title">Quick Tips</h3>
                        <p class="bg-section-subtitle">Make Booking Easier</p>
                        <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
                    </div>
-               </div>
+               </button>
 
-               <div class="bg-section-card" onclick="openBgModal('bgFaqModal')">
+               <button class="bg-section-card" onclick="openBgModal('bgFaqModal')">
                    <div class="bg-section-header">
                        <span class="bg-section-icon">❓</span>
                        <h3 class="bg-section-title">FAQs</h3>
                        <p class="bg-section-subtitle">Common Questions</p>
                        <p class="bg-click-hint"><u>CLICK</u> TO OPEN</p>
                    </div>
-               </div>
+               </button>
            </div>
        </div><!-- End bookingGuideSection -->
 
@@ -811,7 +813,7 @@
         </div>
 
     <!-- Booking Guide: How to Book Modal -->
-    <div class="bg-modal-overlay" id="bgBookingModal" onclick="closeBgModalOnOverlay(event, 'bgBookingModal')">
+    <div class="bg-modal-overlay" id="bgBookingModal" role="dialog" aria-modal="true" onclick="closeBgModalOnOverlay(event, 'bgBookingModal')">
         <div class="bg-modal-container">
             <div class="bg-modal-header">
                 <div class="bg-modal-header-content">
@@ -821,7 +823,7 @@
                         <p>Step-by-step guide</p>
                     </div>
                 </div>
-                <button class="bg-modal-close" onclick="closeBgModal('bgBookingModal')">✕</button>
+                <button class="bg-modal-close" onclick="closeBgModal('bgBookingModal')" aria-label="Close">✕</button>
             </div>
             <div class="bg-modal-body">
                 <div class="bg-booking-bsl-video">
@@ -830,7 +832,7 @@
                     </button>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">1</span>
                         <span class="bg-tip-title">Find Your Event</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -840,7 +842,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">2</span>
                         <span class="bg-tip-title">Check the Venues List</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -850,7 +852,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">3</span>
                         <span class="bg-tip-title">Contact the Venue</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -860,7 +862,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">4</span>
                         <span class="bg-tip-title">Tell the Venue What You Need</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -870,7 +872,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">5</span>
                         <span class="bg-tip-title">Get Email Confirmation</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -880,7 +882,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-step-number">6</span>
                         <span class="bg-tip-title">Enjoy the Event!</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -894,7 +896,7 @@
     </div>
 
     <!-- Booking Guide: Tips Modal -->
-    <div class="bg-modal-overlay" id="bgTipsModal" onclick="closeBgModalOnOverlay(event, 'bgTipsModal')">
+    <div class="bg-modal-overlay" id="bgTipsModal" role="dialog" aria-modal="true" onclick="closeBgModalOnOverlay(event, 'bgTipsModal')">
         <div class="bg-modal-container">
             <div class="bg-modal-header">
                 <div class="bg-modal-header-content">
@@ -904,7 +906,7 @@
                         <p>Make booking easier</p>
                     </div>
                 </div>
-                <button class="bg-modal-close" onclick="closeBgModal('bgTipsModal')">✕</button>
+                <button class="bg-modal-close" onclick="closeBgModal('bgTipsModal')" aria-label="Close">✕</button>
             </div>
             <div class="bg-modal-body">
                 <div class="bsl-video-link-center">
@@ -913,7 +915,7 @@
                     </button>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-tip-icon">📞</span>
                         <span class="bg-tip-title">Use the Access Booking Line</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -925,7 +927,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-tip-icon">👀</span>
                         <span class="bg-tip-title">Ask for the Best Seats</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -937,7 +939,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-tip-icon">✉️</span>
                         <span class="bg-tip-title">Get Email Confirmation</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -949,7 +951,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-tip-icon">⏰</span>
                         <span class="bg-tip-title">Arrive Early</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -961,7 +963,7 @@
                     </div>
                 </div>
                 <div class="bg-tip-item">
-                    <div class="bg-tip-header" onclick="toggleBgTip(this)">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
                         <span class="bg-tip-icon">💬</span>
                         <span class="bg-tip-title">Tell Us How It Went</span>
                         <span class="bg-tip-toggle">▶</span>
@@ -978,7 +980,7 @@
     </div>
 
     <!-- Booking Guide: FAQ Modal -->
-    <div class="bg-modal-overlay" id="bgFaqModal" onclick="closeBgModalOnOverlay(event, 'bgFaqModal')">
+    <div class="bg-modal-overlay" id="bgFaqModal" role="dialog" aria-modal="true" onclick="closeBgModalOnOverlay(event, 'bgFaqModal')">
         <div class="bg-modal-container">
             <div class="bg-modal-header">
                 <div class="bg-modal-header-content">
@@ -988,7 +990,7 @@
                         <p>Everything you need to know</p>
                     </div>
                 </div>
-                <button class="bg-modal-close" onclick="closeBgModal('bgFaqModal')">✕</button>
+                <button class="bg-modal-close" onclick="closeBgModal('bgFaqModal')" aria-label="Close">✕</button>
             </div>
             <div class="bg-modal-body">
                 <div class="bsl-video-link-center">
@@ -1056,7 +1058,7 @@
     </div>
 
     <!-- Booking Guide: Venues Modal (lazy-loaded) -->
-    <div class="bg-modal-overlay" id="bgVenuesModal" onclick="closeBgModalOnOverlay(event, 'bgVenuesModal')">
+    <div class="bg-modal-overlay" id="bgVenuesModal" role="dialog" aria-modal="true" onclick="closeBgModalOnOverlay(event, 'bgVenuesModal')">
         <div class="bg-modal-container">
             <div class="bg-modal-header">
                 <div class="bg-modal-header-content">
@@ -1066,7 +1068,7 @@
                         <p>109 venues across the UK &amp; Ireland</p>
                     </div>
                 </div>
-                <button class="bg-modal-close" onclick="closeBgModal('bgVenuesModal')">✕</button>
+                <button class="bg-modal-close" onclick="closeBgModal('bgVenuesModal')" aria-label="Close">✕</button>
             </div>
             <div class="bg-modal-body">
                 <div class="bg-venue-search">
@@ -1369,7 +1371,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.70"></script>
+    <script src="app.js?v=1.9.71"></script>
 
     <!-- Tally Embed Script -->
     <script>
@@ -1469,7 +1471,7 @@
                 </div>
 
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Before You Go</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1483,7 +1485,7 @@
                 </div>
 
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>When You Arrive</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1496,7 +1498,7 @@
                 </div>
 
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>During the Festival</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1508,7 +1510,7 @@
                 </div>
 
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>After the Festival</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1547,7 +1549,7 @@
 
                 <!-- The Law (UK) -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>The Law (UK)</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1560,7 +1562,7 @@
 
                 <!-- What Are Reasonable Adjustments? -->
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>What Are Reasonable Adjustments?</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1578,7 +1580,7 @@
 
                 <!-- Planning Ahead -->
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Planning Ahead</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1597,7 +1599,7 @@
 
                 <!-- You Don't Pay for Access -->
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>You Don't Pay for Access</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1609,7 +1611,7 @@
 
                 <!-- Companion / PA Tickets -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Companion / PA Tickets</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1622,7 +1624,7 @@
 
                 <!-- Common Questions -->
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Common Questions About Access</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1636,7 +1638,7 @@
 
                 <!-- BSL Act 2022 -->
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>BSL Act 2022</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1649,7 +1651,7 @@
 
                 <!-- Rights in Ireland -->
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Your Rights in Ireland (ISL)</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
@@ -1668,7 +1670,7 @@
 
                 <!-- What To Do If a Venue Says No -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>What To Do If a Venue Says No</span>
                         <span class="festival-toggle-icon">▶</span>
                     </h3>
