@@ -3710,8 +3710,59 @@ function checkInstallPrompt() {
     }, 10000);
 }
 
+// ========================================
+// PWA: BEFORE INSTALL PROMPT (Android one-tap install)
+// ========================================
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+});
+
+// Override openInstallPrompt to use native prompt when available
+const _originalOpenInstallPrompt = openInstallPrompt;
+function openInstallPromptEnhanced() {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(choice => {
+            if (choice.outcome === 'accepted') {
+                showToast('App installed!');
+            }
+            deferredInstallPrompt = null;
+        });
+        return;
+    }
+    _originalOpenInstallPrompt();
+}
+
+// ========================================
+// PWA: CONNECTIVITY INDICATOR
+// ========================================
+window.addEventListener('offline', () => {
+    showToast('You are offline. Cached events are still available.');
+});
+
+window.addEventListener('online', () => {
+    showToast('Back online — refreshing events...');
+    fetchEvents(true).then(events => {
+        if (events && events.length > 0) {
+            renderEvents(events);
+        }
+    }).catch(() => {});
+});
+
+// ========================================
+// PWA: VAPID KEY VALIDATION
+// ========================================
+function isValidVapidKey(key) {
+    if (!key || typeof key !== 'string') return false;
+    if (key.includes('YOUR_') || key.includes('PLACEHOLDER') || key.length < 20) return false;
+    return true;
+}
+
 // Make functions available globally
-window.openInstallPrompt = openInstallPrompt;
+window.openInstallPrompt = openInstallPromptEnhanced;
 window.closeInstallPrompt = closeInstallPrompt;
 
 // ========================================
