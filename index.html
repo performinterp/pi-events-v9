@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://tally.so https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; media-src 'self' https://media.performanceinterpreting.co.uk; connect-src 'self' https://docs.google.com https://*.performanceinterpreting.co.uk; font-src 'self'; frame-src https://tally.so;">
     <meta name="description" content="Find BSL and ISL interpreted events across the UK and Ireland. Professional sign language interpretation for concerts, sports, theatre, and more.">
     <meta name="theme-color" content="#2563EB">
 
@@ -430,7 +431,8 @@
            <div class="container">
                <div class="flow-header">
                    <h2 class="flow-title">Request an Interpreter</h2>
-                   <p class="flow-subtitle">Ask a venue to book an interpreter<br>We help you ask</p>
+                   <p class="flow-subtitle">Ask a venue to book a BSL interpreter<br>We help you ask</p>
+                   <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">For BSL only. The Equality Act states the venue and show must consider your request and make reasonable adjustments.</p>
                    <div class="bsl-video-link-center">
                        <button class="bsl-video-link" onclick="playBSLVideo('request')">
                            <span class="bsl-video-link-icon">▶</span> Watch in BSL
@@ -888,7 +890,19 @@
                         <span class="bg-tip-toggle">▶</span>
                     </div>
                     <div class="bg-tip-body">
-                        <p>Arrive early. Find the BSL viewing area. If you have a problem, ask venue staff for help.</p>
+                        <p>Arrive early. Find the BSL/ISL viewing area. If you have a problem, ask venue staff for help.</p>
+                    </div>
+                </div>
+                <div class="bg-tip-item">
+                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
+                        <span class="bg-step-number">ℹ️</span>
+                        <span class="bg-tip-title">Venues vs Ticket Vendors</span>
+                        <span class="bg-tip-toggle">▶</span>
+                    </div>
+                    <div class="bg-tip-body">
+                        <p><strong>Venues</strong> — You can book many shows through the venue directly. They will send you an email to confirm the booking and may also send you e-tickets to download onto your phone to bring on the day.</p>
+                        <p><strong>Ticket Vendors</strong> — For some shows, tickets need to be purchased via ticket vendors. Check the access information for BSL/HOH tickets available, or contact the access email as instructed.</p>
+                        <p>The venue will tell you where the BSL/ISL viewing area is located and any further instructions.</p>
                     </div>
                 </div>
             </div>
@@ -934,7 +948,7 @@
                     </div>
                     <div class="bg-tip-body">
                         <div class="bg-tip-body-inner">
-                            <p>Ask for seats where you can see the interpreter clearly. Many venues have a BSL viewing area.</p>
+                            <p>Ask for seats where you can see the interpreter clearly. Many venues have a BSL/ISL viewing area.</p>
                         </div>
                     </div>
                 </div>
@@ -1011,7 +1025,7 @@
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">As soon as you can! Contact the venue as soon as you buy tickets. Some venues need 2 to 4 weeks.</div>
+                    <div class="bg-faq-answer">As soon as you can. Contact the venue as soon as you buy tickets. We would recommend giving at least 4 weeks notice if possible to ensure interpreter availability and time to rehearse.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
@@ -1019,7 +1033,7 @@
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">No! BSL and ISL is free. You just pay the normal ticket price.</div>
+                    <div class="bg-faq-answer">No. BSL and ISL interpretation is free for customers. You pay for the price of the ticket. Some venues may have discounted tickets for deaf customers.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
@@ -1043,7 +1057,7 @@
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">Usually, no. The venue picks a qualified interpreter who is right for the event.</div>
+                    <div class="bg-faq-answer">We will take your request for a specific interpreter into consideration. There are lots of factors to consider — availability, if other customers have requested someone else, if another interpreter is already booked for the tour. We will always discuss this with you.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
@@ -1051,7 +1065,7 @@
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">It depends on the venue. At concerts, interpreters are often on stage or in a special area. The access team will tell you when you book.</div>
+                    <div class="bg-faq-answer">It depends on the venue. Although ideally customers would like the interpreter on the stage, this is not always possible. There are lots of reasons — health and safety restrictions, sight lines, seated or standing requests, multiple stages being used. We try to ensure all positions are discussed with the PI team and Deaf BSL Consultants. The access team will tell you where when you book. However we can only make recommendations — ultimately the venue or promoter decide.</div>
                 </div>
             </div>
         </div>
@@ -1622,8 +1636,21 @@
                     </div>
                 </div>
 
-                <!-- Common Questions -->
+                <!-- Nimbus Access Card -->
                 <div class="festival-section festival-section-2">
+                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                        <span>Nimbus Access Card</span>
+                        <span class="festival-toggle-icon">▶</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>Many venues now accept the <strong>Nimbus Access Card</strong>. This saves you having to provide evidence of your access needs every time you use a venue.</p>
+                        <p>Some venues have their own access system, so please check with them.</p>
+                        <p><a href="https://app.accesscard.online/venue-registration/" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">Apply for a Nimbus Access Card</a></p>
+                    </div>
+                </div>
+
+                <!-- Common Questions -->
+                <div class="festival-section festival-section-3">
                     <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Common Questions About Access</span>
                         <span class="festival-toggle-icon">▶</span>
@@ -1657,7 +1684,11 @@
                     </h3>
                     <div class="festival-accordion-body">
                         <p>Ireland has different laws from the UK.</p>
-                        <p>The <strong>Irish Sign Language Act 2017</strong> says ISL is an official language of Ireland. Government services must provide ISL interpreters.</p>
+                        <p>The <strong>Irish Sign Language Act 2017</strong> officially recognises ISL as a native language of the Deaf community. It gives Deaf people the right to use ISL when accessing public services and places a legal duty on public bodies to provide ISL interpreters.</p>
+                        <p><strong>Important:</strong> This duty mainly applies to public bodies, not automatically to private event organisers.</p>
+                        <p>For cultural events (concerts, theatre, festivals), the ISL Act recognises that Deaf people should be able to access social, cultural and educational activities. Section 9 of the Act created a state-funded support scheme run by the <strong>Sign Language Interpreting Service (SLIS)</strong>.</p>
+                        <p>Through the <strong>SLIS Social Inclusion Voucher Scheme</strong>, Deaf ISL users can request interpreters for events, and the interpreter is funded by the scheme rather than the event organiser.</p>
+                        <p><a href="https://slis.ie/voucher-scheme-2023/" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">Learn more about the SLIS Voucher Scheme</a></p>
                         <p>For events and venues, the <strong>Equal Status Acts 2000–2018</strong> say venues must make "reasonable accommodation" for Deaf people.</p>
                         <p>If a venue in Ireland refuses, you can complain to the <strong>Workplace Relations Commission (WRC)</strong>.</p>
                         <ul class="festival-checklist">

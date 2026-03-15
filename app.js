@@ -3517,7 +3517,7 @@ async function init() {
 
     } catch (error) {
         console.error('Error during initialization:', error);
-        alert('Failed to initialize app. Please refresh the page.\n\nError: ' + error.message);
+        alert('Failed to initialize app. Please refresh the page.');
     }
 }
 
