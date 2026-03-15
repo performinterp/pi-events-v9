@@ -239,68 +239,37 @@ self.addEventListener('sync', (event) => {
     }
 });
 
-// ==================== PUSH NOTIFICATIONS (DEFERRED - State 5+) ====================
-// The handlers below are scaffolding for future push notification support.
-// They are not active — no push subscription is registered in the app.
-// Do not remove: they will be activated when notifications are implemented.
+// ==================== PUSH NOTIFICATIONS ====================
 
 self.addEventListener('push', (event) => {
-    let notificationData = {
-        title: 'New BSL & ISL Event Available!',
-        body: 'Check out the latest interpreted events',
-        icon: 'PI Favicon.png',
-        badge: 'PI Favicon.png',
-        tag: 'pi-event-notification',
-        requireInteraction: false,
+    const data = event.data ? event.data.json() : {};
+    const title = data.title || 'PI Events';
+    const options = {
+        body: data.body || 'New interpreted events available!',
+        icon: '/PI Favicon.png',
+        badge: '/PI Favicon.png',
+        tag: data.tag || 'pi-event-notification',
+        data: data.url || '/',
+        actions: [
+            { action: 'open', title: 'View Events' }
+        ],
         vibrate: [200, 100, 200, 100, 200]
     };
-
-    if (event.data) {
-        try {
-            const data = event.data.json();
-            notificationData = {
-                title: data.title || notificationData.title,
-                body: data.body || notificationData.body,
-                icon: data.icon || notificationData.icon,
-                badge: data.badge || notificationData.badge,
-                tag: data.tag || notificationData.tag,
-                data: data.url ? { url: data.url } : { url: '/' },
-                vibrate: [200, 100, 200, 100, 200]
-            };
-        } catch (err) {
-            console.error('[Service Worker] Failed to parse push data:', err);
-        }
-    }
-
-    event.waitUntil(
-        self.registration.showNotification(notificationData.title, {
-            body: notificationData.body,
-            icon: notificationData.icon,
-            badge: notificationData.badge,
-            tag: notificationData.tag,
-            data: notificationData.data,
-            vibrate: notificationData.vibrate,
-            requireInteraction: notificationData.requireInteraction
-        })
-    );
+    event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-    const urlToOpen = event.notification.data?.url || '/';
-
+    const url = event.notification.data || '/';
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
-            .then((clientList) => {
-                for (const client of clientList) {
-                    if (client.url === urlToOpen && 'focus' in client) {
-                        return client.focus();
-                    }
+        clients.matchAll({ type: 'window' }).then(windowClients => {
+            for (const client of windowClients) {
+                if (client.url.includes('performanceinterpreting') && 'focus' in client) {
+                    return client.focus();
                 }
-                if (clients.openWindow) {
-                    return clients.openWindow(urlToOpen);
-                }
-            })
+            }
+            return clients.openWindow(url);
+        })
     );
 });
 

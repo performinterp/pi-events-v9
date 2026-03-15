@@ -4,11 +4,9 @@
   ==========================================================================*/
 
 const NOTIFICATION_CONFIG = {
-    // IMPORTANT: Replace this with your actual VAPID public key
-    vapidPublicKey: 'YOUR_VAPID_PUBLIC_KEY_HERE',
+    vapidPublicKey: 'BM2RT5yhuUgW5KU6VZDVa_3nrgzX73csyiRjkRpIfzmmRBsMHWni6bZC6f34bdyKwxlwc8FWpxSZcvz7o7oVOSs',
 
-    // Replace with your actual notification server endpoint
-    subscriptionEndpoint: 'https://api.performanceinterpreting.co.uk/api/subscribe',
+    apiBase: 'https://push.performanceinterpreting.co.uk/api/push',
 
     storageKeys: {
         preferences: 'pi-notification-preferences',
@@ -205,7 +203,7 @@ async function subscribeToNotifications() {
         });
 
         // Send subscription to server
-        const response = await fetch(NOTIFICATION_CONFIG.subscriptionEndpoint, {
+        const response = await fetch(`${NOTIFICATION_CONFIG.apiBase}/subscribe`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -254,8 +252,8 @@ async function unsubscribeFromNotifications() {
             await subscription.unsubscribe();
 
             // Notify server to remove subscription
-            await fetch(NOTIFICATION_CONFIG.subscriptionEndpoint, {
-                method: 'DELETE',
+            await fetch(`${NOTIFICATION_CONFIG.apiBase}/unsubscribe`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -295,9 +293,61 @@ function urlBase64ToUint8Array(base64String) {
     return outputArray;
 }
 
+/**
+ * Check subscription status on page load
+ * Syncs local state with the server and push manager
+ */
+async function checkSubscriptionStatus() {
+    try {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+            // We have an active push subscription — verify with server
+            const response = await fetch(`${NOTIFICATION_CONFIG.apiBase}/check`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscription: subscription })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.subscribed) {
+                    localStorage.setItem(NOTIFICATION_CONFIG.storageKeys.subscribed, 'true');
+                    localStorage.setItem(NOTIFICATION_CONFIG.storageKeys.subscription, JSON.stringify(subscription));
+                    if (data.preferences) {
+                        localStorage.setItem(NOTIFICATION_CONFIG.storageKeys.preferences, JSON.stringify(data.preferences));
+                    }
+                } else {
+                    // Server doesn't know about this subscription — clean up
+                    localStorage.removeItem(NOTIFICATION_CONFIG.storageKeys.subscribed);
+                    localStorage.removeItem(NOTIFICATION_CONFIG.storageKeys.subscription);
+                }
+            }
+        } else {
+            // No active push subscription — clear local state
+            localStorage.removeItem(NOTIFICATION_CONFIG.storageKeys.subscribed);
+            localStorage.removeItem(NOTIFICATION_CONFIG.storageKeys.subscription);
+        }
+    } catch (error) {
+        console.warn('Failed to check subscription status:', error);
+    }
+}
+
+// Check subscription status on page load
+if ('serviceWorker' in navigator) {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Delay slightly to avoid blocking initial page render
+        setTimeout(checkSubscriptionStatus, 2000);
+    });
+}
+
 // Make functions available globally
 window.openNotificationPreferences = openNotificationPreferences;
 window.closeNotificationPreferences = closeNotificationPreferences;
 window.closeNotificationPreferencesOnOverlay = closeNotificationPreferencesOnOverlay;
 window.subscribeToNotifications = subscribeToNotifications;
 window.unsubscribeFromNotifications = unsubscribeFromNotifications;
+window.checkSubscriptionStatus = checkSubscriptionStatus;
