@@ -6,7 +6,7 @@
 const NOTIFICATION_CONFIG = {
     vapidPublicKey: 'BM2RT5yhuUgW5KU6VZDVa_3nrgzX73csyiRjkRpIfzmmRBsMHWni6bZC6f34bdyKwxlwc8FWpxSZcvz7o7oVOSs',
 
-    apiBase: 'https://push.performanceinterpreting.co.uk/api/push',
+    apiBase: 'https://pi-events-push-worker.jamesredwards89.workers.dev/api/push',
 
     storageKeys: {
         preferences: 'pi-notification-preferences',
