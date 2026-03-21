@@ -4,7 +4,7 @@
   ==========================================================================*/
 
 // Single source of truth for app version — update index.html ?v= params to match
-const PI_VERSION = '1.9.71';
+const PI_VERSION = '1.9.72';
 const CACHE_VERSION = `pi-events-v${PI_VERSION}-network-first`;
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;

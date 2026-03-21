@@ -2474,7 +2474,16 @@ async function fetchEvents(skipCache = false) {
             return dateA - dateB;
         });
 
-        AppState.allEvents = events;
+        // Filter out past events (safety net — backend should remove these daily)
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayTimestamp = todayStart.getTime();
+        const futureEvents = events.filter(event => {
+            const eventTimestamp = formatDate(event['DATE']).timestamp;
+            return eventTimestamp >= todayTimestamp;
+        });
+
+        AppState.allEvents = futureEvents;
         AppState.lastFetch = now;
 
         // Build search vocabulary for "Did you mean?" suggestions
