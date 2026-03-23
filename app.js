@@ -136,11 +136,31 @@ const VENUE_CONTACTS = {
     'pudding mill lane, london': { email: 'access@abbavoyage.com' },
 
     // London - OVO Arena Wembley (formerly SSE Arena Wembley — separate from Wembley Stadium)
-    'ovo arena wembley': { email: 'access@ovoarena.co.uk' },
-    'ovo arena, wembley': { email: 'access@ovoarena.co.uk' },
-    'ovo arena, wembley, london': { email: 'access@ovoarena.co.uk' },
-    'ovo wembley arena': { email: 'access@ovoarena.co.uk' },
-    'sse arena wembley': { email: 'access@ovoarena.co.uk' },
+    'ovo arena wembley': { email: 'customerservices@ovoarena.co.uk', paRefundEmail: 'boxoffice@ovoarena.co.uk', bookingSteps: [
+        { step: 1, text: 'Purchase your tickets (including your PA ticket) from the event page or AXS box office.' },
+        { step: 2, text: 'To get your PA ticket refunded, scan your proof of eligibility to boxoffice@ovoarena.co.uk with your order number and show name.' },
+        { step: 3, text: 'Email customerservices@ovoarena.co.uk to let the Access Team know you need a BSL interpreter. Include your booking details and CC admin@performanceinterpreting.co.uk so we can follow up.' },
+    ], note: 'OVO Arena requires you to buy your PA ticket and then apply for a refund separately. See booking steps below.' },
+    'ovo arena, wembley': { email: 'customerservices@ovoarena.co.uk', paRefundEmail: 'boxoffice@ovoarena.co.uk', bookingSteps: [
+        { step: 1, text: 'Purchase your tickets (including your PA ticket) from the event page or AXS box office.' },
+        { step: 2, text: 'To get your PA ticket refunded, scan your proof of eligibility to boxoffice@ovoarena.co.uk with your order number and show name.' },
+        { step: 3, text: 'Email customerservices@ovoarena.co.uk to let the Access Team know you need a BSL interpreter. Include your booking details and CC admin@performanceinterpreting.co.uk so we can follow up.' },
+    ], note: 'OVO Arena requires you to buy your PA ticket and then apply for a refund separately. See booking steps below.' },
+    'ovo arena, wembley, london': { email: 'customerservices@ovoarena.co.uk', paRefundEmail: 'boxoffice@ovoarena.co.uk', bookingSteps: [
+        { step: 1, text: 'Purchase your tickets (including your PA ticket) from the event page or AXS box office.' },
+        { step: 2, text: 'To get your PA ticket refunded, scan your proof of eligibility to boxoffice@ovoarena.co.uk with your order number and show name.' },
+        { step: 3, text: 'Email customerservices@ovoarena.co.uk to let the Access Team know you need a BSL interpreter. Include your booking details and CC admin@performanceinterpreting.co.uk so we can follow up.' },
+    ], note: 'OVO Arena requires you to buy your PA ticket and then apply for a refund separately. See booking steps below.' },
+    'ovo wembley arena': { email: 'customerservices@ovoarena.co.uk', paRefundEmail: 'boxoffice@ovoarena.co.uk', bookingSteps: [
+        { step: 1, text: 'Purchase your tickets (including your PA ticket) from the event page or AXS box office.' },
+        { step: 2, text: 'To get your PA ticket refunded, scan your proof of eligibility to boxoffice@ovoarena.co.uk with your order number and show name.' },
+        { step: 3, text: 'Email customerservices@ovoarena.co.uk to let the Access Team know you need a BSL interpreter. Include your booking details and CC admin@performanceinterpreting.co.uk so we can follow up.' },
+    ], note: 'OVO Arena requires you to buy your PA ticket and then apply for a refund separately. See booking steps below.' },
+    'sse arena wembley': { email: 'customerservices@ovoarena.co.uk', paRefundEmail: 'boxoffice@ovoarena.co.uk', bookingSteps: [
+        { step: 1, text: 'Purchase your tickets (including your PA ticket) from the event page or AXS box office.' },
+        { step: 2, text: 'To get your PA ticket refunded, scan your proof of eligibility to boxoffice@ovoarena.co.uk with your order number and show name.' },
+        { step: 3, text: 'Email customerservices@ovoarena.co.uk to let the Access Team know you need a BSL interpreter. Include your booking details and CC admin@performanceinterpreting.co.uk so we can follow up.' },
+    ], note: 'OVO Arena requires you to buy your PA ticket and then apply for a refund separately. See booking steps below.' },
 
     // London - Eventim Apollo (Hammersmith)
     'eventim apollo': { email: 'info@eventimapollo.com' },
@@ -4501,6 +4521,36 @@ function openAccessFirstModal(event) {
         } else {
             noteEl.innerHTML = '<strong>💡 Tip:</strong><br>Contact venue before buying tickets<br>Ask for BSL accessible seating';
         }
+    }
+
+    // Show booking steps if venue has a specific booking process
+    let bookingSteps = null;
+    if (event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].bookingSteps) {
+            bookingSteps = venueMatches[0].bookingSteps;
+        }
+    }
+
+    // Remove any existing booking steps container
+    const existingSteps = modal.querySelector('.access-booking-steps');
+    if (existingSteps) existingSteps.remove();
+
+    if (bookingSteps && noteEl) {
+        const stepsHtml = document.createElement('div');
+        stepsHtml.className = 'access-booking-steps';
+        stepsHtml.style.cssText = 'margin-top:16px;padding:16px;background:#FEF3C7;border-radius:12px;border:1px solid #FDE68A;';
+        stepsHtml.innerHTML = `
+            <p style="font-weight:600;font-size:15px;margin:0 0 12px;color:#92400E;">📋 How to book at this venue</p>
+            ${bookingSteps.map(s => `
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <span style="flex-shrink:0;width:24px;height:24px;background:#2563EB;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${s.step}</span>
+                    <p style="margin:0;font-size:14px;color:#1F2937;line-height:1.4;">${escapeHtml(s.text)}</p>
+                </div>
+            `).join('')}
+            <p style="margin:12px 0 0;font-size:13px;color:#6B7280;line-height:1.4;">We appreciate this is not straightforward and are working with the venue to streamline this. If you need support, please let us know.</p>
+        `;
+        noteEl.parentNode.insertBefore(stepsHtml, noteEl.nextSibling);
     }
 
     const hasVRS = !!vrsUrl;
