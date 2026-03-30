@@ -15,6 +15,13 @@ const NOTIFICATION_CONFIG = {
     }
 };
 
+// Scoped root for DOM queries — native shell sets this to the cloned subview
+let _notifRoot = document;
+
+function _notifEl(id) {
+    return _notifRoot === document ? document.getElementById(id) : _notifRoot.querySelector('#' + id);
+}
+
 /**
  * Open notification preferences modal
  */
@@ -54,9 +61,9 @@ function closeNotificationPreferencesOnOverlay(event) {
  * Initialize notification modal
  */
 async function initializeNotificationModal() {
-    const statusDiv = document.getElementById('notificationStatus');
-    const formDiv = document.getElementById('notificationForm');
-    const subscribedDiv = document.getElementById('notificationSubscribed');
+    const statusDiv = _notifEl('notificationStatus');
+    const formDiv = _notifEl('notificationForm');
+    const subscribedDiv = _notifEl('notificationSubscribed');
 
     // Check if already subscribed
     const isSubscribed = localStorage.getItem(NOTIFICATION_CONFIG.storageKeys.subscribed) === 'true';
@@ -117,8 +124,8 @@ async function initializeNotificationModal() {
  * Populate category and location checkboxes
  */
 async function populateNotificationOptions() {
-    const categoryContainer = document.getElementById('categoryCheckboxes');
-    const locationContainer = document.getElementById('locationCheckboxes');
+    const categoryContainer = _notifEl('categoryCheckboxes');
+    const locationContainer = _notifEl('locationCheckboxes');
 
     // Get saved preferences if any
     const savedPrefs = JSON.parse(localStorage.getItem(NOTIFICATION_CONFIG.storageKeys.preferences) || '{}');
@@ -168,9 +175,9 @@ async function populateNotificationOptions() {
 async function subscribeToNotifications() {
     try {
         // Get selected preferences
-        const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked'))
+        const selectedCategories = Array.from(_notifRoot.querySelectorAll('input[name="category"]:checked'))
             .map(cb => cb.value);
-        const selectedLocations = Array.from(document.querySelectorAll('input[name="location"]:checked'))
+        const selectedLocations = Array.from(_notifRoot.querySelectorAll('input[name="location"]:checked'))
             .map(cb => cb.value);
 
         if (selectedCategories.length === 0 && selectedLocations.length === 0) {
@@ -223,8 +230,8 @@ async function subscribeToNotifications() {
         localStorage.setItem(NOTIFICATION_CONFIG.storageKeys.subscribed, 'true');
 
         // Show success message
-        document.getElementById('notificationForm').style.display = 'none';
-        document.getElementById('notificationSubscribed').style.display = 'block';
+        _notifEl('notificationForm').style.display = 'none';
+        _notifEl('notificationSubscribed').style.display = 'block';
 
         // Show a test notification
         new Notification('🎉 Notifications Enabled!', {
@@ -351,3 +358,4 @@ window.closeNotificationPreferencesOnOverlay = closeNotificationPreferencesOnOve
 window.subscribeToNotifications = subscribeToNotifications;
 window.unsubscribeFromNotifications = unsubscribeFromNotifications;
 window.checkSubscriptionStatus = checkSubscriptionStatus;
+window.setNotificationRoot = function(el) { _notifRoot = el || document; };

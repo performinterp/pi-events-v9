@@ -47,10 +47,78 @@
         </svg>
     </button>
 
-    <!-- At the Event Floating Button -->
-    <button id="atEventFab" class="at-event-fab" onclick="openCommSupportModal()" aria-label="At the Event tools">
+    <!-- At the Event Floating Button (hidden on web — native only) -->
+    <button id="atEventFab" class="at-event-fab" onclick="showAppDownloadPrompt()" aria-label="At the Event tools" style="display:none;">
         <span class="at-event-fab-icon">🤟</span>
     </button>
+
+    <!-- Smart App Banner -->
+    <div id="smartAppBanner" style="background:#1E3A5F;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:14px;position:sticky;top:0;z-index:9999;">
+        <img src="PI Favicon.png" alt="" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
+        <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:14px;">PI Events App</div>
+            <div style="font-size:12px;opacity:0.8;">Full experience with push notifications, tools and more</div>
+        </div>
+        <button onclick="showAppDownloadPrompt()" style="padding:6px 14px;background:#2563EB;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Get App</button>
+        <button onclick="document.getElementById('smartAppBanner').style.display='none';sessionStorage.setItem('pi-banner-dismissed','1')" style="background:none;border:none;color:#fff;opacity:0.6;font-size:18px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <script>if(sessionStorage.getItem('pi-banner-dismissed'))document.getElementById('smartAppBanner').style.display='none';</script>
+
+    <!-- App Download Prompt Modal -->
+    <div id="appDownloadModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);padding:20px;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:380px;width:100%;margin:auto;margin-top:15vh;">
+            <div style="text-align:center;margin-bottom:20px;">
+                <img src="PI Favicon.png" alt="" style="width:56px;height:56px;border-radius:12px;margin-bottom:12px;">
+                <h2 style="margin:0;font-size:20px;font-weight:700;color:#1F2937;">Get the PI Events App</h2>
+                <p style="margin:6px 0 0;font-size:14px;color:#6B7280;">Free on iOS and Android</p>
+            </div>
+            <div style="margin-bottom:20px;">
+                <p style="font-size:14px;color:#374151;font-weight:600;margin:0 0 10px;">The app includes:</p>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🔔</span> Push notifications when new events are added
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🤟</span> Show Staff cards at the venue
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🍔</span> Food and drink ordering cards
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🆘</span> Emergency cards for stewards
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🎤</span> Speech to Text
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">🎵</span> Feel the Music vibrations
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">📅</span> Save events to your calendar
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
+                        <span style="font-size:20px;">📶</span> Works offline at venues with poor signal
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <a id="appStoreLink" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:#000;color:#fff;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;">Download for iPhone / iPad</a>
+                <a id="playStoreLink" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:#1a73e8;color:#fff;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;">Download for Android</a>
+                <button onclick="closeAppDownloadPrompt()" style="padding:10px;background:none;border:none;color:#6B7280;font-size:14px;cursor:pointer;">Continue browsing events</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    function showAppDownloadPrompt() {
+        document.getElementById('appDownloadModal').style.display = 'flex';
+    }
+    function closeAppDownloadPrompt() {
+        document.getElementById('appDownloadModal').style.display = 'none';
+    }
+    document.getElementById('appDownloadModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAppDownloadPrompt();
+    });
+    </script>
 
     <!-- App Header -->
     <header class="app-header">
@@ -75,7 +143,7 @@
 <nav class="desktop-nav">
     <a href="#/flow1" class="nav-link">Events</a>
     <a href="#/how-to-book" class="nav-link">How to Book</a>
-    <button onclick="openInstallPrompt()" class="nav-link nav-button">Install App</button>
+    <button onclick="showAppDownloadPrompt()" class="nav-link nav-button">Get the App</button>
     <div class="nav-dropdown">
         <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn" aria-expanded="false" aria-haspopup="true">More ▾</button>
         <div class="dropdown-menu" id="moreDropdownMenu">
@@ -161,11 +229,11 @@
                </div>
 
                <div class="flow-cards-grid">
-                   <!-- Card 1: Events with BSL -->
+                   <!-- Card 1: Interpreted Events -->
                    <div class="flow-card flow-card-green">
                        <div class="flow-card-icon">🟢</div>
                        <div class="flow-card-content">
-                           <h2 class="flow-card-title">Events with BSL</h2>
+                           <h2 class="flow-card-title">Interpreted Events</h2>
                            <p class="flow-card-description">
                                Events with interpreters<br>
                                already booked
@@ -174,14 +242,14 @@
                        </div>
                    </div>
 
-                   <!-- Card 2: Check BSL -->
+                   <!-- Card 2: Check Interpretation -->
                    <div class="flow-card flow-card-blue">
                        <div class="flow-card-icon">🔍</div>
                        <div class="flow-card-content">
-                           <h2 class="flow-card-title">Is BSL Booked?</h2>
+                           <h2 class="flow-card-title">Interpreter Booked?</h2>
                            <p class="flow-card-description">
                                Search for an event<br>
-                               Find out if BSL is booked
+                               Check if an interpreter is booked
                            </p>
                            <a href="#/flow2" class="flow-card-button btn-primary">Search Events</a>
                        </div>
@@ -200,16 +268,16 @@
                        </div>
                    </div>
 
-                   <!-- Card 4: At the Event -->
-                   <div class="flow-card flow-card-purple">
+                   <!-- Card 4: At the Event (app only) -->
+                   <div class="flow-card flow-card-purple" style="opacity:0.85;">
                        <div class="flow-card-icon">🤟</div>
                        <div class="flow-card-content">
                            <h2 class="flow-card-title">At the Event</h2>
                            <p class="flow-card-description">
-                               Show staff you are Deaf<br>
-                               Order food, get help
+                               Show staff cards, order food,<br>
+                               speech to text and more
                            </p>
-                           <button onclick="openCommSupportModal()" class="flow-card-button btn-primary">Open Tools</button>
+                           <button onclick="showAppDownloadPrompt()" class="flow-card-button btn-primary" style="background:#6B7280;">📱 App Only</button>
                        </div>
                    </div>
                </div>
@@ -1555,6 +1623,10 @@
                     <p class="rights-hero-sub">The law protects you.</p>
                 </div>
 
+                <div style="padding:10px 14px;background:#F3F4F6;border-radius:10px;margin-bottom:16px;border:1px solid #E5E7EB;">
+                    <p style="margin:0;font-size:12px;color:var(--gray-600);line-height:1.5;">This information is general guidance only, not legal advice. Laws and procedures may change. For advice about your specific situation, contact the <a href="https://www.equalityadvisoryservice.com" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">EASS</a> (England, Scotland, Wales), the <a href="https://www.equalityni.org" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Equality Commission</a> (Northern Ireland), or the <a href="https://www.ihrec.ie/your-rights/" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">IHREC</a> (Ireland). Performance Interpreting Ltd is not a law firm and does not provide legal services.</p>
+                </div>
+
                 <div class="bsl-video-link-center">
                     <button class="bsl-video-link" onclick="playBSLVideo('know-rights')">
                         <span class="bsl-video-link-icon">▶</span> Watch in BSL
@@ -1828,7 +1900,7 @@
 
                 <div id="notificationSubscribed" style="display: none; text-align: center; padding: 40px 20px;">
                     <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
-                    <h3 style="color: var(--gray-900); margin-bottom: 8px;">You're Subscribed!</h3>
+                    <h3 style="color: var(--gray-900); margin-bottom: 8px;">All set!</h3>
                     <p style="color: var(--gray-600); margin-bottom: 24px;">
                         You'll be notified when new events match your preferences.
                     </p>
