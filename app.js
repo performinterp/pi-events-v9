@@ -22,6 +22,15 @@ function escapeHtml(str) {
 }
 
 /**
+ * Get the default image for an event based on its category.
+ * Falls back to the generic default if category not matched.
+ */
+function getDefaultImage(event) {
+    var cat = (event['CATEGORY'] || event['Category'] || event['category'] || '').toLowerCase().trim();
+    return (CONFIG.categoryImages && CONFIG.categoryImages[cat]) || CONFIG.defaultImage;
+}
+
+/**
  * Safely encode an object as a JSON string for use in an HTML attribute.
  * Escapes characters that could break out of the attribute or HTML context.
  */
@@ -39,6 +48,19 @@ function safeJsonAttr(obj) {
 const CONFIG = {
     csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTVxv88y3c-1VMujoz2bupvSCnUkoC-r0W-QogbkhivAAvY-EBff7-vp76b7NxYeSQMK43rOb7PI830/pub?gid=57149695&single=true&output=csv',
     defaultImage: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&h=400&fit=crop',
+    categoryImages: {
+        'concert':    'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&h=400&fit=crop',
+        'music':      'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&h=400&fit=crop',
+        'sport':      'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=400&fit=crop',
+        'sports':     'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=400&fit=crop',
+        'festival':   'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&h=400&fit=crop',
+        'comedy':     'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=800&h=400&fit=crop',
+        'theatre':    'https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&h=400&fit=crop',
+        'family':     'https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?w=800&h=400&fit=crop',
+        'dance':      'https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&h=400&fit=crop',
+        'conference': 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=400&fit=crop',
+        'other':      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=400&fit=crop',
+    },
     cacheDuration: 15 * 60 * 1000, // 15 minutes
     maxCacheAge: 7 * 24 * 60 * 60 * 1000, // 7 days - discard stale cache after this
     localStorageKey: 'pi-events-cache',
@@ -1653,10 +1675,10 @@ function createEventCard(event) {
 
             <div class="event-image-container">
                 <img
-                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : CONFIG.defaultImage}"
+                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : getDefaultImage(event)}"
                     alt="${escapeHtml(event['EVENT'])}"
                     class="event-image"
-                    onerror="this.src='${CONFIG.defaultImage}'"
+                    onerror="this.src='${getDefaultImage(event)}'"
                 >
 
                 <div class="date-badge ${isGrouped ? 'date-badge-multi' : ''}">
@@ -1761,10 +1783,10 @@ function createCompactEventCard(event) {
             ${badgeIndicator}
             <div class="compact-image-container">
                 <img
-                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : CONFIG.defaultImage}"
+                    src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : getDefaultImage(event)}"
                     alt="${escapeHtml(event['EVENT'])}"
                     class="compact-image"
-                    onerror="this.src='${CONFIG.defaultImage}'"
+                    onerror="this.src='${getDefaultImage(event)}'"
                 >
                 <div class="compact-date-badge">
                     <span class="compact-badge-day">${escapeHtml(date.day)}</span>
