@@ -838,6 +838,121 @@ function getInterpretationLanguage(event) {
     return detectInterpretation(event['VENUE'] || '');
 }
 
+// ========================================
+// FESTIVAL ACCESSIBILITY DATABASE
+// ========================================
+const FESTIVAL_ACCESS_INFO = {
+    'download festival': {
+        tickets: 'https://downloadfestival.co.uk/tickets/',
+        accessInfo: 'https://downloadfestival.co.uk/information/accessibility/',
+        accessForm: 'https://downloadfestival.co.uk/information/accessibility/',
+    },
+    'leeds festival': {
+        tickets: 'https://www.leedsfestival.com/tickets/',
+        accessInfo: 'https://www.leedsfestival.com/information/accessibility/',
+        accessForm: 'https://www.leedsfestival.com/information/accessibility/',
+    },
+    'reading festival': {
+        tickets: 'https://www.readingfestival.com/tickets/',
+        accessInfo: 'https://www.readingfestival.com/information/accessibility/',
+        accessForm: 'https://www.readingfestival.com/information/accessibility/',
+    },
+    'latitude festival': {
+        tickets: 'https://www.latitudefestival.com/tickets/',
+        accessInfo: 'https://www.latitudefestival.com/information-category/accessibility/',
+        accessForm: 'https://latitude-festival.zendesk.com/hc/en-gb/requests/new?ticket_form_id=40579402755853',
+    },
+    'victorious festival': {
+        tickets: 'https://www.victoriousfestival.co.uk/tickets/',
+        accessInfo: 'https://www.victoriousfestival.co.uk/info/accessibility/',
+        accessForm: null,
+    },
+    'brighton pride': {
+        tickets: 'https://www.brighton-pride.org/tickets/',
+        accessInfo: 'https://www.brighton-pride.org/access/',
+        accessForm: null,
+    },
+    'electric picnic': {
+        tickets: 'https://www.electricpicnic.ie/tickets/',
+        accessInfo: 'https://www.electricpicnic.ie/info/accessibility/',
+        accessForm: null,
+    },
+    'roundhay festival': {
+        tickets: 'https://www.roundhayfestival.com/',
+        accessInfo: null,
+        accessForm: null,
+    },
+    'reading pride': {
+        tickets: 'https://readingpride.co.uk/',
+        accessInfo: null,
+        accessForm: null,
+    },
+    'swindon pride': {
+        tickets: null,
+        accessInfo: null,
+        accessForm: null,
+    },
+};
+
+/**
+ * Check if an event is a festival (any festival category)
+ */
+function isFestivalEvent(event) {
+    var cat = (event['CATEGORY'] || '').toLowerCase();
+    return cat.includes('festival');
+}
+
+/**
+ * Look up festival accessibility info by event name
+ */
+function getFestivalAccessInfo(event) {
+    var name = (event['EVENT'] || '').toLowerCase();
+    for (var key in FESTIVAL_ACCESS_INFO) {
+        if (name.indexOf(key) >= 0) {
+            return FESTIVAL_ACCESS_INFO[key];
+        }
+    }
+    return null;
+}
+
+/**
+ * Build the primary action button for an event.
+ * Festivals get "Book Tickets" + optional "Accessibility Form" instead of venue contact flow.
+ */
+function buildEventActionButton(event, badge, style) {
+    var btnClass = style === 'compact' ? 'compact-btn' : (style === 'list' ? 'list-btn' : 'btn-primary');
+    var btnClassOrange = style === 'compact' ? 'compact-btn compact-btn-orange' : (style === 'list' ? 'list-btn list-btn-orange' : 'btn-orange');
+    var eventJson = safeJsonAttr(event);
+
+    // Festival events get special treatment
+    if (isFestivalEvent(event)) {
+        var festInfo = getFestivalAccessInfo(event);
+        var ticketUrl = (festInfo && festInfo.tickets) || event['EVENT URL'] || '#';
+        var buttons = `<a href="${escapeHtml(ticketUrl)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;">🎟️ Book Tickets</a>`;
+
+        if (festInfo && festInfo.accessForm) {
+            buttons += `<a href="${escapeHtml(festInfo.accessForm)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Access Form</a>`;
+        } else if (festInfo && festInfo.accessInfo) {
+            buttons += `<a href="${escapeHtml(festInfo.accessInfo)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Accessibility Info</a>`;
+        }
+
+        return buttons;
+    }
+
+    // Non-festival: existing logic
+    if (badge.canBook) {
+        return `<button class="${btnClass}" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book Accessible Tickets</button>`;
+    }
+
+    var venueMatches = findMatchingVenues(event['VENUE'] || '');
+    var hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
+
+    if (hasVenueInfo) {
+        return `<button class="${btnClassOrange}" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
+    }
+    return `<a href="${buildRequestInterpreterUrl(event)}" class="${btnClassOrange}">✉️ Request Interpreter</a>`;
+}
+
 /**
  * Calculate badge status for an event
  * Returns badge object with icon, label, and styling
@@ -1573,39 +1688,8 @@ function createEventCard(event) {
     // NEW: Calculate badge status
     const badge = calculateBadgeStatus(event);
 
-    // NEW: Updated primary button based on badge status
-    // ACCESS FIRST - No direct ticket links for green badge events
-    let primaryButton = '';
-    if (badge.canBook) {
-        // Green badge - open access-first modal for booking guidance
-        primaryButton = `
-            <button class="btn-primary" onclick='openAccessFirstModal(${safeJsonAttr(event)})'>
-                🎟️ Book BSL Tickets
-            </button>
-        `;
-    } else {
-        // Orange/Red badge - show request BSL option
-        // If venue has VRS or contact info in VENUE_CONTACTS, open the modal
-        // so the user gets VRS as primary + email as secondary. Otherwise go to Flow 3.
-        const venueMatches = findMatchingVenues(event['VENUE'] || '');
-        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
-
-        if (hasVenueInfo) {
-            // Known venue — open modal with VRS/email options
-            primaryButton = `
-                <button class="btn-orange" onclick='openRequestBSLModal(${safeJsonAttr(event)})'>
-                    ✉️ Request Interpreter
-                </button>
-            `;
-        } else {
-            // Unknown venue — go to Flow 3 general request form
-            primaryButton = `
-                <a href="${buildRequestInterpreterUrl(event)}" class="btn-orange">
-                    ✉️ Request Interpreter
-                </a>
-            `;
-        }
-    }
+    // Primary button - uses festival-aware helper
+    const primaryButton = buildEventActionButton(event, badge, 'full');
 
     // Build expandable dates section for multi-date events
     let expandableDates = '';
@@ -1757,18 +1841,7 @@ function createCompactEventCard(event) {
     const badge = calculateBadgeStatus(event);
     const eventJson = safeJsonAttr(event);
 
-    let actionButton = '';
-    if (badge.canBook) {
-        actionButton = `<button class="compact-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
-    } else {
-        const venueMatches = findMatchingVenues(event['VENUE'] || '');
-        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
-        if (hasVenueInfo) {
-            actionButton = `<button class="compact-btn compact-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
-        } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="compact-btn compact-btn-orange">✉️ Request Interpreter</a>`;
-        }
-    }
+    const actionButton = buildEventActionButton(event, badge, 'compact');
 
     const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
     let badgeIndicator = '';
@@ -1811,18 +1884,7 @@ function createListEventItem(event) {
     const badge = calculateBadgeStatus(event);
     const eventJson = safeJsonAttr(event);
 
-    let actionButton = '';
-    if (badge.canBook) {
-        actionButton = `<button class="list-btn" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book BSL Tickets</button>`;
-    } else {
-        const venueMatches = findMatchingVenues(event['VENUE'] || '');
-        const hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
-        if (hasVenueInfo) {
-            actionButton = `<button class="list-btn list-btn-orange" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
-        } else {
-            actionButton = `<a href="${buildRequestInterpreterUrl(event)}" class="list-btn list-btn-orange">✉️ Request Interpreter</a>`;
-        }
-    }
+    const actionButton = buildEventActionButton(event, badge, 'list');
 
     const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
     let statusBadge = '';
