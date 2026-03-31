@@ -949,19 +949,35 @@ function buildEventActionButton(event, badge, style) {
     var btnClassOrange = style === 'compact' ? 'compact-btn compact-btn-orange' : (style === 'list' ? 'list-btn list-btn-orange' : 'btn-orange');
     var eventJson = safeJsonAttr(event);
 
-    // Festival events get special treatment
+    // Festival events get special treatment — BUT festivals at known venues (e.g. The O2)
+    // should use the venue's access system instead of the generic festival path
     if (isFestivalEvent(event)) {
         var festInfo = getFestivalAccessInfo(event);
-        var ticketUrl = (festInfo && festInfo.tickets) || event['EVENT URL'] || '#';
-        var buttons = `<a href="${escapeHtml(ticketUrl)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;">🎟️ Book Tickets</a>`;
 
-        if (festInfo && festInfo.accessForm) {
-            buttons += `<a href="${escapeHtml(festInfo.accessForm)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Access Form</a>`;
-        } else if (festInfo && festInfo.accessInfo) {
-            buttons += `<a href="${escapeHtml(festInfo.accessInfo)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Accessibility Info</a>`;
+        if (festInfo) {
+            // Festival has dedicated access info — use festival-specific buttons
+            var ticketUrl = festInfo.tickets || event['EVENT URL'] || '#';
+            var buttons = `<a href="${escapeHtml(ticketUrl)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;">🎟️ Book Tickets</a>`;
+
+            if (festInfo.accessForm) {
+                buttons += `<a href="${escapeHtml(festInfo.accessForm)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Access Form</a>`;
+            } else if (festInfo.accessInfo) {
+                buttons += `<a href="${escapeHtml(festInfo.accessInfo)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;margin-top:6px;background:#7C3AED;border-color:#7C3AED;">♿ Accessibility Info</a>`;
+            }
+
+            return buttons;
         }
 
-        return buttons;
+        // No festival-specific info — check if venue has contact info
+        // If so, fall through to regular venue logic (e.g. O2, Wembley)
+        var venueFallback = findMatchingVenues(event['VENUE'] || '');
+        var venueHasContact = venueFallback.length > 0 && (venueFallback[0].vrs || venueFallback[0].email);
+        if (!venueHasContact) {
+            // Unknown venue festival — generic ticket button
+            var ticketUrl = event['EVENT URL'] || '#';
+            return `<a href="${escapeHtml(ticketUrl)}" target="_blank" rel="noopener" class="${btnClass}" style="text-decoration:none;text-align:center;">🎟️ Book Tickets</a>`;
+        }
+        // Venue has access info — fall through to regular badge-aware logic below
     }
 
     // Non-festival: existing logic
