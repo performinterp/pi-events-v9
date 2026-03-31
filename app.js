@@ -205,6 +205,13 @@ const VENUE_CONTACTS = {
     'stamford bridge, london': { email: 'access@chelseafc.com' },
     'chelsea': { email: 'access@chelseafc.com' },
 
+    // Touring Shows — Circus Starr (charity — FREE tickets for eligible families)
+    'circus starr': { email: 'community@circus-starr.org.uk', note: 'Circus Starr provides FREE tickets for disabled, vulnerable, or additional-needs children and their families. You apply — you do not buy.', bookingSteps: [
+        { step: 1, text: 'Visit circus-starr.org.uk/apply-for-tickets and fill in the application form.' },
+        { step: 2, text: 'Tickets are allocated first-come first-served. You\'ll be contacted if successful.' },
+        { step: 3, text: 'For group bookings (schools/organisations), email community@circus-starr.org.uk or call Jo on 01260 288690.' },
+    ]},
+
     // London - O2 Shepherd's Bush Empire (Academy Music Group — Ticketmaster)
     "shepherd's bush empire": { email: 'access@o2shepherdsbushempire.co.uk' },
     "shepherds bush empire": { email: 'access@o2shepherdsbushempire.co.uk' },
@@ -4601,7 +4608,7 @@ function openAccessFirstModal(event) {
     let vrsProvider = event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim();
     let venueNote = '';
 
-    // If no VRS in spreadsheet data, try VENUE_CONTACTS lookup
+    // If no VRS in spreadsheet data, try VENUE_CONTACTS lookup (venue name, then event name for touring shows)
     if (!vrsUrl && event['VENUE']) {
         const venueMatches = findMatchingVenues(event['VENUE']);
         if (venueMatches.length > 0) {
@@ -4611,6 +4618,19 @@ function openAccessFirstModal(event) {
             }
             if (venueMatches[0].note) {
                 venueNote = venueMatches[0].note;
+            }
+        }
+    }
+    // Fallback: try event name (for touring shows like Circus Starr)
+    if (!vrsUrl && !venueNote && event['EVENT']) {
+        const eventMatches = findMatchingVenues(event['EVENT']);
+        if (eventMatches.length > 0) {
+            if (eventMatches[0].vrs) {
+                vrsUrl = eventMatches[0].vrs;
+                vrsProvider = eventMatches[0].vrsLabel || 'SignVideo';
+            }
+            if (eventMatches[0].note) {
+                venueNote = eventMatches[0].note;
             }
         }
     }
@@ -4631,6 +4651,13 @@ function openAccessFirstModal(event) {
         const venueMatches = findMatchingVenues(event['VENUE']);
         if (venueMatches.length > 0 && venueMatches[0].bookingSteps) {
             bookingSteps = venueMatches[0].bookingSteps;
+        }
+    }
+    // Fallback: try event name for touring shows
+    if (!bookingSteps && event['EVENT']) {
+        const eventMatches = findMatchingVenues(event['EVENT']);
+        if (eventMatches.length > 0 && eventMatches[0].bookingSteps) {
+            bookingSteps = eventMatches[0].bookingSteps;
         }
     }
 
@@ -4683,12 +4710,19 @@ function openAccessFirstModal(event) {
         }
     }
 
-    // Resolve venue email: event data → VENUE_CONTACTS lookup → PI fallback
+    // Resolve venue email: event data → VENUE_CONTACTS lookup → event name fallback → PI fallback
     let resolvedEmail = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
     if (!resolvedEmail && event['VENUE']) {
         const venueMatches = findMatchingVenues(event['VENUE']);
         if (venueMatches.length > 0 && venueMatches[0].email) {
             resolvedEmail = venueMatches[0].email;
+        }
+    }
+    // Fallback: try event name for touring shows (e.g. Circus Starr)
+    if (!resolvedEmail && event['EVENT']) {
+        const eventMatches = findMatchingVenues(event['EVENT']);
+        if (eventMatches.length > 0 && eventMatches[0].email) {
+            resolvedEmail = eventMatches[0].email;
         }
     }
     // Store resolved email on the event so generateAccessEmail can use it
@@ -4894,7 +4928,7 @@ function openRequestBSLModal(event) {
     if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
 
-    // Resolve VRS and email from VENUE_CONTACTS
+    // Resolve VRS and email from VENUE_CONTACTS (venue name, then event name for touring shows)
     const venueMatches = findMatchingVenues(event['VENUE'] || '');
     let vrsUrl = event['VRS_URL'] || '';
     let vrsProvider = event['VRS_PROVIDER'] || '';
@@ -4907,6 +4941,19 @@ function openRequestBSLModal(event) {
         }
         if (!resolvedEmail && venueMatches[0].email) {
             resolvedEmail = venueMatches[0].email;
+        }
+    }
+    // Fallback: try event name for touring shows (e.g. Circus Starr)
+    if (!resolvedEmail && event['EVENT']) {
+        const eventMatches = findMatchingVenues(event['EVENT']);
+        if (eventMatches.length > 0) {
+            if (!vrsUrl && eventMatches[0].vrs) {
+                vrsUrl = eventMatches[0].vrs;
+                vrsProvider = eventMatches[0].vrsLabel || 'SignVideo';
+            }
+            if (!resolvedEmail && eventMatches[0].email) {
+                resolvedEmail = eventMatches[0].email;
+            }
         }
     }
 
