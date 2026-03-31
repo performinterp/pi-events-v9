@@ -111,14 +111,14 @@ const VENUE_CONTACTS = {
 
     // Birmingham
     'utilita arena birmingham': { email: 'boxoffice@utilitaarenabham.co.uk' },
-    'utilita arena': { email: 'boxoffice@utilitaarenabham.co.uk' },
+    // Removed generic 'utilita arena' — use city-specific entries to avoid matching wrong venue
 
     // Newcastle
     'utilita arena newcastle': { email: 'access@utilitarena.co.uk' },
 
     // Leeds
-    'first direct arena': { email: 'accessibility@firstdirectarena.com' },
-    'first direct arena leeds': { email: 'accessibility@firstdirectarena.com' },
+    'first direct arena': { email: 'accessibility@firstdirectbankarena.com' },
+    'first direct arena leeds': { email: 'accessibility@firstdirectbankarena.com' },
 
     // Manchester
     'ao arena': { email: 'accessibility@ao-arena.com' },
@@ -985,8 +985,10 @@ function buildEventActionButton(event, badge, style) {
         return `<button class="${btnClass}" onclick='openAccessFirstModal(${eventJson})'>🎟️ Book Accessible Tickets</button>`;
     }
 
-    var venueMatches = findMatchingVenues(event['VENUE'] || '');
-    var hasVenueInfo = venueMatches.length > 0 && (venueMatches[0].vrs || venueMatches[0].email);
+    // Check event name first (touring shows like Circus Starr), then venue
+    var resolvedMatches = findMatchingVenues(event['EVENT'] || '');
+    if (resolvedMatches.length === 0) resolvedMatches = findMatchingVenues(event['VENUE'] || '');
+    var hasVenueInfo = resolvedMatches.length > 0 && (resolvedMatches[0].vrs || resolvedMatches[0].email);
 
     if (hasVenueInfo) {
         return `<button class="${btnClassOrange}" onclick='openRequestBSLModal(${eventJson})'>✉️ Request Interpreter</button>`;
@@ -4624,21 +4626,8 @@ function openAccessFirstModal(event) {
     let vrsProvider = event['VRS_PROVIDER'] && event['VRS_PROVIDER'].trim();
     let venueNote = '';
 
-    // If no VRS in spreadsheet data, try VENUE_CONTACTS lookup (venue name, then event name for touring shows)
-    if (!vrsUrl && event['VENUE']) {
-        const venueMatches = findMatchingVenues(event['VENUE']);
-        if (venueMatches.length > 0) {
-            if (venueMatches[0].vrs) {
-                vrsUrl = venueMatches[0].vrs;
-                vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
-            }
-            if (venueMatches[0].note) {
-                venueNote = venueMatches[0].note;
-            }
-        }
-    }
-    // Fallback: try event name (for touring shows like Circus Starr)
-    if (!vrsUrl && !venueNote && event['EVENT']) {
+    // Try event name first (touring shows like Circus Starr where venue = city name)
+    if (!vrsUrl && event['EVENT']) {
         const eventMatches = findMatchingVenues(event['EVENT']);
         if (eventMatches.length > 0) {
             if (eventMatches[0].vrs) {
@@ -4647,6 +4636,19 @@ function openAccessFirstModal(event) {
             }
             if (eventMatches[0].note) {
                 venueNote = eventMatches[0].note;
+            }
+        }
+    }
+    // Then try venue name
+    if (!vrsUrl && !venueNote && event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0) {
+            if (venueMatches[0].vrs) {
+                vrsUrl = venueMatches[0].vrs;
+                vrsProvider = venueMatches[0].vrsLabel || 'SignVideo';
+            }
+            if (venueMatches[0].note) {
+                venueNote = venueMatches[0].note;
             }
         }
     }
@@ -4661,19 +4663,18 @@ function openAccessFirstModal(event) {
         }
     }
 
-    // Show booking steps if venue has a specific booking process
+    // Show booking steps — check event name first (touring shows), then venue
     let bookingSteps = null;
-    if (event['VENUE']) {
-        const venueMatches = findMatchingVenues(event['VENUE']);
-        if (venueMatches.length > 0 && venueMatches[0].bookingSteps) {
-            bookingSteps = venueMatches[0].bookingSteps;
-        }
-    }
-    // Fallback: try event name for touring shows
-    if (!bookingSteps && event['EVENT']) {
+    if (event['EVENT']) {
         const eventMatches = findMatchingVenues(event['EVENT']);
         if (eventMatches.length > 0 && eventMatches[0].bookingSteps) {
             bookingSteps = eventMatches[0].bookingSteps;
+        }
+    }
+    if (!bookingSteps && event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].bookingSteps) {
+            bookingSteps = venueMatches[0].bookingSteps;
         }
     }
 
@@ -4726,19 +4727,18 @@ function openAccessFirstModal(event) {
         }
     }
 
-    // Resolve venue email: event data → VENUE_CONTACTS lookup → event name fallback → PI fallback
+    // Resolve email: event name first (touring shows), then venue, then PI fallback
     let resolvedEmail = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
-    if (!resolvedEmail && event['VENUE']) {
-        const venueMatches = findMatchingVenues(event['VENUE']);
-        if (venueMatches.length > 0 && venueMatches[0].email) {
-            resolvedEmail = venueMatches[0].email;
-        }
-    }
-    // Fallback: try event name for touring shows (e.g. Circus Starr)
     if (!resolvedEmail && event['EVENT']) {
         const eventMatches = findMatchingVenues(event['EVENT']);
         if (eventMatches.length > 0 && eventMatches[0].email) {
             resolvedEmail = eventMatches[0].email;
+        }
+    }
+    if (!resolvedEmail && event['VENUE']) {
+        const venueMatches = findMatchingVenues(event['VENUE']);
+        if (venueMatches.length > 0 && venueMatches[0].email) {
+            resolvedEmail = venueMatches[0].email;
         }
     }
     // Store resolved email on the event so generateAccessEmail can use it
@@ -4944,12 +4944,24 @@ function openRequestBSLModal(event) {
     if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
 
-    // Resolve VRS and email from VENUE_CONTACTS (venue name, then event name for touring shows)
-    const venueMatches = findMatchingVenues(event['VENUE'] || '');
+    // Resolve VRS and email — event name first (touring shows), then venue
     let vrsUrl = event['VRS_URL'] || '';
     let vrsProvider = event['VRS_PROVIDER'] || '';
     let resolvedEmail = event['ACCESS_EMAIL'] || event['VENUE_CONTACT_EMAIL'] || '';
 
+    // Try event name first (handles Circus Starr etc.)
+    const eventNameMatches = findMatchingVenues(event['EVENT'] || '');
+    if (eventNameMatches.length > 0) {
+        if (!vrsUrl && eventNameMatches[0].vrs) {
+            vrsUrl = eventNameMatches[0].vrs;
+            vrsProvider = eventNameMatches[0].vrsLabel || 'SignVideo';
+        }
+        if (!resolvedEmail && eventNameMatches[0].email) {
+            resolvedEmail = eventNameMatches[0].email;
+        }
+    }
+    // Then try venue name
+    const venueMatches = findMatchingVenues(event['VENUE'] || '');
     if (venueMatches.length > 0) {
         if (!vrsUrl && venueMatches[0].vrs) {
             vrsUrl = venueMatches[0].vrs;
@@ -4957,19 +4969,6 @@ function openRequestBSLModal(event) {
         }
         if (!resolvedEmail && venueMatches[0].email) {
             resolvedEmail = venueMatches[0].email;
-        }
-    }
-    // Fallback: try event name for touring shows (e.g. Circus Starr)
-    if (!resolvedEmail && event['EVENT']) {
-        const eventMatches = findMatchingVenues(event['EVENT']);
-        if (eventMatches.length > 0) {
-            if (!vrsUrl && eventMatches[0].vrs) {
-                vrsUrl = eventMatches[0].vrs;
-                vrsProvider = eventMatches[0].vrsLabel || 'SignVideo';
-            }
-            if (!resolvedEmail && eventMatches[0].email) {
-                resolvedEmail = eventMatches[0].email;
-            }
         }
     }
 
