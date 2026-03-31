@@ -205,6 +205,20 @@ const VENUE_CONTACTS = {
     'stamford bridge, london': { email: 'access@chelseafc.com' },
     'chelsea': { email: 'access@chelseafc.com' },
 
+    // London - O2 Shepherd's Bush Empire (Academy Music Group — Ticketmaster)
+    "shepherd's bush empire": { email: 'access@o2shepherdsbushempire.co.uk' },
+    "shepherds bush empire": { email: 'access@o2shepherdsbushempire.co.uk' },
+    'o2 shepherds bush empire': { email: 'access@o2shepherdsbushempire.co.uk' },
+    "o2 shepherd's bush empire": { email: 'access@o2shepherdsbushempire.co.uk' },
+    "shepherd's bush empire, london": { email: 'access@o2shepherdsbushempire.co.uk' },
+    "shepherds bush empire, london": { email: 'access@o2shepherdsbushempire.co.uk' },
+
+    // London - Roundhouse (Camden)
+    'roundhouse': { email: 'access@roundhouse.org.uk' },
+    'roundhouse, london': { email: 'access@roundhouse.org.uk' },
+    'the roundhouse': { email: 'access@roundhouse.org.uk' },
+    'the roundhouse, london': { email: 'access@roundhouse.org.uk' },
+
     // London - O2 Academy Brixton
     'o2 academy brixton': { email: 'access@o2academybrixton.co.uk' },
     'o2 academy, brixton': { email: 'access@o2academybrixton.co.uk' },
