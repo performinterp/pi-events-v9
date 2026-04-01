@@ -717,22 +717,39 @@ const VENUE_ACCESS_FEATURES = {
 function findVenueAccessFeatures(event) {
     if (!event) return [];
 
-    // Try event name first (touring shows)
-    if (event['EVENT']) {
-        const eventLower = event['EVENT'].toLowerCase().trim();
-        if (VENUE_ACCESS_FEATURES[eventLower]) return VENUE_ACCESS_FEATURES[eventLower];
+    // Normalise: lowercase, strip commas and extra spaces
+    function norm(s) { return s.toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ').trim(); }
+
+    // Helper: check a string against the access features map
+    function matchAccess(name) {
+        const n = norm(name);
+        if (VENUE_ACCESS_FEATURES[n]) return VENUE_ACCESS_FEATURES[n];
+        for (const [canonical, features] of Object.entries(VENUE_ACCESS_FEATURES)) {
+            if (n.includes(canonical) || canonical.includes(n)) return features;
+        }
+        return null;
     }
 
-    // Try venue name - exact match
-    if (event['VENUE']) {
-        const venueLower = event['VENUE'].toLowerCase().trim();
-        if (VENUE_ACCESS_FEATURES[venueLower]) return VENUE_ACCESS_FEATURES[venueLower];
+    // 1. Try event name (touring shows like Circus Starr)
+    if (event['EVENT']) {
+        const result = matchAccess(event['EVENT']);
+        if (result) return result;
+    }
 
-        // Fuzzy: check if any canonical name is contained in or contains the venue
-        for (const [canonical, features] of Object.entries(VENUE_ACCESS_FEATURES)) {
-            if (venueLower.includes(canonical) || canonical.includes(venueLower)) {
-                return features;
-            }
+    // 2. Try venue name directly
+    if (event['VENUE']) {
+        const result = matchAccess(event['VENUE']);
+        if (result) return result;
+    }
+
+    // 3. Resolve through VENUE_CONTACTS aliases (handles "O2 London", "Pudding Mill Lane", sub-venues etc.)
+    var queries = [event['EVENT'] || '', event['VENUE'] || ''];
+    for (var i = 0; i < queries.length; i++) {
+        if (!queries[i]) continue;
+        var matches = findMatchingVenues(queries[i]);
+        if (matches.length > 0) {
+            var result = matchAccess(matches[0].venueName);
+            if (result) return result;
         }
     }
 
