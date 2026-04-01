@@ -4,7 +4,7 @@
   ==========================================================================*/
 
 // Single source of truth for app version — update index.html ?v= params to match
-const PI_VERSION = '1.9.73';
+const PI_VERSION = '1.9.74';
 const CACHE_VERSION = `pi-events-v${PI_VERSION}-network-first`;
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
@@ -20,6 +20,22 @@ const STATIC_ASSETS = [
     '/manifest.json'
 ];
 
+// Access feature icons (cached on install for offline use)
+const ACCESS_ICONS = [
+    '/icons/assistive-listening.png',
+    '/icons/closed-captions.png',
+    '/icons/visual-alarms.png',
+    '/icons/wheelchair-access.png',
+    '/icons/PA-companion.png',
+    '/icons/assist-dogs.png',
+    '/icons/step-free-access.png',
+    '/icons/changing-places.png',
+    '/icons/access-viewing.png',
+    '/icons/access-toilets.png',
+    '/icons/access-parking.png',
+    '/icons/quiet-rooms.png',
+];
+
 // Additional files to cache on-demand (won't block installation)
 const CACHE_ON_DEMAND = [
     '/booking-guide-venues.html'
@@ -32,8 +48,8 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                // Cache critical assets - if this fails, installation fails
-                return cache.addAll(STATIC_ASSETS);
+                // Cache critical assets + access icons
+                return cache.addAll([...STATIC_ASSETS, ...ACCESS_ICONS]);
             })
             .then(() => {
                 console.log('[Service Worker] Critical assets cached successfully');

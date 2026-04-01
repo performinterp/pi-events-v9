@@ -618,6 +618,159 @@ const VENUE_EMAILS = Object.fromEntries(
     Object.entries(VENUE_CONTACTS).map(([key, val]) => [key, val.email])
 );
 
+// ========================================
+// VENUE ACCESS FEATURES DATABASE
+// ========================================
+// Accessibility features keyed by canonical venue name (lowercase).
+// Looked up via findVenueAccessFeatures() which tries VENUE_CONTACTS match first.
+const ACCESS_FEATURE_DEFS = {
+    assistiveListening: { icon: 'icons/assistive-listening.png', label: 'Assistive Listening', desc: 'Hearing assistance available in seating area' },
+    captions:           { icon: 'icons/closed-captions.png',     label: 'Captions', desc: 'Regular captioned performances available' },
+    visualAlarms:       { icon: 'icons/visual-alarms.png',       label: 'Visual Alarms', desc: 'Visual fire alarms and alerts' },
+    wheelchair:         { icon: 'icons/wheelchair-access.png',   label: 'Wheelchair Access', desc: 'Wheelchair accessible seating' },
+    companionTicket:    { icon: 'icons/PA-companion.png',        label: 'Companion Ticket', desc: 'Free companion or PA ticket available' },
+    assistanceDogs:     { icon: 'icons/assist-dogs.png',         label: 'Assistance Dogs', desc: 'Assistance dogs welcome' },
+    stepFree:           { icon: 'icons/step-free-access.png',    label: 'Step-Free', desc: 'Step-free access to seating' },
+    changingPlaces:     { icon: 'icons/changing-places.png',     label: 'Changing Places', desc: 'Changing Places toilet on site' },
+    viewingPlatform:    { icon: 'icons/access-viewing.png',      label: 'Viewing Platform', desc: 'Elevated viewing platform for wheelchair users' },
+    accessibleToilets:  { icon: 'icons/access-toilets.png',      label: 'Accessible Toilets', desc: 'Accessible toilets available' },
+    accessibleParking:  { icon: 'icons/access-parking.png',      label: 'Accessible Parking', desc: 'Blue Badge parking available' },
+    quietRoom:          { icon: 'icons/quiet-rooms.png',         label: 'Quiet Room', desc: 'Sensory or quiet room available' },
+};
+
+// Venue access features — VERIFIED from official accessibility pages (Apr 2026).
+// Only includes features explicitly stated. assistiveListening = in seating area, not just ticket office.
+const VENUE_ACCESS_FEATURES = {
+    // === LONDON — Entertainment Venues ===
+    // The O2: ALDs at Customer Service desk for events. Nimbus Access Card. SignVideo BSL relay.
+    'the o2':              ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets'],
+    // Wembley: Loop at info desks for SPORT ONLY (not concerts). BSL free at every concert. 310 wheelchair places. 147 accessible toilets.
+    'wembley stadium':     ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets', 'accessibleParking', 'quietRoom'],
+    // OVO Arena Wembley: IR system + loop in rows N4-N12, S4-S12, N3-N9, S3-S9, E3, E4. Visual+audible fire alarms confirmed.
+    'ovo arena wembley':   ['assistiveListening', 'visualAlarms', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // Royal Albert Hall: IR hearing system in auditorium, Elgar Room, North Circle Bar.
+    'royal albert hall':   ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'accessibleToilets', 'accessibleParking'],
+    // Southbank Centre: Sound enhancement systems in all venues. Flashing beacon in Changing Places only (not venue-wide).
+    'southbank centre':    ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // Barbican: Induction loop in Hall, Theatre, Cinemas 2&3. IR in Milton Court. Regular captioned cinema & theatre.
+    'barbican centre':     ['assistiveListening', 'captions', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // Alexandra Palace: Loop at service points + headsets at Theatre. Visual alarms in ALL public spaces. 25 Blue Badge spaces.
+    'alexandra palace':    ['assistiveListening', 'visualAlarms', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets', 'accessibleParking', 'quietRoom'],
+    // Eventim Apollo: Loop covers most stalls + Blocks 8/9/10 circle. No lift to circle (40+ steps).
+    'eventim apollo':      ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'viewingPlatform', 'accessibleToilets', 'accessibleParking'],
+    // ABBA Arena: BSL interpreted performances on schedule. Limited accessibility info on page.
+    'abba arena':          ['wheelchair', 'stepFree', 'accessibleParking'],
+    // Roundhouse: Portable loops in foyer, IR in main space + studio, MobileConnect trial.
+    'roundhouse':          ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'accessibleToilets', 'accessibleParking'],
+    // O2 Academy Brixton: No hearing system mentioned. No lift to circle. Accessible viewing platform.
+    'o2 academy brixton':  ['wheelchair', 'companionTicket', 'assistanceDogs', 'viewingPlatform', 'accessibleToilets'],
+
+    // === LONDON — Stadiums ===
+    // Arsenal: Loop at Box Office only (NOT in stadium bowl). Full BSL on pitchside show. SignVideo. Sensory room.
+    'emirates stadium':    ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'quietRoom'],
+    // London Stadium: Loop at ticket office windows only (NOT in bowl). BSL on request. 3 Changing Places. 49 Blue Badge spaces.
+    'london stadium':      ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // Chelsea: Loop at reception + Window 7 only (NOT in bowl). BSL on big screens. 2 Changing Places. Sensory room.
+    'stamford bridge':     ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets', 'accessibleParking', 'quietRoom'],
+    // Tottenham: Radio-based system covers ENTIRE stadium bowl + kiosks. Best hearing coverage of any stadium. Sensory suite.
+    'tottenham hotspur stadium': ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'quietRoom'],
+
+    // === MANCHESTER ===
+    // AO Arena: Induction loop in Block 114 and AP 108/109 only. Staff have deaf awareness training.
+    'ao arena':            ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets'],
+    // Co-op Live: Hearing loop accessible from ANYWHERE in venue bowl. Visual+audible emergency warnings confirmed. 2 Changing Places.
+    'co-op live':          ['assistiveListening', 'visualAlarms', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets'],
+    // Old Trafford: Loop at reception/ticket office ONLY (not in bowl). 278 wheelchair positions. 2 Changing Places. Ability Suite lounge.
+    'old trafford':        ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets', 'accessibleParking'],
+    // Etihad: Loop in reception/shop/kiosks ONLY (not in bowl). Sensory room. 42 accessible toilets.
+    'etihad stadium':      ['wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking', 'quietRoom'],
+
+    // === REGIONAL ARENAS ===
+    // Birmingham: RF analogue system, 100% bowl coverage. Neck loops for telecoil users.
+    'utilita arena birmingham': ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets'],
+    // Newcastle: Induction loop in Block 104 ONLY. Must book that location for loop.
+    'utilita arena newcastle':  ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'accessibleToilets', 'accessibleParking'],
+    // Sheffield: FM Sennheiser system. Assisted changing room under construction.
+    'utilita arena sheffield':  ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'accessibleToilets'],
+    // Leeds: RF induction loop throughout arena. Stoma-friendly toilets. Dedicated accessible host.
+    'first direct arena':  ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'quietRoom'],
+    // Liverpool: Induction loops available + box office counters. Gold Attitude is Everything. Changing Places via sister venue.
+    'm&s bank arena':      ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets'],
+    // Glasgow: IR in blocks 204-206, 213-215 only (varies by event/production). Loop at box office.
+    'ovo hydro':           ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // Nottingham: IR + loop in certain seating locations. Viewing platforms. Names PI as BSL provider.
+    'motorpoint arena':    ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'viewingPlatform', 'accessibleToilets', 'accessibleParking'],
+
+    // === OTHER VENUES ===
+    // Anfield: Loop at ticket office/kiosks ONLY (not in bowl). 2 Changing Places. Sensory room.
+    'anfield':             ['wheelchair', 'stepFree', 'changingPlaces', 'accessibleToilets', 'quietRoom'],
+    // Bournemouth: Sennheiser MobileConnect Wi-Fi system (app on own phone). Changing Places with hoist.
+    'bournemouth international centre': ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+    // BP Pulse LIVE: RF analogue system, 100% bowl coverage. Works with PI by name.
+    'bp pulse live':       ['assistiveListening', 'wheelchair', 'companionTicket', 'assistanceDogs', 'stepFree', 'changingPlaces', 'accessibleToilets', 'accessibleParking'],
+};
+
+/**
+ * Find access features for an event (checks event name then venue name).
+ * Returns array of feature keys or empty array.
+ */
+function findVenueAccessFeatures(event) {
+    if (!event) return [];
+
+    // Try event name first (touring shows)
+    if (event['EVENT']) {
+        const eventLower = event['EVENT'].toLowerCase().trim();
+        if (VENUE_ACCESS_FEATURES[eventLower]) return VENUE_ACCESS_FEATURES[eventLower];
+    }
+
+    // Try venue name - exact match
+    if (event['VENUE']) {
+        const venueLower = event['VENUE'].toLowerCase().trim();
+        if (VENUE_ACCESS_FEATURES[venueLower]) return VENUE_ACCESS_FEATURES[venueLower];
+
+        // Fuzzy: check if any canonical name is contained in or contains the venue
+        for (const [canonical, features] of Object.entries(VENUE_ACCESS_FEATURES)) {
+            if (venueLower.includes(canonical) || canonical.includes(venueLower)) {
+                return features;
+            }
+        }
+    }
+
+    return [];
+}
+
+/**
+ * Render access feature icons as a centred row of icon pills (for event cards).
+ */
+function renderAccessIcons(event) {
+    const features = findVenueAccessFeatures(event);
+    if (features.length === 0) return '';
+
+    const icons = features.map(f => {
+        const def = ACCESS_FEATURE_DEFS[f];
+        if (!def) return '';
+        return `<span class="access-pill" title="${escapeHtml(def.label)}"><img src="${def.icon}" alt="${escapeHtml(def.label)}" class="access-pill-icon" width="20" height="20" loading="lazy"></span>`;
+    }).join('');
+
+    return `<div class="access-icons-row">${icons}</div>`;
+}
+
+/**
+ * Render access features with icon + text labels (for modals).
+ */
+function renderAccessLabels(event) {
+    const features = findVenueAccessFeatures(event);
+    if (features.length === 0) return '';
+
+    const labels = features.map(f => {
+        const def = ACCESS_FEATURE_DEFS[f];
+        if (!def) return '';
+        return `<div class="access-label-pill"><img src="${def.icon}" alt="" class="access-label-icon" width="24" height="24"> ${escapeHtml(def.label)}</div>`;
+    }).join('');
+
+    return `<div class="access-labels-grid">${labels}</div>`;
+}
+
 /**
  * Find all matching venues from database
  * Returns array of { venueName, email, vrs, vrsLabel } objects
@@ -1829,6 +1982,8 @@ function createEventCard(event) {
                     </div>
                 ` : ''}
 
+                ${renderAccessIcons(event)}
+
                 <div class="event-actions">
                     ${primaryButton}
                 </div>
@@ -1913,6 +2068,7 @@ function createCompactEventCard(event) {
             <div class="compact-content">
                 <h3 class="compact-title">${escapeHtml(event['EVENT'])}</h3>
                 <div class="compact-venue">📍 ${escapeHtml(event['VENUE'])}</div>
+                ${renderAccessIcons(event)}
                 ${actionButton}
             </div>
         </article>
@@ -1951,6 +2107,7 @@ function createListEventItem(event) {
                     ${event['TIME'] ? `<span class="list-time">🕐 ${escapeHtml(event['TIME'])}</span>` : ''}
                     ${statusBadge}
                 </div>
+                ${renderAccessIcons(event)}
             </div>
 
             ${actionButton}
@@ -4616,6 +4773,14 @@ function openAccessFirstModal(event) {
         eventNameEl.textContent = event['EVENT'];
     }
 
+    // Inject access feature labels into modal
+    const existingAccessLabels = modal.querySelector('.access-labels-grid');
+    if (existingAccessLabels) existingAccessLabels.remove();
+    const accessLabelsHtml = renderAccessLabels(event);
+    if (accessLabelsHtml && eventNameEl) {
+        eventNameEl.insertAdjacentHTML('afterend', accessLabelsHtml);
+    }
+
     // Handle VRS button - VRS is primary contact method for BSL users
     const vrsButton = document.getElementById('vrsButton');
     const vrsButtonText = document.getElementById('vrsButtonText');
@@ -4943,6 +5108,14 @@ function openRequestBSLModal(event) {
     const eventNameEl = document.getElementById('accessFirstEventName');
     if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
+
+    // Inject access feature labels into modal
+    const existingAccessLabels = modal.querySelector('.access-labels-grid');
+    if (existingAccessLabels) existingAccessLabels.remove();
+    const accessLabelsHtml = renderAccessLabels(event);
+    if (accessLabelsHtml && eventNameEl) {
+        eventNameEl.insertAdjacentHTML('afterend', accessLabelsHtml);
+    }
 
     // Resolve VRS and email — event name first (touring shows), then venue
     let vrsUrl = event['VRS_URL'] || '';

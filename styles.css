@@ -2213,6 +2213,70 @@ a {
     flex: 1;
 }
 
+/* Access Feature Icons — Card Row */
+.access-icons-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--spacing-md);
+}
+
+.access-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 8px;
+    cursor: default;
+    transition: transform 0.15s ease;
+}
+
+.access-pill:hover {
+    transform: scale(1.15);
+}
+
+.access-pill-icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Access Feature Labels — Modal */
+.access-labels-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 24px;
+}
+
+.access-label-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #EFF6FF;
+    color: #1E40AF;
+    border: 1px solid #BFDBFE;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.access-label-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
 /* Event Actions */
 .event-actions {
     display: flex;
@@ -2993,6 +3057,14 @@ a {
     font-size: 12px;
     color: var(--gray-500);
     margin: 0;
+}
+
+.footer-access-disclaimer {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-md);
+    max-width: 600px;
 }
 
 .footer-links {
@@ -5436,9 +5508,19 @@ select:focus-visible {
     .access-modal-actions {
         flex-direction: column;
     }
-    
+
     .access-step-icon {
         font-size: 2.5rem;
+    }
+
+    .access-labels-grid {
+        gap: 6px;
+        margin: 12px 0 18px;
+    }
+
+    .access-label-pill {
+        font-size: 12px;
+        padding: 5px 10px;
     }
 }
 
