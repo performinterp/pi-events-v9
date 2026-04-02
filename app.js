@@ -1508,8 +1508,12 @@ function prefillRequestForm() {
         }
     }
     if (dateInput && params.get('date')) {
-        const time = params.get('time');
-        dateInput.value = params.get('date') + (hasRealTime(time) ? ` at ${time}` : '');
+        // Convert DD.MM.YY to YYYY-MM-DD for date input
+        const parts = params.get('date').split('.');
+        if (parts.length === 3) {
+            const year = parts[2].length === 2 ? '20' + parts[2] : parts[2];
+            dateInput.value = `${year}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+        }
     }
 }
 
@@ -5296,6 +5300,29 @@ function initRightsTicker() {
     }, 5000);
 }
 
+/**
+ * Build injected HTML for venue address, description, and price in booking modals.
+ */
+function buildModalExtrasHtml(event) {
+    let html = '';
+    // Description
+    if (event['DESCRIPTION'] && event['DESCRIPTION'].trim()) {
+        html += `<div style="margin:8px 0;padding:10px 14px;background:#F0F4FF;border-radius:10px;border-left:3px solid #2563EB;font-size:13px;color:#374151;line-height:1.4;text-align:left;">${escapeHtml(event['DESCRIPTION'])}</div>`;
+    }
+    // Venue address + maps
+    const vd = findVenueDetails(event);
+    if (vd) {
+        const addrParts = [vd.address, vd.address2, vd.city, vd.postcode].filter(Boolean);
+        const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
+        html += `<div style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`;
+    }
+    // Price
+    if (event['PRICE'] && event['PRICE'].trim()) {
+        html += `<div style="text-align:center;margin:6px 0;"><span style="padding:4px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;font-size:13px;font-weight:600;color:#065F46;">💰 ${escapeHtml(event['PRICE'])}</span></div>`;
+    }
+    return html;
+}
+
 // ========================================
 // ACCESS FIRST MODAL - Primary booking modal for green badge events
 // ========================================
@@ -5325,14 +5352,12 @@ function openAccessFirstModal(event) {
         eventNameEl.textContent = event['EVENT'];
     }
 
-    // Inject venue address + maps button
-    const existingVenueInfo = modal.querySelector('.venue-info-injected');
-    if (existingVenueInfo) existingVenueInfo.remove();
-    const vd = findVenueDetails(event);
-    if (vd && eventNameEl) {
-        const addrParts = [vd.address, vd.address2, vd.city, vd.postcode].filter(Boolean);
-        const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
-        eventNameEl.insertAdjacentHTML('afterend', `<div class="venue-info-injected" style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`);
+    // Inject description, venue address + maps, price
+    const existingExtras = modal.querySelector('.modal-extras-injected');
+    if (existingExtras) existingExtras.remove();
+    const extrasHtml = buildModalExtrasHtml(event);
+    if (extrasHtml && eventNameEl) {
+        eventNameEl.insertAdjacentHTML('afterend', `<div class="modal-extras-injected">${extrasHtml}</div>`);
     }
 
     // Inject access feature labels into modal
@@ -5671,14 +5696,12 @@ function openRequestBSLModal(event) {
     if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
 
-    // Inject venue address + maps button
-    const existingVenueInfo = modal.querySelector('.venue-info-injected');
-    if (existingVenueInfo) existingVenueInfo.remove();
-    const vd = findVenueDetails(event);
-    if (vd && eventNameEl) {
-        const addrParts = [vd.address, vd.address2, vd.city, vd.postcode].filter(Boolean);
-        const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
-        eventNameEl.insertAdjacentHTML('afterend', `<div class="venue-info-injected" style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`);
+    // Inject description, venue address + maps, price
+    const existingExtras = modal.querySelector('.modal-extras-injected');
+    if (existingExtras) existingExtras.remove();
+    const extrasHtml = buildModalExtrasHtml(event);
+    if (extrasHtml && eventNameEl) {
+        eventNameEl.insertAdjacentHTML('afterend', `<div class="modal-extras-injected">${extrasHtml}</div>`);
     }
 
     // Inject access feature labels into modal
