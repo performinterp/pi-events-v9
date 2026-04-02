@@ -1679,6 +1679,25 @@ function buildEventActionButton(event, badge, style) {
 }
 
 /**
+ * Open the appropriate booking modal for an event (used by tappable cards)
+ */
+function openEventModal(event) {
+    const badge = calculateBadgeStatus(event);
+    if (badge.canBook) {
+        openAccessFirstModal(event);
+    } else {
+        var resolvedMatches = findMatchingVenues(event['EVENT'] || '');
+        if (resolvedMatches.length === 0) resolvedMatches = findMatchingVenues(event['VENUE'] || '');
+        var hasVenueInfo = resolvedMatches.length > 0 && (resolvedMatches[0].vrs || resolvedMatches[0].email);
+        if (hasVenueInfo) {
+            openRequestBSLModal(event);
+        } else {
+            openAccessFirstModal(event);
+        }
+    }
+}
+
+/**
  * Calculate badge status for an event
  * Returns badge object with icon, label, and styling
  */
@@ -2482,7 +2501,7 @@ function createEventCard(event) {
             </div>
             ` : ''}
 
-            <div class="event-card-tappable" onclick='openEventInfoModal(${safeJsonAttr(event)})' role="button" tabindex="0" aria-label="View details for ${escapeHtml(event['EVENT'])}">
+            <div class="event-card-tappable" onclick='openEventModal(${safeJsonAttr(event)})' role="button" tabindex="0">
                 <div class="event-image-container">
                     <img
                         src="${event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : getDefaultImage(event)}"
@@ -5087,141 +5106,6 @@ function closeGetTicketsModal() {
 }
 
 /**
- * Open the Event Info modal (tapped from event card body)
- */
-let currentInfoEvent = null;
-
-function openEventInfoModal(event) {
-    currentInfoEvent = event;
-    const modal = document.getElementById('eventInfoModal');
-    if (!modal) return;
-
-    // Title and date
-    document.getElementById('eventInfoModalTitle').textContent = event['EVENT'] || '';
-    const date = formatDate(event['DATE']);
-    const timeStr = event['TIME'] ? ` · ${event['TIME']}` : '';
-    document.getElementById('eventInfoDate').textContent = `📅 ${date.day} ${date.month}${timeStr}`;
-
-    // Description
-    const descEl = document.getElementById('eventInfoDescription');
-    if (event['DESCRIPTION'] && event['DESCRIPTION'].trim()) {
-        descEl.textContent = event['DESCRIPTION'];
-        descEl.style.display = 'block';
-    } else {
-        descEl.style.display = 'none';
-    }
-
-    // Venue name
-    document.getElementById('eventInfoVenueName').textContent = event['VENUE'] || '';
-
-    // Venue address + Maps button
-    const venueDetails = findVenueDetails(event);
-    const addressEl = document.getElementById('eventInfoAddress');
-    const mapsBtn = document.getElementById('eventInfoMapsBtn');
-
-    if (venueDetails) {
-        let parts = [venueDetails.address];
-        if (venueDetails.address2) parts.push(venueDetails.address2);
-        parts.push(venueDetails.city || '');
-        parts.push(venueDetails.postcode || '');
-        addressEl.textContent = parts.filter(Boolean).join(', ');
-        addressEl.style.display = 'block';
-
-        if (venueDetails.mapsUrl) {
-            mapsBtn.href = venueDetails.mapsUrl;
-            mapsBtn.style.display = 'inline-flex';
-        } else {
-            mapsBtn.style.display = 'none';
-        }
-    } else {
-        // Fallback: show city if available
-        const city = event['CITY'] || '';
-        addressEl.textContent = city;
-        addressEl.style.display = city ? 'block' : 'none';
-        mapsBtn.style.display = 'none';
-    }
-
-    // Interpreters
-    const interpSection = document.getElementById('eventInfoInterpreters');
-    const interpText = document.getElementById('eventInfoInterpretersText');
-    if (event['INTERPRETERS'] && event['INTERPRETERS'].trim()) {
-        interpText.textContent = event['INTERPRETERS'];
-        interpSection.style.display = 'block';
-    } else {
-        interpSection.style.display = 'none';
-    }
-
-    // Access features
-    const accessSection = document.getElementById('eventInfoAccessSection');
-    const accessGrid = document.getElementById('eventInfoAccessFeatures');
-    const features = findVenueAccessFeatures(event);
-    if (features && features.length > 0) {
-        accessGrid.innerHTML = features.map(key => {
-            const def = ACCESS_FEATURE_DEFS[key];
-            if (!def) return '';
-            return `<div class="access-feature-item">
-                <img src="${def.icon}" alt="" width="24" height="24">
-                <span>${escapeHtml(def.label)}</span>
-            </div>`;
-        }).join('');
-        accessSection.style.display = 'block';
-    } else {
-        accessSection.style.display = 'none';
-    }
-
-    // Price
-    const priceBlock = document.getElementById('eventInfoPriceBlock');
-    const priceText = document.getElementById('eventInfoPriceText');
-    if (event['PRICE'] && event['PRICE'].trim()) {
-        priceText.textContent = event['PRICE'];
-        priceBlock.style.display = 'block';
-    } else {
-        priceBlock.style.display = 'none';
-    }
-
-    // Event page link
-    const eventLink = document.getElementById('eventInfoEventLink');
-    const eventUrl = event['EVENT URL'] || '';
-    if (eventUrl && eventUrl.startsWith('http')) {
-        eventLink.href = eventUrl;
-        eventLink.style.display = 'block';
-    } else {
-        eventLink.style.display = 'none';
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-/**
- * Close the Event Info modal
- */
-function closeEventInfoModal() {
-    const modal = document.getElementById('eventInfoModal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-}
-
-/**
- * Chain from Info modal to the booking flow
- */
-function eventInfoToBooking() {
-    if (!currentInfoEvent) return;
-    const event = currentInfoEvent;
-    closeEventInfoModal();
-
-    // Determine which booking modal to open (same logic as action buttons)
-    const badge = calculateBadgeStatus(event);
-    if (badge.badge === 'green') {
-        openAccessFirstModal(event);
-    } else {
-        openGetTicketsModal(event);
-    }
-}
-
-/**
  * Continue to external ticket site after seeing guidance
  */
 function continueToTickets() {
@@ -5439,6 +5323,16 @@ function openAccessFirstModal(event) {
     const eventNameEl = document.getElementById('accessFirstEventName');
     if (eventNameEl && event['EVENT']) {
         eventNameEl.textContent = event['EVENT'];
+    }
+
+    // Inject venue address + maps button
+    const existingVenueInfo = modal.querySelector('.venue-info-injected');
+    if (existingVenueInfo) existingVenueInfo.remove();
+    const vd = findVenueDetails(event);
+    if (vd && eventNameEl) {
+        const addrParts = [vd.address, vd.address2, vd.city, vd.postcode].filter(Boolean);
+        const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
+        eventNameEl.insertAdjacentHTML('afterend', `<div class="venue-info-injected" style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`);
     }
 
     // Inject access feature labels into modal
@@ -5776,6 +5670,16 @@ function openRequestBSLModal(event) {
     const eventNameEl = document.getElementById('accessFirstEventName');
     if (titleEl) titleEl.textContent = 'Request Interpreter';
     if (eventNameEl && event['EVENT']) eventNameEl.textContent = event['EVENT'];
+
+    // Inject venue address + maps button
+    const existingVenueInfo = modal.querySelector('.venue-info-injected');
+    if (existingVenueInfo) existingVenueInfo.remove();
+    const vd = findVenueDetails(event);
+    if (vd && eventNameEl) {
+        const addrParts = [vd.address, vd.address2, vd.city, vd.postcode].filter(Boolean);
+        const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
+        eventNameEl.insertAdjacentHTML('afterend', `<div class="venue-info-injected" style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`);
+    }
 
     // Inject access feature labels into modal
     const existingAccessLabels = modal.querySelector('.access-labels-grid');
