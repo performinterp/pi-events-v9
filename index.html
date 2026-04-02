@@ -882,6 +882,52 @@
             </div>
         </div>
 
+        <!-- Event Info Modal (opened by tapping event card body) -->
+        <div id="eventInfoModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="eventInfoModalTitle">
+            <div class="access-modal-overlay" onclick="closeEventInfoModal()"></div>
+            <div class="access-modal-content event-info-modal-content">
+                <button class="access-modal-close" onclick="closeEventInfoModal()" aria-label="Close dialog">✕</button>
+
+                <h2 class="access-modal-title" id="eventInfoModalTitle"></h2>
+                <p class="access-modal-subtitle" id="eventInfoDate"></p>
+
+                <div id="eventInfoDescription" class="event-info-description" style="display:none;"></div>
+
+                <div id="eventInfoVenueBlock" class="event-info-venue-block">
+                    <p id="eventInfoVenueName" class="event-info-venue-name"></p>
+                    <p id="eventInfoAddress" class="event-info-address" style="display:none;"></p>
+                    <a id="eventInfoMapsBtn" class="event-info-maps-btn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Open in Maps
+                    </a>
+                </div>
+
+                <div id="eventInfoInterpreters" class="event-info-interpreters" style="display:none;">
+                    <span class="event-info-label">Interpreters</span>
+                    <p id="eventInfoInterpretersText"></p>
+                </div>
+
+                <div id="eventInfoAccessSection" style="display:none;">
+                    <span class="event-info-label">Access Facilities</span>
+                    <div id="eventInfoAccessFeatures" class="event-info-access-grid"></div>
+                </div>
+
+                <div id="eventInfoPriceBlock" class="event-info-price" style="display:none;">
+                    <span class="event-info-label">Price</span>
+                    <p id="eventInfoPriceText"></p>
+                </div>
+
+                <div class="access-modal-actions">
+                    <button class="btn-primary btn-large" id="eventInfoBookBtn" onclick="eventInfoToBooking()">
+                        🎟️ Book Tickets
+                    </button>
+                    <a id="eventInfoEventLink" class="btn-slate btn-large" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+                        🔗 Event Page
+                    </a>
+                </div>
+            </div>
+        </div>
+
     <!-- Booking Guide: How to Book Modal -->
     <div class="bg-modal-overlay" id="bgBookingModal" role="dialog" aria-modal="true" onclick="closeBgModalOnOverlay(event, 'bgBookingModal')">
         <div class="bg-modal-container">

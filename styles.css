@@ -6722,3 +6722,313 @@ select:focus-visible {
 body.bg-modal-open {
     overflow: hidden;
 }
+
+/* ========================================
+   EVENT INFO MODAL
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: #f3f4f6;
+    color: #1a1a2e;
+}
+
+.event-info-modal-content {
+    max-width: 480px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
+.event-info-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.event-info-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 4px 0;
+    padding-right: 30px;
+}
+
+.event-info-date {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.event-info-description {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f3f4f6;
+    border-radius: 8px;
+}
+
+.event-info-section {
+    margin-bottom: 16px;
+}
+
+.event-info-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+    margin: 0 0 6px 0;
+}
+
+.event-info-venue-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0 0 2px 0;
+}
+
+.event-info-address {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+}
+
+.event-info-maps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.event-info-maps-btn:hover {
+    background: #1d4ed8;
+}
+
+.event-info-maps-btn svg {
+    flex-shrink: 0;
+}
+
+.event-info-access-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.access-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #f0f9ff;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #1e40af;
+}
+
+.access-feature-item img {
+    opacity: 0.8;
+}
+
+.event-info-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.event-info-action-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+.event-info-action-btn.primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.event-info-action-btn.primary:hover {
+    background: #1d4ed8;
+}
+
+.event-info-action-btn.secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.event-info-action-btn.secondary:hover {
+    background: #e5e7eb;
+}
+
+/* ===== Tappable Event Card Area ===== */
+.event-card-tappable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.event-card-tappable:active {
+    opacity: 0.85;
+}
+
+.event-content-info {
+    padding: 12px 16px 4px;
+}
+
+/* ===== Event Info Modal ===== */
+.event-info-modal-content {
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.event-info-description {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.5;
+    margin: 12px 0 16px;
+    padding: 12px 14px;
+    background: #f0f4ff;
+    border-radius: 10px;
+    border-left: 3px solid #2563eb;
+}
+
+.event-info-venue-block {
+    margin: 16px 0;
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.event-info-venue-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0 0 2px 0;
+}
+
+.event-info-address {
+    font-size: 0.88rem;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.event-info-maps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.event-info-maps-btn:hover,
+.event-info-maps-btn:active {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.event-info-maps-btn svg {
+    flex-shrink: 0;
+}
+
+.event-info-interpreters,
+.event-info-price {
+    margin: 12px 0;
+}
+
+.event-info-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.event-info-interpreters p,
+.event-info-price p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+}
+
+.event-info-access-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.access-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    background: #f0f9ff;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: #1e40af;
+}
+
+.access-feature-item img {
+    opacity: 0.8;
+}
