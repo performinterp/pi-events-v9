@@ -5316,10 +5316,6 @@ function buildModalExtrasHtml(event) {
         const mapsLink = vd.mapsUrl ? `<a href="${vd.mapsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:6px 14px;background:#2563EB;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Open in Maps</a>` : '';
         html += `<div style="text-align:center;margin:6px 0;"><div style="font-size:12px;color:#9CA3AF;line-height:1.4;">${escapeHtml(addrParts.join(', '))}</div>${mapsLink}</div>`;
     }
-    // Price
-    if (event['PRICE'] && event['PRICE'].trim()) {
-        html += `<div style="text-align:center;margin:6px 0;"><span style="padding:4px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;font-size:13px;font-weight:600;color:#065F46;">💰 ${escapeHtml(event['PRICE'])}</span></div>`;
-    }
     return html;
 }
 
