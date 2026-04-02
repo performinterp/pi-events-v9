@@ -7,6 +7,8 @@ function onOpen() {
     .addSeparator()
     .addItem('🔍 Dedup Check (exact)', 'deduplicatePublished')
     .addItem('🔍 Dedup Check (date-varying)', 'deduplicateDateVarying')
+    .addSeparator()
+    .addItem('🔧 Fix Malformed Times', 'fixMalformedTimes')
     .addToUi();
 }
 
@@ -37,10 +39,7 @@ function installOpenTrigger() {
 // (Apps Script shares namespace across all .gs files)
 
 // AutoPublish-specific defaults (no var/const/let to avoid V8 redeclaration errors)
-// DIGEST_EMAIL: prefer Script Properties, fall back to default
-if (typeof DIGEST_EMAIL === 'undefined') {
-  DIGEST_EMAIL = PropertiesService.getScriptProperties().getProperty('DIGEST_EMAIL') || 'admin@performanceinterpreting.co.uk';
-}
+if (typeof DIGEST_EMAIL === 'undefined') DIGEST_EMAIL = 'admin@performanceinterpreting.co.uk';
 if (typeof DRY_RUN === 'undefined') DRY_RUN = false;
 
 // ==================== MAIN ENTRY POINT ====================
@@ -74,9 +73,7 @@ function dailyAutoPublish() {
     }
 
     var existingData = publishedSheet.getDataRange().getValues();
-    const dedupResult = buildDedupKeys(existingData);
-    const existingKeys = dedupResult.keys;
-    const piOsKeys = dedupResult.piOsKeys;
+    const existingKeys = buildDedupKeys(existingData);
 
     // 1b. Load cancelled events blocklist
     const cancelledKeys = getCancelledKeys(publishedSS);
@@ -86,19 +83,14 @@ function dailyAutoPublish() {
     const monthlyEvents = getEventsFromMonthlyTabs();
 
     // 3. Merge (monthly wins over pre-approved for same event)
-    // PI_OS events are protected - scrapers/manual cannot overwrite them
-    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents, piOsKeys);
+    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
 
     // 4. Filter: new events only (not already in PUBLISHED, not cancelled)
     const newEvents = [];
     log.cancelledSkipped = 0;
-    log.piOsProtected = 0;
     for (const evt of mergedEvents) {
       if (cancelledKeys.has(evt.key)) {
         log.cancelledSkipped++;
-      } else if (piOsKeys.has(evt.key)) {
-        // PI_OS events are protected - don't add duplicate from scraper/manual
-        log.piOsProtected++;
       } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
@@ -112,23 +104,10 @@ function dailyAutoPublish() {
       log.warnings.push('Removed ' + cancelRemoved.length + ' cancelled event(s) from PUBLISHED: ' + cancelRemoved.join(', '));
     }
 
-    // 4c. Correct venue/city typos in existing PUBLISHED data
-    if (!DRY_RUN) {
-      const typosCorrected = correctPublishedTypos(publishedSheet);
-      if (typosCorrected > 0) {
-        log.warnings.push('Corrected venue/city typos in ' + typosCorrected + ' existing row(s)');
-        existingData = publishedSheet.getDataRange().getValues();
-        // Rebuild dedup keys after corrections
-        const refreshed = buildDedupKeys(existingData);
-        existingKeys.clear();
-        for (const k of refreshed.keys) existingKeys.add(k);
-      }
-    }
-
     // 5. Deduplicate existing PUBLISHED rows (fuzzy match, keep best data)
-    const exactDedupResult = deduplicatePublished(publishedSheet);
-    if (exactDedupResult.removed > 0) {
-      log.warnings.push('Dedup: merged ' + exactDedupResult.removed + ' duplicate row(s): ' + exactDedupResult.merged.join('; '));
+    const dedupResult = deduplicatePublished(publishedSheet);
+    if (dedupResult.removed > 0) {
+      log.warnings.push('Dedup: merged ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
       existingData = publishedSheet.getDataRange().getValues();
     }
 
@@ -167,10 +146,6 @@ function dailyAutoPublish() {
     const enrichResult = enrichMissingImages(publishedSheet);
     log.enriched = enrichResult;
 
-    // 8b. Enrich missing event links via venue homepage lookup
-    const linkEnrichResult = enrichMissingEventLinks(publishedSheet);
-    log.linksEnriched = linkEnrichResult;
-
     // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
@@ -188,175 +163,6 @@ function dailyAutoPublish() {
   // 10. Send digest email
   sendDigestEmail(log);
 }
-
-// ==================== BSL GUARANTEED VENUES ====================
-
-/**
- * Venues that provide BSL interpretation at every event as standard.
- * If INTERPRETERS is empty for these venues, auto-fill it.
- */
-var BSL_GUARANTEED_VENUES = ['wembley stadium'];
-
-function resolveInterpreters(interpreters, venue) {
-  if (interpreters && interpreters.trim() !== '' && interpreters.trim().toUpperCase() !== 'TBC') {
-    return interpreters.trim();
-  }
-  var venueLower = (venue || '').toLowerCase();
-  for (var i = 0; i < BSL_GUARANTEED_VENUES.length; i++) {
-    if (venueLower.indexOf(BSL_GUARANTEED_VENUES[i]) !== -1) {
-      return 'BSL Interpreter (Venue Standard)';
-    }
-  }
-  return interpreters || 'TBC';
-}
-
-// ==================== VENUE TYPO CORRECTIONS ====================
-
-VENUE_TYPO_CORRECTIONS = typeof VENUE_TYPO_CORRECTIONS !== 'undefined' ? VENUE_TYPO_CORRECTIONS : [
-  { pattern: /\bStandford\s+Bridge\b/gi, replacement: 'Stamford Bridge' },
-  { pattern: /\bStaduim\b/gi, replacement: 'Stadium' },
-  { pattern: /\bStadiem\b/gi, replacement: 'Stadium' },
-  { pattern: /\bLiecester\b/gi, replacement: 'Leicester' },
-  { pattern: /\bManachest?er\b/gi, replacement: 'Manchester' },
-  { pattern: /\bBirmnigham\b/gi, replacement: 'Birmingham' },
-  { pattern: /\bNottignham\b/gi, replacement: 'Nottingham' },
-  { pattern: /\bEdinbugrh\b/gi, replacement: 'Edinburgh' },
-  { pattern: /\bShefeild\b/gi, replacement: 'Sheffield' },
-  { pattern: /\bReding\b/g, replacement: 'Reading' },
-  { pattern: /\bUtlilita\b/gi, replacement: 'Utilita' },
-];
-
-// Also correct city names in the CITY column
-CITY_TYPO_CORRECTIONS = typeof CITY_TYPO_CORRECTIONS !== 'undefined' ? CITY_TYPO_CORRECTIONS : [
-  { pattern: /^Reding$/i, replacement: 'Reading' },
-  { pattern: /^Lodnon$/i, replacement: 'London' },
-  { pattern: /^Mnchester$/i, replacement: 'Manchester' },
-];
-
-function correctVenueTypos(venue) {
-  if (!venue) return '';
-  var v = venue;
-  for (var i = 0; i < VENUE_TYPO_CORRECTIONS.length; i++) {
-    v = v.replace(VENUE_TYPO_CORRECTIONS[i].pattern, VENUE_TYPO_CORRECTIONS[i].replacement);
-  }
-  return v;
-}
-
-function correctCityTypos(city) {
-  if (!city) return '';
-  var c = city.trim();
-  for (var i = 0; i < CITY_TYPO_CORRECTIONS.length; i++) {
-    c = c.replace(CITY_TYPO_CORRECTIONS[i].pattern, CITY_TYPO_CORRECTIONS[i].replacement);
-  }
-  return c;
-}
-
-/**
- * Correct venue and city typos in existing PUBLISHED data.
- * Returns count of rows corrected.
- */
-function correctPublishedTypos(sheet) {
-  var data = sheet.getDataRange().getValues();
-  if (data.length < 2) return 0;
-
-  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
-  var venueCol = headers.indexOf('VENUE');
-  var cityCol = headers.indexOf('CITY');
-  if (venueCol < 0) return 0;
-
-  var corrected = 0;
-  for (var i = 1; i < data.length; i++) {
-    var venue = (data[i][venueCol] || '').toString().trim();
-    var fixedVenue = correctVenueTypos(venue);
-    var changed = false;
-
-    if (fixedVenue !== venue) {
-      sheet.getRange(i + 1, venueCol + 1).setValue(fixedVenue);
-      changed = true;
-    }
-
-    if (cityCol >= 0) {
-      var city = (data[i][cityCol] || '').toString().trim();
-      var fixedCity = correctCityTypos(city);
-      // Also fill empty cities using venue lookup
-      if (!fixedCity && fixedVenue) {
-        fixedCity = extractCityFromVenue(fixedVenue);
-      }
-      if (fixedCity && fixedCity !== city) {
-        sheet.getRange(i + 1, cityCol + 1).setValue(fixedCity);
-        changed = true;
-      }
-    }
-
-    if (changed) corrected++;
-  }
-  return corrected;
-}
-
-// ==================== VENUE → CITY LOOKUP ====================
-// For venues without a comma-separated city (e.g. "Stamford Bridge", "Emirates Stadium")
-
-VENUE_CITY_LOOKUP = typeof VENUE_CITY_LOOKUP !== 'undefined' ? VENUE_CITY_LOOKUP : {
-  'stamfordbridge': 'London',
-  'emiratesstadium': 'London',
-  'londonstadium': 'London',
-  'wembleystadium': 'London',
-  'ovowembley': 'London',
-  'o2main': 'London',
-  'indigoo2': 'London',
-  'eventimapollo': 'London',
-  'allypal': 'London',
-  'southbank': 'London',
-  'bppulse': 'Birmingham',
-  'anfield': 'Liverpool',
-  'aomanc': 'Manchester',
-  'o2apollomanc': 'Manchester',
-  'utilitasheff': 'Sheffield',
-  'motorpointnott': 'Nottingham',
-  'ovohydro': 'Glasgow',
-  'msbankliverpool': 'Liverpool',
-  'bournemouth': 'Bournemouth',
-  '3arenadublin': 'Dublin',
-};
-
-// ==================== VENUE → EVENT LINK MAP ====================
-// Fallback links for events without an EVENT URL — points to venue's events/fixtures page
-
-VENUE_EVENT_LINK_MAP = typeof VENUE_EVENT_LINK_MAP !== 'undefined' ? VENUE_EVENT_LINK_MAP : [
-  { matcher: /\b(the\s*)?o2\b/i, exclude: /indigo|apollo|forum|kentish|academy|brixton/i, url: 'https://www.theo2.co.uk/events' },
-  { matcher: /indigo.*o2|o2.*indigo/i, url: 'https://www.theo2.co.uk/venues/indigo-at-the-o2' },
-  { matcher: /royal\s*albert\s*hall/i, url: 'https://www.royalalberthall.com/tickets' },
-  { matcher: /wembley/i, exclude: /ovo|arena/i, url: 'https://www.wembleystadium.com/events' },
-  { matcher: /ovo.*wembley|wembley.*ovo/i, url: 'https://www.ovoarena.com/events' },
-  { matcher: /southbank|rfh|qeh|royal\s*festival/i, url: 'https://www.southbankcentre.co.uk/whats-on' },
-  { matcher: /alexandra\s*palace/i, url: 'https://www.alexandrapalace.com/whats-on' },
-  { matcher: /eventim\s*apollo|hammersmith.*apollo/i, url: 'https://www.eventimapollo.com/events' },
-  { matcher: /ao\s*arena|manchester\s*arena/i, url: 'https://www.ao-arena.com/whats-on' },
-  { matcher: /stamford\s*bridge/i, url: 'https://www.chelseafc.com/en/matches' },
-  { matcher: /emirates\s*stadium/i, url: 'https://www.arsenal.com/fixtures' },
-  { matcher: /london\s*stadium/i, url: 'https://www.whufc.com/fixtures' },
-  { matcher: /motorpoint.*nottingham|nottingham.*(motorpoint|arena)/i, url: 'https://www.motorpointarenanottingham.com/whats-on' },
-  { matcher: /utilita.*sheffield|sheffield.*(utilita|arena)/i, url: 'https://www.utilitaarenasheffield.co.uk/whats-on' },
-  { matcher: /3\s*arena.*dublin|dublin.*3\s*arena/i, url: 'https://3arena.ie/events' },
-  { matcher: /bp\s*pulse/i, url: 'https://bppulselive.co.uk/events' },
-  { matcher: /bournemouth/i, url: 'https://www.bic.co.uk/events' },
-  { matcher: /first\s*direct\s*arena|leeds.*(first\s*direct|arena)/i, url: 'https://www.firstdirectarena.com/whats-on' },
-  { matcher: /o2.*academy.*brixton|brixton.*o2.*academy/i, url: 'https://academymusicgroup.com/o2academybrixton/events' },
-  { matcher: /o2.*victoria.*manchester|manchester.*o2.*victoria/i, url: 'https://academymusicgroup.com/o2victoriawarehouse/events' },
-];
-
-// ==================== VENUE DEFAULT IMAGES ====================
-// Fallback images for events at specific venues (hosted on R2)
-// Used when no event-specific image is found by the scraper
-
-VENUE_DEFAULT_IMAGES = typeof VENUE_DEFAULT_IMAGES !== 'undefined' ? VENUE_DEFAULT_IMAGES : [
-  { matcher: /stamford\s*bridge/i, url: 'https://media.performanceinterpreting.co.uk/venues/stamford-bridge.jpg' },
-  { matcher: /london\s*stadium/i, url: 'https://media.performanceinterpreting.co.uk/venues/london-stadium.jpg' },
-  { matcher: /emirates\s*stadium/i, url: 'https://media.performanceinterpreting.co.uk/venues/emirates-stadium.png' },
-  { matcher: /tottenham.*stadium|spurs.*stadium/i, url: 'https://media.performanceinterpreting.co.uk/venues/tottenham-stadium.webp' },
-  { matcher: /craven\s*cottage|fulham/i, url: 'https://media.performanceinterpreting.co.uk/venues/craven-cottage.jpg' },
-  { matcher: /wembley\s*stadium/i, url: 'https://media.performanceinterpreting.co.uk/defaults/default-sport.png' },
-];
 
 // ==================== READ SOURCES ====================
 
@@ -398,7 +204,7 @@ function getEventsFromPreApproved() {
       const row = data[i];
       const dateRaw = (row[col.date] || '').toString().trim();
       const eventName = (row[col.name] || '').toString().trim();
-      const venue = correctVenueTypos((row[col.venue] || '').toString().trim());
+      const venue = (row[col.venue] || '').toString().trim();
 
       if (!dateRaw || !eventName || !venue) continue;
 
@@ -409,10 +215,9 @@ function getEventsFromPreApproved() {
       // Skip past events
       if (isDateInPast(dateRaw)) continue;
 
-      const time = col.time >= 0 ? (row[col.time] || '').toString().trim() : '';
+      const time = col.time >= 0 ? normalizeTimeValue(row[col.time]) : '';
       const interpreters = col.interpreters >= 0 ? (row[col.interpreters] || '').toString().trim() : '';
-      const rawCity = col.city >= 0 ? (row[col.city] || '').toString().trim() : '';
-      const city = correctCityTypos(rawCity || extractCityFromVenue(venue));
+      const city = col.city >= 0 ? (row[col.city] || '').toString().trim() : '';
       const interpretation = col.language >= 0 ? (row[col.language] || '').toString().trim() : 'BSL';
       const explicitCategory = col.category >= 0 ? (row[col.category] || '').toString().trim() : '';
       var categoryAssumed = false;
@@ -433,13 +238,12 @@ function getEventsFromPreApproved() {
         venue,             // VENUE
         city,              // CITY
         time || 'TBC',     // TIME
-        resolveInterpreters(interpreters, venue), // INTERPRETERS
+        interpreters || 'TBC', // INTERPRETERS
         interpretation || 'BSL', // INTERPRETATION
         category,          // CATEGORY
         imageUrl,          // IMAGE URL
         eventUrl,          // EVENT URL
-        '',                // STATUS
-        'PRE_APPROVED'     // SOURCE (from PRE_APPROVED EVENTS sheet - may be scraper or manual)
+        ''                 // STATUS
       ];
 
       const key = makeDedupKey(dateRaw, eventName, venue);
@@ -496,7 +300,7 @@ function getEventsFromMonthlyTabs() {
 
         const dateRaw = (row[dateIdx] || '').toString().trim();
         const eventName = (row[eventIdx] || '').toString().trim();
-        const venue = correctVenueTypos((row[venueIdx] || '').toString().trim());
+        const venue = (row[venueIdx] || '').toString().trim();
 
         if (!dateRaw || !eventName || !venue) continue;
 
@@ -506,9 +310,9 @@ function getEventsFromMonthlyTabs() {
         // Skip past events
         if (isDateInPast(dateRaw)) continue;
 
-        const time = timeIdx >= 0 ? (row[timeIdx] || '').toString().trim() : '';
+        const time = timeIdx >= 0 ? normalizeTimeValue(row[timeIdx]) : '';
         const interpreters = interpIdx >= 0 ? (row[interpIdx] || '').toString().trim() : '';
-        const city = correctCityTypos(extractCityFromVenue(venue));
+        const city = extractCityFromVenue(venue);
         const interpretation = venue.toLowerCase().includes('ireland') ? 'ISL' : 'BSL';
         const catResult = detectCategoryWithDefault(eventName, venue);
 
@@ -518,13 +322,12 @@ function getEventsFromMonthlyTabs() {
           venue,                   // VENUE
           city,                    // CITY
           time || 'TBC',           // TIME
-          resolveInterpreters(interpreters, venue), // INTERPRETERS
+          interpreters || 'TBC',   // INTERPRETERS
           interpretation,          // INTERPRETATION
           catResult.category,      // CATEGORY
           '',                      // IMAGE URL (not available from monthly tabs)
           '',                      // EVENT URL (not available from monthly tabs)
-          '',                      // STATUS
-          'MANUAL'                 // SOURCE (PI Work Flow monthly tabs)
+          ''                       // STATUS
         ];
 
         const key = makeDedupKey(dateRaw, eventName, venue);
@@ -541,67 +344,47 @@ function getEventsFromMonthlyTabs() {
 // ==================== MERGE & DEDUP ====================
 
 /**
- * Build dedup key set from existing PUBLISHED data.
- * Returns { keys: Set, piOsKeys: Set } where piOsKeys contains events from PI_OS
- * that should never be overwritten by scrapers.
+ * Build dedup key set from existing PUBLISHED data
  */
 function buildDedupKeys(data) {
   const keys = new Set();
-  const piOsKeys = new Set();
-  if (!data || data.length < 2) return { keys, piOsKeys };
+  if (!data || data.length < 2) return keys;
 
   // Find column indices from header row
   const headers = data[0].map(h => (h || '').toString().trim().toUpperCase());
   const dateIdx = headers.indexOf('DATE');
   const eventIdx = headers.indexOf('EVENT');
   const venueIdx = headers.indexOf('VENUE');
-  const sourceIdx = headers.indexOf('SOURCE');
 
-  if (dateIdx === -1 || eventIdx === -1 || venueIdx === -1) return { keys, piOsKeys };
+  if (dateIdx === -1 || eventIdx === -1 || venueIdx === -1) return keys;
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const date = (row[dateIdx] || '').toString().trim();
     const event = (row[eventIdx] || '').toString().trim();
     const venue = (row[venueIdx] || '').toString().trim();
-    const source = sourceIdx >= 0 ? (row[sourceIdx] || '').toString().trim().toUpperCase() : '';
-
     if (date && event) {
-      const key = makeDedupKey(date, event, venue);
-      keys.add(key);
-
-      // Track PI_OS events separately - these take priority over everything
-      if (source === 'PI_OS') {
-        piOsKeys.add(key);
-      }
+      keys.add(makeDedupKey(date, event, venue));
     }
   }
 
-  return { keys, piOsKeys };
+  return keys;
 }
 
 /**
  * Merge pre-approved and monthly events. Monthly wins on conflict.
- * Events in piOsKeys are excluded - they're already in PUBLISHED from PI OS
- * and should not be duplicated or overwritten.
  */
-function mergeEvents(preApproved, monthly, piOsKeys) {
+function mergeEvents(preApproved, monthly) {
   const eventMap = new Map();
-  piOsKeys = piOsKeys || new Set();
 
-  // Add pre-approved first (skip if already in PI OS)
+  // Add pre-approved first
   for (const evt of preApproved) {
-    if (!piOsKeys.has(evt.key)) {
-      eventMap.set(evt.key, evt);
-    }
+    eventMap.set(evt.key, evt);
   }
 
-  // Monthly overwrites pre-approved (has better data: real interpreter names, confirmed times)
-  // But never overwrites PI OS events
+  // Monthly overwrites (has better data: real interpreter names, confirmed times)
   for (const evt of monthly) {
-    if (!piOsKeys.has(evt.key)) {
-      eventMap.set(evt.key, evt);
-    }
+    eventMap.set(evt.key, evt);
   }
 
   return Array.from(eventMap.values());
@@ -635,8 +418,7 @@ function deduplicatePublished(sheet) {
     category: headers.indexOf('CATEGORY'),
     imageUrl: headers.indexOf('IMAGE URL'),
     eventUrl: headers.indexOf('EVENT URL'),
-    status: headers.indexOf('STATUS'),
-    source: headers.indexOf('SOURCE')
+    status: headers.indexOf('STATUS')
   };
 
   if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
@@ -664,17 +446,9 @@ function deduplicatePublished(sheet) {
     if (group.length < 2) continue;
 
     // Score each row: higher = better data
-    // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
       var r = group[g].row;
       var score = 0;
-
-      // SOURCE priority: PI_OS > MANUAL > SCRAPER
-      var source = col.source >= 0 ? (r[col.source] || '').toString().trim().toUpperCase() : '';
-      if (source === 'PI_OS') score += 100; // PI OS always wins
-      else if (source === 'MANUAL') score += 50; // Manual entry from PI Work Flow
-      // SCRAPER gets no bonus
-
       var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
       if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
       if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
@@ -734,9 +508,8 @@ function deduplicatePublished(sheet) {
  * Handles cases where the O2 scraper returns updated dates between runs,
  * creating near-duplicate rows (e.g., RAYE on 26.02 vs 27.02).
  *
- * Only merges groups of exactly 2 entries with dates within 7 days.
- * Groups of 3+ entries are assumed to be legitimate multi-show events
- * (like Strictly Come Dancing with 3 nights at the same venue).
+ * Only merges groups where ALL dates are consecutive (exactly 1 day apart).
+ * Non-consecutive dates are kept as separate cards (different shows).
  */
 function deduplicateDateVarying(sheet) {
   var data = sheet.getDataRange().getValues();
@@ -752,8 +525,7 @@ function deduplicateDateVarying(sheet) {
     interpreters: headers.indexOf('INTERPRETERS'),
     category: headers.indexOf('CATEGORY'),
     imageUrl: headers.indexOf('IMAGE URL'),
-    eventUrl: headers.indexOf('EVENT URL'),
-    source: headers.indexOf('SOURCE')
+    eventUrl: headers.indexOf('EVENT URL')
   };
 
   if (col.date < 0 || col.event < 0 || col.venue < 0) return { removed: 0, merged: [] };
@@ -798,16 +570,9 @@ function deduplicateDateVarying(sheet) {
     if (!allConsecutive) continue;
 
     // Score each row by data quality (same logic as exact dedup)
-    // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
       var r = group[g].row;
       var score = 0;
-
-      // SOURCE priority: PI_OS > MANUAL > SCRAPER
-      var source = col.source >= 0 ? (r[col.source] || '').toString().trim().toUpperCase() : '';
-      if (source === 'PI_OS') score += 100; // PI OS always wins
-      else if (source === 'MANUAL') score += 50; // Manual entry from PI Work Flow
-
       var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
       if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
       if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
@@ -910,7 +675,6 @@ function getCancelledKeys(spreadsheet) {
 
 /**
  * Remove any cancelled events that are still in PUBLISHED.
- * Uses bottom-up row deletion to avoid data loss if script crashes mid-operation.
  * Returns array of removed event names.
  */
 function removeCancelledEvents(sheet, data, cancelledKeys) {
@@ -923,8 +687,8 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 
   if (dateIdx < 0 || eventIdx < 0 || venueIdx < 0) return [];
 
+  var rowsToKeep = [data[0]];
   var removed = [];
-  var rowsToRemove = [];
 
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
@@ -935,14 +699,15 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 
     if (cancelledKeys.has(key)) {
       removed.push(event);
-      rowsToRemove.push(i + 1); // 1-based sheet row
+    } else {
+      rowsToKeep.push(row);
     }
   }
 
-  if (rowsToRemove.length > 0 && !DRY_RUN) {
-    // Delete rows bottom-up to preserve indices
-    for (var d = rowsToRemove.length - 1; d >= 0; d--) {
-      sheet.deleteRow(rowsToRemove[d]);
+  if (removed.length > 0 && !DRY_RUN) {
+    sheet.clearContents();
+    if (rowsToKeep.length > 0) {
+      sheet.getRange(1, 1, rowsToKeep.length, rowsToKeep[0].length).setValues(rowsToKeep);
     }
   }
 
@@ -952,8 +717,7 @@ function removeCancelledEvents(sheet, data, cancelledKeys) {
 // ==================== PUBLISH & PRUNE ====================
 
 /**
- * Remove past events from PUBLISHED sheet.
- * Uses bottom-up row deletion to avoid data loss if script crashes mid-operation.
+ * Remove past events from PUBLISHED sheet
  */
 function removePastEvents(sheet, data) {
   const result = { removed: [] };
@@ -969,7 +733,8 @@ function removePastEvents(sheet, data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const rowsToRemove = [];
+  const rowsToKeep = [data[0]]; // Keep header
+  const removed = [];
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
@@ -977,22 +742,25 @@ function removePastEvents(sheet, data) {
     const parsed = parseDDMMYY(dateStr);
 
     if (parsed && parsed < today) {
-      result.removed.push({
+      removed.push({
         date: dateStr,
         event: (row[eventIdx] || '').toString().trim(),
         venue: (row[venueIdx] || '').toString().trim()
       });
-      rowsToRemove.push(i + 1); // 1-based sheet row
+    } else {
+      rowsToKeep.push(row);
     }
   }
 
-  if (rowsToRemove.length > 0 && !DRY_RUN) {
-    // Delete rows bottom-up to preserve indices
-    for (let d = rowsToRemove.length - 1; d >= 0; d--) {
-      sheet.deleteRow(rowsToRemove[d]);
+  if (removed.length > 0 && !DRY_RUN) {
+    // Rewrite sheet without past events
+    sheet.clearContents();
+    if (rowsToKeep.length > 0) {
+      sheet.getRange(1, 1, rowsToKeep.length, rowsToKeep[0].length).setValues(rowsToKeep);
     }
   }
 
+  result.removed = removed;
   return result;
 }
 
@@ -1045,14 +813,10 @@ function sendDigestEmail(log) {
   body += `QUICK SUMMARY\n`;
   body += `-`.repeat(55) + `\n`;
   const enrichResult = log.enriched || { enriched: 0, totalMissing: 0, filled: [] };
-  const linkResult = log.linksEnriched || { enriched: 0, totalMissing: 0, filled: [] };
   body += `  Total published events:  ${quality.total || '?'}\n`;
   body += `  Added today:             ${addedCount}\n`;
   if (enrichResult.enriched > 0) {
     body += `  Images auto-filled:      ${enrichResult.enriched} (via artist matching)\n`;
-  }
-  if (linkResult.enriched > 0) {
-    body += `  Links auto-filled:       ${linkResult.enriched} (via venue lookup)\n`;
   }
   body += `  Removed (past):          ${removedCount}\n`;
   body += `  Skipped (duplicates):    ${log.skipped}\n`;
@@ -1210,7 +974,7 @@ function sendDigestEmail(log) {
   }
 
   try {
-    MailApp.sendEmail(DIGEST_EMAIL, subject, body);
+    GmailApp.sendEmail(DIGEST_EMAIL, subject, body);
     Logger.log('Digest email sent to ' + DIGEST_EMAIL);
   } catch (error) {
     Logger.log('Failed to send email: ' + error.toString());
@@ -1296,14 +1060,6 @@ VENUE_SCRAPE_CONFIGS = typeof VENUE_SCRAPE_CONFIGS !== 'undefined' ? VENUE_SCRAP
   { matcher: /o2.*apollo.*manchester|manchester.*o2.*apollo/i, baseUrl: 'https://academymusicgroup.com/o2apollomanchester/events/' },
   { matcher: /o2.*forum.*kentish|kentish.*o2.*forum/i, baseUrl: 'https://academymusicgroup.com/o2forumkentishtown/events/' },
   { matcher: /3\s*arena.*dublin|dublin.*3\s*arena/i, baseUrl: 'https://3arena.ie/events/' },
-  { matcher: /stamford\s*bridge|chelsea\s*(fc|football)/i, baseUrl: 'https://www.chelseafc.com/en/matches/' },
-  { matcher: /emirates\s*stadium|arsenal\s*(fc|football)/i, baseUrl: 'https://www.arsenal.com/fixtures/' },
-  { matcher: /london\s*stadium|west\s*ham/i, baseUrl: 'https://www.whufc.com/fixtures/' },
-  { matcher: /anfield|liverpool\s*(fc|football)/i, baseUrl: 'https://www.liverpoolfc.com/matches/' },
-  { matcher: /first\s*direct\s*arena|leeds.*arena/i, baseUrl: 'https://www.firstdirectarena.com/whats-on/' },
-  { matcher: /o2.*academy.*brixton|brixton.*academy/i, baseUrl: 'https://academymusicgroup.com/o2academybrixton/events/' },
-  { matcher: /o2.*victoria.*manchester|manchester.*o2.*victoria/i, baseUrl: 'https://academymusicgroup.com/o2victoriawarehouse/events/' },
-  { matcher: /royal\s*albert\s*hall/i, baseUrl: 'https://www.royalalberthall.com/tickets/events/' },
 ];
 
 /**
@@ -1369,95 +1125,21 @@ function enrichMissingImages(sheet) {
       filled.push(event + ' [venue match]');
       enriched++;
     } else {
-      // Tier 1b: Venue default image (stadium photos for football grounds, etc.)
-      var venueDefault = null;
-      for (var vd = 0; vd < VENUE_DEFAULT_IMAGES.length; vd++) {
-        if (VENUE_DEFAULT_IMAGES[vd].matcher.test(venue)) {
-          venueDefault = VENUE_DEFAULT_IMAGES[vd].url;
-          break;
-        }
-      }
-      if (venueDefault) {
-        if (!DRY_RUN) sheet.getRange(i + 1, imgCol + 1).setValue(venueDefault);
-        filled.push(event + ' [venue default]');
-        enriched++;
-      } else {
-        needsScraping.push({ row: i, event: event, venue: venue });
-      }
+      needsScraping.push({ row: i, event: event, venue: venue });
     }
   }
 
   // Tier 2: Venue website scraping (max 15 per run to avoid timeout)
-  // Use CacheService to skip events that already failed scraping (7-day TTL)
-  var scrapeCache = CacheService.getScriptCache();
   var scrapeCount = 0;
   for (var s = 0; s < needsScraping.length && scrapeCount < 15; s++) {
     var item = needsScraping[s];
-    var cacheKey = 'scrape_fail_' + normalizeForImageMatch(item.event + item.venue);
-    if (cacheKey.length > 250) cacheKey = cacheKey.substring(0, 250); // CacheService key limit
-
-    // Skip if we already tried and failed recently
-    if (scrapeCache.get(cacheKey)) continue;
-
     var scraped = scrapeImageFromVenue_(item.event, item.venue);
     if (scraped) {
       if (!DRY_RUN) sheet.getRange(item.row + 1, imgCol + 1).setValue(scraped);
       filled.push(item.event + ' [scraped]');
       enriched++;
-    } else {
-      // Cache the failure for 7 days (604800 seconds) to avoid retrying daily
-      scrapeCache.put(cacheKey, 'miss', 604800);
     }
     scrapeCount++;
-  }
-
-  return { enriched: enriched, totalMissing: totalMissing, filled: filled };
-}
-
-/**
- * Enrich missing EVENT URLs with venue homepage/fixtures page.
- * Not the exact event page, but gives users a starting point.
- */
-function enrichMissingEventLinks(sheet) {
-  var data = sheet.getDataRange().getValues();
-  if (data.length < 2) return { enriched: 0, totalMissing: 0 };
-
-  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
-  var venueCol = headers.indexOf('VENUE');
-  var linkCol = headers.indexOf('EVENT URL');
-  var eventCol = headers.indexOf('EVENT');
-
-  if (venueCol < 0 || linkCol < 0) return { enriched: 0, totalMissing: 0 };
-
-  var enriched = 0;
-  var totalMissing = 0;
-  var filled = [];
-
-  for (var i = 1; i < data.length; i++) {
-    var link = (data[i][linkCol] || '').toString().trim();
-    if (link) continue;
-
-    var venue = (data[i][venueCol] || '').toString().trim();
-    var event = eventCol >= 0 ? (data[i][eventCol] || '').toString().trim() : '';
-    if (!venue) continue;
-    totalMissing++;
-
-    // Match against venue link map
-    var matchedUrl = null;
-    for (var m = 0; m < VENUE_EVENT_LINK_MAP.length; m++) {
-      var config = VENUE_EVENT_LINK_MAP[m];
-      if (config.matcher.test(venue)) {
-        if (config.exclude && config.exclude.test(venue)) continue;
-        matchedUrl = config.url;
-        break;
-      }
-    }
-
-    if (matchedUrl) {
-      if (!DRY_RUN) sheet.getRange(i + 1, linkCol + 1).setValue(matchedUrl);
-      filled.push(event || venue);
-      enriched++;
-    }
   }
 
   return { enriched: enriched, totalMissing: totalMissing, filled: filled };
@@ -1485,14 +1167,6 @@ function normalizeVenueFamily(venue) {
   if (/bournemouth/i.test(v)) return 'bournemouth';
   if (/o2.*apollo.*manchester|manchester.*o2.*apollo/i.test(v)) return 'o2apollomanc';
   if (/3\s*arena.*dublin|dublin.*3\s*arena/i.test(v)) return '3arenadublin';
-  if (/stamford\s*bridge/i.test(v)) return 'stamfordbridge';
-  if (/emirates\s*stadium/i.test(v) && !/o2|wembley/i.test(v)) return 'emiratesstadium';
-  if (/london\s*stadium/i.test(v)) return 'londonstadium';
-  if (/anfield/i.test(v)) return 'anfield';
-  if (/first\s*direct\s*arena/i.test(v)) return 'firstdirectleeds';
-  if (/o2.*academy.*brixton|brixton.*academy/i.test(v)) return 'o2brixton';
-  if (/o2.*victoria.*manchester|manchester.*o2.*victoria/i.test(v)) return 'o2vicmanc';
-  if (/royal\s*albert\s*hall/i.test(v)) return 'rah';
   // Fallback: strip common words
   return v.replace(/\b(the|arena|stadium|centre|center|at)\b/g, '').replace(/[^a-z0-9]/g, '');
 }
@@ -1640,6 +1314,85 @@ function extractArtistKeys(eventName) {
  */
 function normalizeForImageMatch(str) {
   return (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// ==================== TIME NORMALIZATION ====================
+
+/**
+ * Normalize time values from Sheets cells.
+ * Handles Date objects (Excel epoch), "12/30/1899" strings, serial numbers,
+ * and passes through valid time strings unchanged.
+ */
+function normalizeTimeValue(v) {
+  if (v == null || v === '') return '';
+
+  // Handle Sheets serial number (0.0 to 1.0 representing time of day)
+  if (typeof v === 'number' && v >= 0 && v < 1) {
+    var mins = Math.round(v * 24 * 60);
+    var h = Math.floor(mins / 60) % 24;
+    var m = mins % 60;
+    if (h === 0 && m === 0) return '';
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  // Handle Date objects (Sheets returns time-only cells as epoch dates: Dec 30 1899)
+  if (v instanceof Date) {
+    var h = v.getHours();
+    var m = v.getMinutes();
+    if (h === 0 && m === 0) return '';
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  var s = String(v).trim();
+
+  // Handle epoch date strings: "12/30/1899", "Mon Dec 30 1899 18:00:00 GMT+0000 ..."
+  if (/\b1899\b/.test(s)) {
+    var timeMatch = s.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?/i);
+    if (timeMatch) {
+      var h = parseInt(timeMatch[1], 10);
+      var m = timeMatch[2];
+      var ampm = timeMatch[4];
+      if (ampm && ampm.toLowerCase() === 'pm' && h < 12) h += 12;
+      if (ampm && ampm.toLowerCase() === 'am' && h === 12) h = 0;
+      return String(h).padStart(2, '0') + ':' + m;
+    }
+    return ''; // Bare "12/30/1899" with no time portion — unrecoverable
+  }
+
+  // Pass through valid time strings (18:00, 18:00 - 22:30, TBC, 2 Days, etc.)
+  return s;
+}
+
+/**
+ * One-time fix: scan PUBLISHED sheet for "12/30/1899" time values and clear them.
+ * Run from the Automation menu after deploying this fix.
+ */
+function fixMalformedTimes() {
+  var ss = SpreadsheetApp.openById(PUBLIC_FEED_ID);
+  var sheet = ss.getSheetByName(PUBLISHED_SHEET);
+  if (!sheet) return;
+
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var timeIdx = headers.indexOf('TIME');
+  if (timeIdx < 0) return;
+
+  var fixed = 0;
+  for (var i = 1; i < data.length; i++) {
+    var raw = data[i][timeIdx];
+    var normalized = normalizeTimeValue(raw);
+    var current = (raw || '').toString().trim();
+    if (current !== normalized) {
+      sheet.getRange(i + 1, timeIdx + 1).setValue(normalized || 'TBC');
+      fixed++;
+    }
+  }
+  Logger.log('fixMalformedTimes: fixed ' + fixed + ' rows');
+  if (fixed > 0) {
+    SpreadsheetApp.getUi().alert('Fixed ' + fixed + ' malformed time values in PUBLISHED sheet.');
+  } else {
+    SpreadsheetApp.getUi().alert('No malformed times found.');
+  }
 }
 
 // ==================== HELPER FUNCTIONS ====================
@@ -1839,17 +1592,15 @@ function isTruthyValue(val) {
 // Category detection keywords (mapped to current valid categories)
 CATEGORY_KEYWORDS = typeof CATEGORY_KEYWORDS !== 'undefined' ? CATEGORY_KEYWORDS : {
   'Concert': ['concert', 'gig', 'live music', 'band', 'singer', 'orchestra', 'symphony'],
-  'Comedy': ['comedy', 'stand-up', 'comedian', 'comedians', 'improv', 'smosh', 'reddit', 'reads'],
+  'Comedy': ['comedy', 'stand-up', 'comedian', 'comedians'],
   'Theatre': ['theatre', 'play', 'musical', 'opera', 'ballet', 'pantomime', 'panto'],
   'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi'],
   'Family': ['family', 'kids', 'children', 'circus', 'dollhouse', 'cbeebies', 'peppa', 'paw patrol', 'bluey'],
   'Festival': ['festival', 'pride', 'fest'],
-  // Note: Festival sub-categorisation (Camping/Non-Camping) handled by detectFestivalType() below
   'Cultural': ['cultural', 'heritage', 'parade', 'st patrick', 'book launch', 'exhibition'],
-  'Dance': ['dance', 'dancing', 'strictly', 'ballroom', 'choreograph'],
-  'Talks & Discussions': ['conversation', 'talk', 'discussion', 'lecture', 'in conversation', 'q&a', 'spoken word', 'podcast'],
-  'Literature': ['book', 'author', 'literary', 'reading', 'poetry'],
-  'Other': ['workshop', 'quilting', 'sewing', 'craft', 'knitting', 'seminar', 'masterclass', 'class', 'course']
+  'Dance': ['dance', 'dancing'],
+  'Talks & Discussions': ['conversation', 'talk', 'discussion', 'lecture', 'in conversation', 'q&a', 'spoken word'],
+  'Literature': ['book', 'author', 'literary', 'reading', 'poetry']
 };
 
 /**
@@ -1868,53 +1619,7 @@ function detectCategory(event, venue) {
     }
   }
 
-  return '_UNDETECTED';
-}
-
-// Known camping festivals — add to this list as new ones are confirmed
-KNOWN_CAMPING_FESTIVALS = typeof KNOWN_CAMPING_FESTIVALS !== 'undefined' ? KNOWN_CAMPING_FESTIVALS : [
-  'download festival',
-  'leeds festival',
-  'reading festival',
-  'electric picnic',
-  'glastonbury',
-  'isle of wight festival',
-  'latitude festival',
-  'green man festival',
-  'wilderness festival',
-  'camp bestival',
-  'boomtown',
-  'shambala',
-  'end of the road',
-  'bluedot',
-  'y not festival',
-  'kendal calling',
-  'belladrum',
-  'truck festival',
-  'all points east',  // camping option available
-];
-
-/**
- * Detect if a festival is camping or non-camping.
- * Returns 'Camping Festival' or 'Non-Camping Festival'.
- */
-function detectFestivalType(eventName, venue) {
-  var name = (eventName || '').toLowerCase();
-  for (var i = 0; i < KNOWN_CAMPING_FESTIVALS.length; i++) {
-    if (name.indexOf(KNOWN_CAMPING_FESTIVALS[i]) >= 0) {
-      return 'Camping Festival';
-    }
-  }
-  // Pride events are always non-camping
-  if (/\bpride\b/i.test(name)) return 'Non-Camping Festival';
-  // Indoor venue = non-camping
-  var v = (venue || '').toLowerCase();
-  if (/o2|arena|theatre|hall|stadium|academy|apollo|roundhouse|palladium|hippodrome/i.test(v)) {
-    return 'Non-Camping Festival';
-  }
-  // Multi-day events with "days" in the time field are likely camping, but we can't check that here
-  // Default to Non-Camping (safer assumption for urban/unknown festivals)
-  return 'Non-Camping Festival';
+  return 'Other';
 }
 
 /**
@@ -1924,7 +1629,6 @@ function detectFestivalType(eventName, venue) {
 // Valid categories (only define if not already in Code.gs)
 VALID_CATEGORIES = typeof VALID_CATEGORIES !== 'undefined' ? VALID_CATEGORIES : {
   'concert': 'Concert', 'sports': 'Sports', 'festival': 'Festival',
-  'camping festival': 'Camping Festival', 'non-camping festival': 'Non-Camping Festival',
   'comedy': 'Comedy', 'theatre': 'Theatre', 'cultural': 'Cultural',
   'family': 'Family', 'literature': 'Literature', 'dance': 'Dance',
   'talks & discussions': 'Talks & Discussions', 'other': 'Other'
@@ -1943,18 +1647,13 @@ function normalizeCategory(category) {
 }
 
 /**
- * Wrapper: detect category, defaulting undetected to "Concert" for monthly tab events.
- * Events that positively match 'Other' keywords stay as Other (e.g. Quilting Workshop).
+ * Wrapper: detect category, defaulting "Other" to "Concert" for monthly tab events.
  * Returns { category, assumed } so the digest can flag assumed ones.
  */
 function detectCategoryWithDefault(eventName, venue) {
   var detected = normalizeCategory(detectCategory(eventName, venue));
-  if (detected === '_UNDETECTED' || detected === '_undetected') {
+  if (detected === 'Other') {
     return { category: 'Concert', assumed: true };
-  }
-  // Sub-categorise festivals as Camping or Non-Camping
-  if (detected === 'Festival') {
-    return { category: detectFestivalType(eventName, venue), assumed: false };
   }
   return { category: detected, assumed: false };
 }
@@ -1968,9 +1667,7 @@ function extractCityFromVenue(venue) {
   if (parts.length >= 2) {
     return parts[parts.length - 1].trim();
   }
-  // Fallback: known venue to city mapping
-  var venueFam = normalizeVenueFamily(venue);
-  return VENUE_CITY_LOOKUP[venueFam] || '';
+  return '';
 }
 
 // ==================== DRY RUN ====================
@@ -1995,22 +1692,17 @@ function dailyAutoPublishDryRun_() {
     }
 
     const existingData = publishedSheet.getDataRange().getValues();
-    const dedupResult = buildDedupKeys(existingData);
-    const existingKeys = dedupResult.keys;
-    const piOsKeys = dedupResult.piOsKeys;
+    const existingKeys = buildDedupKeys(existingData);
     const cancelledKeys = getCancelledKeys(publishedSS);
 
     const preApprovedEvents = getEventsFromPreApproved();
     const monthlyEvents = getEventsFromMonthlyTabs();
-    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents, piOsKeys);
+    const mergedEvents = mergeEvents(preApprovedEvents, monthlyEvents);
 
     log.cancelledSkipped = 0;
-    log.piOsProtected = 0;
     for (const evt of mergedEvents) {
       if (cancelledKeys.has(evt.key)) {
         log.cancelledSkipped++;
-      } else if (piOsKeys.has(evt.key)) {
-        log.piOsProtected++;
       } else if (existingKeys.has(evt.key)) {
         log.skipped++;
       } else {
@@ -2027,9 +1719,9 @@ function dailyAutoPublishDryRun_() {
     }
 
     // Dry-run dedup check
-    const exactDedupResult = deduplicatePublished(publishedSheet);
-    if (exactDedupResult.removed > 0) {
-      log.warnings.push('Dedup (dry run): would merge ' + exactDedupResult.removed + ' duplicate row(s): ' + exactDedupResult.merged.join('; '));
+    const dedupResult = deduplicatePublished(publishedSheet);
+    if (dedupResult.removed > 0) {
+      log.warnings.push('Dedup (dry run): would merge ' + dedupResult.removed + ' duplicate row(s): ' + dedupResult.merged.join('; '));
     }
 
     // Dry-run date-varying dedup check
@@ -2060,9 +1752,6 @@ function dailyAutoPublishDryRun_() {
 
     // Image enrichment (DRY_RUN=true so no writes, but shows what WOULD fill)
     log.enriched = enrichMissingImages(publishedSheet);
-
-    // Link enrichment (DRY_RUN=true so no writes, but shows what WOULD fill)
-    log.linksEnriched = enrichMissingEventLinks(publishedSheet);
 
     // Audit data quality
     log.quality = auditPublishedData(existingData);
