@@ -204,6 +204,9 @@ function dailyAutoPublish() {
     const festivalResult = enrichViaFestivalDiscovery(publishedSheet);
     log.festivalEnriched = festivalResult;
 
+    // 8d. Sync subscriber analytics to SUBSCRIBERS sheet
+    try { syncSubscriberData(); } catch (e) { log.warnings.push('Subscriber sync: ' + e.toString()); }
+
     // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
@@ -2545,4 +2548,75 @@ function dailyAutoPublishDryRun_() {
 
   // Use the same enhanced email (DRY_RUN flag handled inside)
   sendDigestEmail(log);
+}
+
+// ==================== SUBSCRIBER ANALYTICS ====================
+
+/**
+ * Pull subscriber data from push worker and write to SUBSCRIBERS sheet.
+ * Creates the sheet if it doesn't exist. Overwrites all data each run.
+ * Call from daily trigger or menu.
+ */
+function syncSubscriberData() {
+  var PUSH_API = 'https://pi-events-push-worker.lucky-shadow-d3f3.workers.dev/api/push/subscribers';
+  var SECRET = PropertiesService.getScriptProperties().getProperty('PUSH_SEND_SECRET');
+  if (!SECRET) {
+    Logger.log('PUSH_SEND_SECRET not set in Script Properties — skipping subscriber sync');
+    return;
+  }
+
+  try {
+    var response = UrlFetchApp.fetch(PUSH_API, {
+      headers: { 'Authorization': 'Bearer ' + SECRET },
+      muteHttpExceptions: true
+    });
+
+    if (response.getResponseCode() !== 200) {
+      Logger.log('Subscriber API error: ' + response.getResponseCode());
+      return;
+    }
+
+    var data = JSON.parse(response.getContentText());
+    var subs = data.subscribers || [];
+    if (subs.length === 0) {
+      Logger.log('No subscribers to sync');
+      return;
+    }
+
+    var ss = SpreadsheetApp.openById(PUBLIC_FEED_ID);
+    var sheet = ss.getSheetByName('SUBSCRIBERS');
+    if (!sheet) {
+      sheet = ss.insertSheet('SUBSCRIBERS');
+    }
+
+    // Write headers + data
+    var headers = ['ID', 'Platform', 'User Type', 'App Version', 'Interpretation', 'Categories', 'Locations', 'Registered'];
+    var rows = [headers];
+
+    for (var i = 0; i < subs.length; i++) {
+      var s = subs[i];
+      rows.push([
+        s.id,
+        s.platform,
+        s.userType || '',
+        s.appVersion || '',
+        s.interpretationType || '',
+        (s.categories || []).join(', '),
+        (s.locations || []).join(', '),
+        s.registeredAt || ''
+      ]);
+    }
+
+    sheet.clearContents();
+    sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+
+    // Format header row
+    var headerRange = sheet.getRange(1, 1, 1, headers.length);
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+
+    Logger.log('Subscriber sync complete: ' + subs.length + ' subscribers written to SUBSCRIBERS sheet');
+  } catch (e) {
+    Logger.log('Subscriber sync error: ' + e.toString());
+  }
 }
