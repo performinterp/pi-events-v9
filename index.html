@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://tally.so https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; media-src 'self' https://media.performanceinterpreting.co.uk; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://*.performanceinterpreting.co.uk https://*.workers.dev; font-src 'self'; frame-src https://tally.so;">
+    <script>if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){document.documentElement.classList.add('cap-native')}</script>
+    <style>html.cap-native .app-header,html.cap-native .hero-section,html.cap-native .app-footer,html.cap-native #homeFlow,html.cap-native #scrollTopBtn,html.cap-native #atEventFab,html.cap-native .about-section,html.cap-native .contact-section,html.cap-native .install-prompt{display:none!important}html.cap-native body{background:#fff}</style>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://tally.so https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; media-src 'self' https://media.performanceinterpreting.co.uk; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://*.performanceinterpreting.co.uk https://*.workers.dev https://pi-feedback-uploads.vercel.app; font-src 'self'; frame-src 'self' https://tally.so https://www.youtube.com;">
     <meta name="description" content="Find BSL and ISL interpreted events across the UK and Ireland. Professional sign language interpretation for concerts, sports, theatre, and more.">
     <meta name="theme-color" content="#2563EB">
 
@@ -34,7 +36,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=1.9.74">
+    <link rel="stylesheet" href="styles.css?v=2.0.0">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -47,78 +49,10 @@
         </svg>
     </button>
 
-    <!-- At the Event Floating Button (hidden on web — native only) -->
-    <button id="atEventFab" class="at-event-fab" onclick="showAppDownloadPrompt()" aria-label="At the Event tools" style="display:none;">
+    <!-- At the Event Floating Button -->
+    <button id="atEventFab" class="at-event-fab" onclick="openCommSupportModal()" aria-label="At the Event tools">
         <span class="at-event-fab-icon">🤟</span>
     </button>
-
-    <!-- Smart App Banner -->
-    <div id="smartAppBanner" style="background:#1E3A5F;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:14px;position:sticky;top:0;z-index:9999;">
-        <img src="PI Favicon.png" alt="" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
-        <div style="flex:1;min-width:0;">
-            <div style="font-weight:600;font-size:14px;">PI Events App</div>
-            <div style="font-size:12px;opacity:0.8;">Full experience with push notifications, tools and more</div>
-        </div>
-        <button onclick="showAppDownloadPrompt()" style="padding:6px 14px;background:#2563EB;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Get App</button>
-        <button onclick="document.getElementById('smartAppBanner').style.display='none';sessionStorage.setItem('pi-banner-dismissed','1')" style="background:none;border:none;color:#fff;opacity:0.6;font-size:18px;cursor:pointer;padding:4px;">✕</button>
-    </div>
-    <script>if(sessionStorage.getItem('pi-banner-dismissed'))document.getElementById('smartAppBanner').style.display='none';</script>
-
-    <!-- App Download Prompt Modal -->
-    <div id="appDownloadModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);padding:20px;align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:380px;width:100%;margin:auto;margin-top:15vh;">
-            <div style="text-align:center;margin-bottom:20px;">
-                <img src="PI Favicon.png" alt="" style="width:56px;height:56px;border-radius:12px;margin-bottom:12px;">
-                <h2 style="margin:0;font-size:20px;font-weight:700;color:#1F2937;">Get the PI Events App</h2>
-                <p style="margin:6px 0 0;font-size:14px;color:#6B7280;">Free on iOS and Android</p>
-            </div>
-            <div style="margin-bottom:20px;">
-                <p style="font-size:14px;color:#374151;font-weight:600;margin:0 0 10px;">The app includes:</p>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🔔</span> Push notifications when new events are added
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🤟</span> Show Staff cards at the venue
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🍔</span> Food and drink ordering cards
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🆘</span> Emergency cards for stewards
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🎤</span> Speech to Text
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">🎵</span> Feel the Music vibrations
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">📅</span> Save events to your calendar
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#374151;">
-                        <span style="font-size:20px;">📶</span> Works offline at venues with poor signal
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-                <a id="appStoreLink" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:#000;color:#fff;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;">Download for iPhone / iPad</a>
-                <a id="playStoreLink" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:#1a73e8;color:#fff;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;">Download for Android</a>
-                <button onclick="closeAppDownloadPrompt()" style="padding:10px;background:none;border:none;color:#6B7280;font-size:14px;cursor:pointer;">Continue browsing events</button>
-            </div>
-        </div>
-    </div>
-    <script>
-    function showAppDownloadPrompt() {
-        document.getElementById('appDownloadModal').style.display = 'flex';
-    }
-    function closeAppDownloadPrompt() {
-        document.getElementById('appDownloadModal').style.display = 'none';
-    }
-    document.getElementById('appDownloadModal').addEventListener('click', function(e) {
-        if (e.target === this) closeAppDownloadPrompt();
-    });
-    </script>
 
     <!-- App Header -->
     <header class="app-header">
@@ -143,7 +77,7 @@
 <nav class="desktop-nav">
     <a href="#/flow1" class="nav-link">Events</a>
     <a href="#/how-to-book" class="nav-link">How to Book</a>
-    <button onclick="showAppDownloadPrompt()" class="nav-link nav-button">Get the App</button>
+    <button onclick="openInstallPrompt()" class="nav-link nav-button">Install App</button>
     <div class="nav-dropdown">
         <button class="nav-link nav-button dropdown-toggle" id="moreDropdownBtn" aria-expanded="false" aria-haspopup="true">More ▾</button>
         <div class="dropdown-menu" id="moreDropdownMenu">
@@ -203,11 +137,12 @@
         <div class="access-modal-overlay" onclick="closeVideoModal()"></div>
         <div class="access-modal-content video-modal-content">
             <button class="access-modal-close" onclick="closeVideoModal()" aria-label="Close">&#10005;</button>
-            <video id="bslVideo" controls playsinline preload="metadata" style="width:100%; display:block; border-radius: 8px; max-height: 85vh;">
+            <video id="bslVideo" controls playsinline preload="metadata" style="width:100%; display:block; border-radius: 8px; max-height: 75vh;">
                 <source src="https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4" type="video/mp4">
                 <track kind="captions" label="English captions" srclang="en" default>
                 Your browser does not support video playback.
             </video>
+            <button class="video-close-btn" onclick="closeVideoModal()">Close Video</button>
         </div>
     </div>
 
@@ -223,7 +158,7 @@
                    <p class="home-flow-subtitle">Choose how you want to find accessible events</p>
                    <div class="bsl-video-link-center">
                        <button class="bsl-video-link" onclick="playBSLVideo('orientation')">
-                           <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                           <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                        </button>
                    </div>
                </div>
@@ -268,16 +203,16 @@
                        </div>
                    </div>
 
-                   <!-- Card 4: At the Event (app only) -->
-                   <div class="flow-card flow-card-purple" style="opacity:0.85;">
+                   <!-- Card 4: At the Event -->
+                   <div class="flow-card flow-card-purple">
                        <div class="flow-card-icon">🤟</div>
                        <div class="flow-card-content">
                            <h2 class="flow-card-title">At the Event</h2>
                            <p class="flow-card-description">
-                               Show staff cards, order food,<br>
-                               speech to text and more
+                               Show staff you are Deaf<br>
+                               Order food, get help
                            </p>
-                           <button onclick="showAppDownloadPrompt()" class="flow-card-button btn-primary" style="background:#6B7280;">📱 App Only</button>
+                           <button onclick="openCommSupportModal()" class="flow-card-button btn-primary">Open Tools</button>
                        </div>
                    </div>
                </div>
@@ -285,7 +220,7 @@
                <div class="home-flow-footer">
                    <div class="rights-ticker-container">
                        <p class="rights-ticker-label">💪 Know Your Rights:</p>
-                       <p id="rightsTicker" class="rights-ticker"></p>
+                       <p id="rightsTicker" class="rights-ticker" aria-live="polite"></p>
                        <button onclick="openKnowYourRightsModal()" class="btn-secondary" style="margin-top: 16px; display: inline-block;">
                            Know your rights →
                        </button>
@@ -300,19 +235,26 @@
        <!-- Category Selection View -->
        <section class="category-selection-section" id="categorySelectionView">
            <div class="container">
-               <!-- Category Search Bar -->
-               <div class="category-search-container">
-                   <svg class="category-search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none">
-                       <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                   </svg>
-                   <input type="text" id="categorySearchInput" class="category-search-input" placeholder="Search events, artists, venues..." autocomplete="off">
-                   <button class="category-search-clear" id="categorySearchClear" aria-label="Clear search">&times;</button>
+               <div class="flow-header">
+                   <h2 class="flow-title">Browse Events</h2>
+                   <p class="flow-subtitle">Choose a category to explore</p>
+                   <button class="bsl-video-btn" onclick="playBSLVideo('categories')" style="margin:8px auto 0;padding:6px 14px;border:1.5px solid #2563EB;border-radius:8px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                       <span>▶</span> <span class="video-lang-label">BSL</span>
+                   </button>
                </div>
                <div class="category-search-suggestions" id="categorySearchSuggestions"></div>
                <div class="category-cards-grid" id="categoryCardsContainer">
                    <!-- Will be populated by JavaScript instantly from cache or after fetch -->
                </div>
                <p class="categories-disclaimer">We only show events from venues we work with.</p>
+               <button onclick="if(typeof NativeShell!=='undefined')NativeShell.setSegment('search');" style="display:block;margin:8px auto 0;padding:8px 20px;border:1.5px solid #10B981;border-radius:8px;background:#ECFDF5;color:#059669;font-size:14px;font-weight:600;cursor:pointer;">Can't find your event? 🔍 Try Search</button>
+               <div style="margin:12px 0 0;text-align:center;">
+                   <p style="font-size:14px;font-weight:700;color:#DC2626;margin:0;">PI does not sell tickets</p>
+                   <p style="font-size:13px;font-weight:600;color:#6B7280;margin:2px 0 0;">We help you find accessible events</p>
+                   <p style="font-size:11px;color:#9CA3AF;margin:6px 0 0;">Event details are provided by venues and may change. Please confirm with the venue before attending.</p>
+               </div>
+
+               <!-- Intro video prompt moved to modal after language selection (see app.js _showIntroModal) -->
            </div>
        </section>
 
@@ -327,28 +269,12 @@
             </div>
         </div>
         
-        <!-- Search Bar -->
-        <div class="search-container">
-            <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="search-input" 
-                placeholder="Search events..."
-                aria-label="Search events"
-            >
-            <button class="search-clear" id="searchClear" aria-label="Clear search">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
+        <!-- Search bar removed — Search tab handles this -->
+        <div class="search-container" style="display:none;">
+            <input type="text" id="searchInput" class="search-input" aria-hidden="true">
+            <button class="search-clear" id="searchClear" aria-hidden="true"></button>
         </div>
-
-        <!-- Did You Mean? Suggestions -->
-        <div id="searchSuggestions" class="search-suggestions" style="display: none;" role="status" aria-live="polite">
-            <span class="suggestion-label">Did you mean:</span>
+        <div id="searchSuggestions" class="search-suggestions" style="display:none;">
             <div class="suggestion-items" id="suggestionItems"></div>
         </div>
 
@@ -391,7 +317,17 @@
                     <!-- Dynamically populated -->
                 </select>
             </div>
+
+            <!-- Accessibility Filter -->
+            <div class="filter-group">
+                <button class="filter-select" onclick="toggleAccessibilityPanel()" style="text-align:left;cursor:pointer;background:white;">
+                    ♿ Accessible Facilities
+                </button>
+            </div>
         </div>
+
+        <!-- Accessibility Filter Panel (hidden by default) -->
+        <div id="accessibilityFilterPanel" style="display:none;"></div>
 
         <!-- Active Filters Display -->
         <div class="active-filters" id="activeFilters"></div>
@@ -458,6 +394,7 @@
                     </svg>
                     <h3>No events found</h3>
                     <p>Try adjusting your filters or search terms</p>
+                    <button onclick="var q=document.getElementById('searchInput');var s=document.getElementById('flow2SearchInput');if(q&&s&&q.value.trim())s.value=q.value.trim();if(typeof NativeShell!=='undefined')NativeShell.setSegment('search');" style="margin-top:12px;padding:10px 24px;border:1.5px solid #10B981;border-radius:8px;background:#ECFDF5;color:#059669;font-size:15px;font-weight:600;cursor:pointer;">🔍 Search for a specific event</button>
                 </div>
 
                 <!-- Events Grid -->
@@ -467,29 +404,37 @@
             </div>
         </section>
 
+
        </div><!-- End flow1Section -->
 
        <!-- FLOW 2: Check BSL Booking (NEW) -->
        <div id="flow2Section" style="display: none;">
            <div class="container">
                <div class="flow-header">
-                   <h2 class="flow-title">Is BSL Booked?</h2>
-                   <p class="flow-subtitle">Search for an event<br>Find out if BSL is booked</p>
+                   <h2 class="flow-title">Interpreter Booked?</h2>
+                   <p class="flow-subtitle">Search for an event<br>Check if an interpreter is booked</p>
+                   <button class="bsl-video-btn" onclick="playBSLVideo('search')" style="margin:8px auto 0;padding:6px 14px;border:1.5px solid #2563EB;border-radius:8px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                       <span>▶</span> <span class="video-lang-label">BSL</span>
+                   </button>
                </div>
 
                <div class="search-flow-container">
-                   <input
-                       type="text"
-                       id="flow2SearchInput"
-                       class="flow-search-input"
-                       placeholder="Search event name..."
-                       aria-label="Search for event"
-                   >
+                   <div style="position:relative;flex:1;">
+                       <input
+                           type="text"
+                           id="flow2SearchInput"
+                           class="flow-search-input"
+                           placeholder="Search event name..."
+                           aria-label="Search for event"
+                           style="padding-right:36px;width:100%;box-sizing:border-box;"
+                       >
+                       <button id="flow2SearchClear" onclick="document.getElementById('flow2SearchInput').value='';document.getElementById('flow2Results').innerHTML='';this.style.display='none';" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:#9CA3AF;cursor:pointer;padding:4px;line-height:1;z-index:2;" aria-label="Clear search">✕</button>
+                   </div>
                    <button id="flow2SearchBtn" class="flow-search-btn">Search</button>
                </div>
 
                <div id="flow2Results" class="flow-results">
-                   <p class="placeholder-text">🔍 Type the event name to check BSL</p>
+                   <p class="placeholder-text">🔍 Type the event name to check</p>
                </div>
            </div>
        </div><!-- End flow2Section -->
@@ -499,11 +444,11 @@
            <div class="container">
                <div class="flow-header">
                    <h2 class="flow-title">Request an Interpreter</h2>
-                   <p class="flow-subtitle">Ask a venue to book a BSL interpreter<br>We help you ask</p>
-                   <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">For BSL only. The Equality Act states the venue and show must consider your request and make reasonable adjustments.</p>
+                   <p class="flow-subtitle">Ask a venue to book an interpreter<br>We help you ask</p>
+                   <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">The law says venues must consider your request and make reasonable adjustments.</p>
                    <div class="bsl-video-link-center">
                        <button class="bsl-video-link" onclick="playBSLVideo('request')">
-                           <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                           <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                        </button>
                    </div>
                </div>
@@ -533,6 +478,20 @@
                            <label for="venueEmail">Venue's Access Email</label>
                            <input type="email" id="venueEmail" placeholder="Auto-filled or type your own..." aria-describedby="venueEmailError">
                            <span id="venueEmailError" class="form-error" role="alert" aria-live="assertive"></span>
+                       </div>
+
+                       <div class="form-group">
+                           <label for="requestAccessNeeds">Additional Access Needs</label>
+                           <select id="requestAccessNeeds" class="filter-select" style="width:100%;">
+                               <option value="">None</option>
+                               <option value="wheelchair">Wheelchair accessible seating</option>
+                               <option value="hearing-loop">Hearing loop</option>
+                               <option value="step-free">Step-free access</option>
+                               <option value="assistance-dog">Assistance dog space</option>
+                               <option value="quiet-room">Quiet room</option>
+                               <option value="changing-places">Changing Places toilet</option>
+                               <option value="other">Other</option>
+                           </select>
                        </div>
 
                        <button type="submit" class="btn-primary btn-large">Generate Message</button>
@@ -669,7 +628,7 @@
                         <div class="contact-card-content">
                             <h3>Share Your Experience</h3>
                             <p>Tell us about your experience. Text or video. What was good? What could be better?</p>
-                            <button onclick="openFeedbackModal()" class="contact-btn">
+                            <button onclick="if(typeof NativeShell!=='undefined'){NativeShell.switchTab('more');setTimeout(function(){NativeShell.handleMoreAction('feedback')},200);}else{openFeedbackModal();}" class="contact-btn">
                                 Share Feedback
                             </button>
                         </div>
@@ -692,7 +651,7 @@
                                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
                                 </svg>
                             </a>
-                            <a href="https://www.tiktok.com/@performinterp" target="_blank" rel="noopener" aria-label="TikTok">
+                            <a href="https://www.tiktok.com/@performanceinterpreting" target="_blank" rel="noopener" aria-label="TikTok">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
                                 </svg>
@@ -709,81 +668,29 @@
             </div>
         </section>
 
-        <!-- GET ACCESS MODAL (NEW) -->
-        <div id="getAccessModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="getAccessModalTitle">
-            <div class="access-modal-overlay" onclick="closeGetAccessModal()"></div>
-            <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeGetAccessModal()" aria-label="Close dialog">✕</button>
-
-                <h2 class="access-modal-title" id="getAccessModalTitle">How to Book BSL Tickets</h2>
-                <p class="access-modal-subtitle">Follow these 3 simple steps</p>
-
-                <div class="access-steps-grid">
-                    <!-- Step 1 -->
-                    <div class="access-step">
-                        <div class="access-step-number">1</div>
-                        <div class="access-step-icon">📞</div>
-                        <h3>Contact Venue</h3>
-                        <p>Call or email the venue<br>Ask for the access team</p>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="access-step">
-                        <div class="access-step-number">2</div>
-                        <div class="access-step-icon">🎟️</div>
-                        <h3>Ask for BSL Tickets</h3>
-                        <p>Tell them you need BSL<br>Ask for seats near the interpreter</p>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="access-step">
-                        <div class="access-step-number">3</div>
-                        <div class="access-step-icon">✅</div>
-                        <h3>Arrive & Enjoy!</h3>
-                        <p>Show your booking<br>Enjoy the event!</p>
-                    </div>
-                </div>
-
-                <div class="access-modal-actions">
-                    <button class="btn-primary btn-large" onclick="emailVenueFromModal()">
-                        ✉️ Email Venue
-                    </button>
-                    <a href="#/how-to-book" class="btn-secondary btn-large">
-                        📋 Full Booking Guide
-                    </a>
-                </div>
-
-                <div class="access-modal-note">
-                    <strong>💡 Know Your Rights:</strong><br>
-                    You can ask venues for access.<br>
-                    The law says they must consider your request.
-                </div>
-            </div>
-        </div>
-
         <!-- ACCESS FIRST MODAL (Primary booking modal for green badge events) -->
         <div id="accessFirstModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="accessFirstModalTitle">
             <div class="access-modal-overlay" onclick="closeAccessFirstModal()"></div>
             <div class="access-modal-content">
                 <button class="access-modal-close" onclick="closeAccessFirstModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title" id="accessFirstModalTitle">Book BSL Tickets</h2>
-                <p class="access-modal-subtitle" id="accessFirstEventName">Booking accessible tickets</p>
+                <h2 class="access-modal-title" id="accessFirstModalTitle">Book Accessible Tickets</h2>
+                <div id="accessFirstEventHeader"></div>
 
                 <div class="bsl-video-link-center">
                     <button class="bsl-video-link" onclick="playBSLVideo('booking')">
-                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                        <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                     </button>
                 </div>
 
                 <div class="access-modal-actions">
                     <!-- VRS button (primary when available - BSL is users' main language) -->
-                    <button class="btn-primary btn-large" onclick="openVRSLink()" id="vrsButton" style="display: none;">
-                        <span id="vrsButtonText">📹 Use SignVideo (Recommended)</span>
+                    <button class="btn-primary btn-large" onclick="openVRSLink()" id="vrsButton" style="display:none;flex-direction:row;align-items:center;justify-content:center;gap:8px;">
+                        <span id="vrsButtonText" style="display:flex;align-items:center;justify-content:center;gap:8px;"><img src="signvideo-logo.png" alt="" style="height:28px;width:28px;border-radius:8px;object-fit:cover;"> Use SignVideo (Recommended)</span>
                     </button>
 
                     <!-- Email button - label updated dynamically based on whether we have venue email -->
-                    <button class="btn-primary btn-large" onclick="generateAccessEmail()" id="generateEmailBtn">
+                    <button class="btn-primary btn-large" onclick="showAccessNeedsChecklist()" id="generateEmailBtn">
                         ✉️ Email Venue Access Team
                     </button>
 
@@ -801,82 +708,54 @@
                 <div class="access-modal-note">
                     <strong>💡 Tip:</strong><br>
                     Contact venue before buying tickets<br>
-                    Ask for BSL accessible seating
+                    Ask for accessible seating near the interpreter
                 </div>
+
+                <p class="access-modal-subtitle" id="accessFirstEventName" style="margin-top:16px;"></p>
             </div>
         </div>
 
-        <!-- GET TICKETS MODAL (Interception for accessible booking) -->
-        <div id="getTicketsModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="getTicketsModalTitle">
-            <div class="access-modal-overlay" onclick="closeGetTicketsModal()"></div>
-            <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeGetTicketsModal()" aria-label="Close dialog">✕</button>
+        <!-- Event Info Modal (opened by tapping event card body) -->
+        <div id="eventInfoModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="eventInfoModalTitle">
+            <div class="access-modal-overlay" onclick="closeEventInfoModal()"></div>
+            <div class="access-modal-content event-info-modal-content">
+                <button class="access-modal-close" onclick="closeEventInfoModal()" aria-label="Close dialog">✕</button>
 
-                <h2 class="access-modal-title" id="getTicketsModalTitle">How to book BSL tickets</h2>
-                <p class="access-modal-subtitle">Before you buy tickets</p>
+                <h2 class="access-modal-title" id="eventInfoModalTitle"></h2>
+                <p class="access-modal-subtitle" id="eventInfoDate"></p>
 
-                <div class="access-steps-grid">
-                    <!-- Step 1 -->
-                    <div class="access-step">
-                        <div class="access-step-number">1</div>
-                        <div class="access-step-icon">📧</div>
-                        <h3>Contact the Venue First</h3>
-                        <p>Use SignVideo or email<br>Ask for the access team</p>
-                    </div>
+                <div id="eventInfoDescription" class="event-info-description" style="display:none;"></div>
 
-                    <!-- Step 2 -->
-                    <div class="access-step">
-                        <div class="access-step-number">2</div>
-                        <div class="access-step-icon">👁️</div>
-                        <h3>Ask for Good Seats</h3>
-                        <p>Ask for seats near the interpreter<br>You need a clear view of signing</p>
-                    </div>
+                <div id="eventInfoVenueBlock" class="event-info-venue-block">
+                    <p id="eventInfoVenueName" class="event-info-venue-name"></p>
+                    <p id="eventInfoAddress" class="event-info-address" style="display:none;"></p>
+                    <a id="eventInfoMapsBtn" class="event-info-maps-btn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Open in Maps
+                    </a>
+                </div>
 
-                    <!-- Step 3 -->
-                    <div class="access-step">
-                        <div class="access-step-number">3</div>
-                        <div class="access-step-icon">🎟️</div>
-                        <h3>Already Got Tickets?</h3>
-                        <p>Contact the venue<br>Ask to move to the BSL area</p>
-                    </div>
+                <div id="eventInfoInterpreters" class="event-info-interpreters" style="display:none;">
+                    <span class="event-info-label">Interpreters</span>
+                    <p id="eventInfoInterpretersText"></p>
+                </div>
+
+                <div id="eventInfoAccessSection" style="display:none;">
+                    <span class="event-info-label">Access Facilities</span>
+                    <div id="eventInfoAccessFeatures" class="event-info-access-grid"></div>
+                </div>
+
+                <div id="eventInfoPriceBlock" class="event-info-price" style="display:none;">
+                    <span class="event-info-label">Price</span>
+                    <p id="eventInfoPriceText"></p>
                 </div>
 
                 <div class="access-modal-actions">
-                    <button class="btn-slate btn-large" onclick="continueToTickets()" id="continueToTicketsBtn">
-                        🔗 Event Info
+                    <button class="btn-primary btn-large" id="eventInfoBookBtn" onclick="eventInfoToBooking()">
+                        🎟️ Book Tickets
                     </button>
-                    <button class="btn-secondary btn-large" onclick="openSignVideoLink()" id="signVideoBtn" style="display: none;">
-                        📹 Use SignVideo
-                    </button>
-                    <button class="btn-secondary btn-large" onclick="contactVenueFromTicketsModal()" id="contactVenueBtn" style="display: none;">
-                        ✉️ Email Venue
-                    </button>
-                </div>
-
-                <div class="access-modal-note">
-                    <strong>💡 Tip:</strong><br>
-                    Contact the venue before you buy tickets.<br>
-                    The best seats might be saved for you.
-                </div>
-            </div>
-        </div>
-
-        <!-- VENUE BOOKING GUIDE MODAL (Venue-specific instructions) -->
-        <div id="venueBookingModal" class="access-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="venueBookingTitle">
-            <div class="access-modal-overlay" onclick="closeVenueBookingModal()"></div>
-            <div class="access-modal-content">
-                <button class="access-modal-close" onclick="closeVenueBookingModal()" aria-label="Close dialog">✕</button>
-
-                <h2 class="access-modal-title" id="venueBookingTitle">How to Book</h2>
-                <p class="access-modal-subtitle" id="venueBookingVenue"></p>
-
-                <div id="venueBookingContent" class="venue-booking-content">
-                    <!-- Content injected by JS -->
-                </div>
-
-                <div class="access-modal-actions">
-                    <a href="#/how-to-book" class="btn-secondary btn-large">
-                        📋 Full Booking Guide
+                    <a id="eventInfoEventLink" class="btn-slate btn-large" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+                        🔗 Event Page
                     </a>
                 </div>
             </div>
@@ -898,80 +777,70 @@
             <div class="bg-modal-body">
                 <div class="bg-booking-bsl-video">
                     <button class="bsl-video-link" onclick="playBSLVideo('how-to-book')">
-                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                        <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                     </button>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">1</span>
-                        <span class="bg-tip-title">Find Your Event</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Look at the events on this app. Each event shows which interpreter will be there.</p>
-                    </div>
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">1</span>
+                    <span class="bg-faq-question-text">Find Your Event</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Look at the events on this app. Each event shows which interpreter will be there.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">2</span>
-                        <span class="bg-tip-title">Check the Venues List</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Check the venues list. Some venues always have interpreters. Some need you to ask first.</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">2</span>
+                    <span class="bg-faq-question-text">Check the Venues List</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Check the venues list. Some venues always have interpreters. Some need you to ask first.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">3</span>
-                        <span class="bg-tip-title">Contact the Venue</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Contact the venue. Use the details in the venues list. Many venues have SignVideo for BSL users.</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">3</span>
+                    <span class="bg-faq-question-text">Contact the Venue</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Contact the venue. Use the details in the venues list. Many venues have SignVideo for BSL users.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">4</span>
-                        <span class="bg-tip-title">Tell the Venue What You Need</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Tell the venue:<br>— You need BSL or ISL<br>— The event name and date<br>— How many people in your group<br>— If you need companion tickets</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">4</span>
+                    <span class="bg-faq-question-text">Tell the Venue What You Need</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Tell the venue:<br>— You need BSL or ISL<br>— The event name and date<br>— How many people in your group<br>— If you need companion tickets</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">5</span>
-                        <span class="bg-tip-title">Get Email Confirmation</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Ask for an email to confirm your booking. Save it. Bring it with you on the day.</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">5</span>
+                    <span class="bg-faq-question-text">Get Email Confirmation</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Ask for an email to confirm your booking. Save it. Bring it with you on the day.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">6</span>
-                        <span class="bg-tip-title">Enjoy the Event!</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p>Arrive early. Find the BSL/ISL viewing area. If you have a problem, ask venue staff for help.</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">6</span>
+                    <span class="bg-faq-question-text">Enjoy the Event!</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Arrive early. Find the BSL/ISL viewing area. If you have a problem, ask venue staff for help.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-step-number">ℹ️</span>
-                        <span class="bg-tip-title">Venues vs Ticket Vendors</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <p><strong>Venues</strong> — You can book many shows through the venue directly. They will send you an email to confirm the booking and may also send you e-tickets to download onto your phone to bring on the day.</p>
-                        <p><strong>Ticket Vendors</strong> — For some shows, tickets need to be purchased via ticket vendors. Check the access information for BSL/HOH tickets available, or contact the access email as instructed.</p>
-                        <p>The venue will tell you where the BSL/ISL viewing area is located and any further instructions.</p>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-step-number">ℹ️</span>
+                    <span class="bg-faq-question-text">Venues vs Ticket Vendors</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer"><strong>Venues</strong> — You can book many shows through the venue directly. They will send you an email to confirm the booking and may also send you e-tickets to download onto your phone to bring on the day.<br><br><strong>Ticket Vendors</strong> — For some shows, tickets need to be purchased via ticket vendors. Check the access information for BSL/HOH tickets available, or contact the access email as instructed.<br><br>The venue will tell you where the BSL/ISL viewing area is located and any further instructions.</div>
                 </div>
             </div>
         </div>
@@ -993,69 +862,52 @@
             <div class="bg-modal-body">
                 <div class="bsl-video-link-center">
                     <button class="bsl-video-link" onclick="playBSLVideo('tips')">
-                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                        <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                     </button>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-tip-icon">📞</span>
-                        <span class="bg-tip-title">Use the Access Booking Line</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <div class="bg-tip-body-inner">
-                            <p>The access team knows about BSL and ISL. Don't call the normal ticket number.</p>
-                        </div>
-                    </div>
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">📞</span>
+                    <span class="bg-faq-question-text">Use the Access Booking Line</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">The access team knows about BSL and ISL. Don't call the normal ticket number.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-tip-icon">👀</span>
-                        <span class="bg-tip-title">Ask for the Best Seats</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <div class="bg-tip-body-inner">
-                            <p>Ask for seats where you can see the interpreter clearly. Many venues have a BSL/ISL viewing area.</p>
-                        </div>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">👀</span>
+                    <span class="bg-faq-question-text">Ask for the Best Seats</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Ask for seats where you can see the interpreter clearly. Many venues have a BSL/ISL viewing area.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-tip-icon">✉️</span>
-                        <span class="bg-tip-title">Get Email Confirmation</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <div class="bg-tip-body-inner">
-                            <p>Ask the venue to send you an email to confirm BSL is booked. Save the email. Bring it to the event.</p>
-                        </div>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">✉️</span>
+                    <span class="bg-faq-question-text">Get Email Confirmation</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Ask the venue to send you an email to confirm your interpreter is booked. Save the email. Bring it to the event.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-tip-icon">⏰</span>
-                        <span class="bg-tip-title">Arrive Early</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <div class="bg-tip-body-inner">
-                            <p>Come early so you can find the BSL area and get comfortable before the show starts.</p>
-                        </div>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">⏰</span>
+                    <span class="bg-faq-question-text">Give Yourself Time</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">Give yourself time so you can find the interpreter area and get comfortable before the show starts.</div>
                 </div>
-                <div class="bg-tip-item">
-                    <div class="bg-tip-header" role="button" tabindex="0" onclick="toggleBgTip(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBgTip(this)}">
-                        <span class="bg-tip-icon">💬</span>
-                        <span class="bg-tip-title">Tell Us How It Went</span>
-                        <span class="bg-tip-toggle">▶</span>
-                    </div>
-                    <div class="bg-tip-body">
-                        <div class="bg-tip-body-inner">
-                            <p>We want to hear from you. Your feedback helps us make events better for everyone.</p>
-                            <button onclick="openFeedbackModal(); closeBgModal('bgTipsModal');" style="margin-top: 10px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Share Your Thoughts</button>
-                        </div>
-                    </div>
+
+                <button class="bg-faq-button" onclick="toggleBgFaq(event, this)" role="button" tabindex="0">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">💬</span>
+                    <span class="bg-faq-question-text">Tell Us How It Went</span>
+                    <span class="bg-faq-toggle">▼</span>
+                </button>
+                <div class="bg-faq-answer-container">
+                    <div class="bg-faq-answer">We want to hear from you. Your feedback helps us make events better for everyone.<br><br><a href="javascript:void(0)" ontouchend="event.preventDefault();window.openFeedbackModal();" style="display:inline-block;margin-top:10px;padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;text-decoration:none;">Share Your Thoughts</a></div>
                 </div>
             </div>
         </div>
@@ -1077,18 +929,20 @@
             <div class="bg-modal-body">
                 <div class="bsl-video-link-center">
                     <button class="bsl-video-link" onclick="playBSLVideo('faqs')">
-                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                        <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                     </button>
                 </div>
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">🤔</span>
                     <span class="bg-faq-question-text">Do I need to ask for an interpreter before the event?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">It depends on the venue. Some venues always have interpreters (like Wembley). Others need you to book ahead (like The O2). Check the venues list to find out.</div>
+                    <div class="bg-faq-answer">It depends on the venue. Some venues always have interpreters (like Wembley Stadium). Others need you to book ahead (like The O2). Check the venues list to find out.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">⏰</span>
                     <span class="bg-faq-question-text">How early should I book?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
@@ -1097,6 +951,7 @@
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">💷</span>
                     <span class="bg-faq-question-text">Do BSL or ISL tickets cost more?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
@@ -1105,14 +960,16 @@
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">👥</span>
                     <span class="bg-faq-question-text">Can I bring someone with me?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
                 <div class="bg-faq-answer-container">
-                    <div class="bg-faq-answer">Yes! Most venues give free or cheap tickets for a support person. Ask the access team when you book.</div>
+                    <div class="bg-faq-answer">Yes! Most venues give free or discounted tickets for a companion or Personal Assistant (PA). Ask the access team when you book.</div>
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">🤟</span>
                     <span class="bg-faq-question-text">What is the difference between BSL and ISL?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
@@ -1121,6 +978,7 @@
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">🙋</span>
                     <span class="bg-faq-question-text">Can I choose which interpreter I want?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
@@ -1129,6 +987,7 @@
                 </div>
 
                 <button class="bg-faq-button" onclick="toggleBgFaq(event, this)">
+                    <span class="bg-tip-icon" style="margin-right: 10px;">📍</span>
                     <span class="bg-faq-question-text">Where will the interpreter be?</span>
                     <span class="bg-faq-toggle">▼</span>
                 </button>
@@ -1153,17 +1012,8 @@
                 <button class="bg-modal-close" onclick="closeBgModal('bgVenuesModal')" aria-label="Close">✕</button>
             </div>
             <div class="bg-modal-body">
-                <div class="bg-venue-search">
-                    <input
-                        type="text"
-                        id="bgVenueSearch"
-                        class="bg-venue-search-input"
-                        placeholder="🔍 Search for a venue..."
-                        oninput="searchBgVenues()"
-                    >
-                </div>
-                <div class="bg-venue-instruction">
-                    <strong>Before you buy tickets</strong> — contact the venue's access team. Ask for BSL and ask for seats where you can see the interpreter.
+                <div class="bg-venue-instruction" style="margin-top:16px;">
+                    <strong>Before you buy tickets</strong> — contact the venue's access team. Ask for BSL/ISL and ask for seats where you can see the interpreter.
                 </div>
                 <div id="bgVenueContent">
                     <div class="bg-venues-loading">
@@ -1182,7 +1032,6 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-main">
-                    <p class="footer-access-disclaimer">Venue accessibility information is sourced from official venue websites and may change without notice. Please contact the venue directly to confirm current facilities before your visit.</p>
                     <p>&copy; 2026 Performance Interpreting. All rights reserved.</p>
                     <div class="footer-links">
                         <a href="https://www.performanceinterpreting.co.uk" target="_blank" rel="noopener">Website</a>
@@ -1213,7 +1062,7 @@
                                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
                             </svg>
                         </a>
-                        <a href="https://www.tiktok.com/@performinterp" target="_blank" rel="noopener" aria-label="TikTok">
+                        <a href="https://www.tiktok.com/@performanceinterpreting" target="_blank" rel="noopener" aria-label="TikTok">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
                             </svg>
@@ -1239,16 +1088,73 @@
                 </button>
             </div>
             <div class="feedback-modal-body">
-                <iframe
-                    data-tally-src="https://tally.so/embed/Y5Dd20?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
-                    loading="lazy"
-                    width="100%"
-                    frameborder="0"
-                    marginheight="0"
-                    marginwidth="0"
-                    title="Share Your Thoughts"
-                    style="border: none;"
-                ></iframe>
+                <!-- Feedback choice screen -->
+                <div id="feedbackChoiceScreen">
+                    <p style="font-size:15px;color:#374151;text-align:center;margin:0 0 6px;font-weight:600;">How would you like to share?</p>
+                    <p style="font-size:13px;color:#6B7280;text-align:center;margin:0 0 20px;line-height:1.5;">Please include: which event you attended, what went well, and what could be better.</p>
+
+                    <button onclick="showVideoFeedback()" style="display:flex;align-items:center;gap:14px;width:100%;padding:18px 16px;border:2px solid #7C3AED;border-radius:14px;background:#F5F3FF;cursor:pointer;text-align:left;margin-bottom:12px;">
+                        <span style="font-size:32px;">🎥</span>
+                        <div>
+                            <p style="margin:0;font-size:16px;font-weight:700;color:#7C3AED;">Record in Sign Language</p>
+                            <p style="margin:2px 0 0;font-size:13px;color:#6B7280;">Record a short video in BSL or ISL (up to 60 seconds)</p>
+                        </div>
+                    </button>
+
+                    <button onclick="showWrittenFeedback()" style="display:flex;align-items:center;gap:14px;width:100%;padding:18px 16px;border:2px solid #2563EB;border-radius:14px;background:#EFF6FF;cursor:pointer;text-align:left;">
+                        <span style="font-size:32px;">📝</span>
+                        <div>
+                            <p style="margin:0;font-size:16px;font-weight:700;color:#2563EB;">Write Feedback</p>
+                            <p style="margin:2px 0 0;font-size:13px;color:#6B7280;">Fill out a short form with your thoughts</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Video recording screen -->
+                <div id="feedbackVideoScreen" style="display:none;">
+                    <button onclick="showFeedbackChoice()" style="background:none;border:none;color:#2563EB;font-size:14px;font-weight:600;cursor:pointer;padding:0 0 12px;display:flex;align-items:center;gap:4px;">← Back</button>
+
+                    <div style="text-align:center;padding:16px 0;">
+                        <p style="font-size:15px;font-weight:600;color:#374151;margin:0 0 4px;">Record your feedback in sign language</p>
+                        <p style="font-size:13px;color:#6B7280;margin:0 0 16px;">BSL or ISL — keep it under 60 seconds. Your video will be sent securely to the PI team.</p>
+
+                        <input type="file" id="feedbackVideoInput" accept="video/*" capture="user" style="display:none;" onchange="handleVideoFeedback(this)">
+
+                        <button onclick="document.getElementById('feedbackVideoInput').click()" style="display:inline-flex;align-items:center;gap:8px;padding:16px 32px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;">
+                            🎥 Open Camera
+                        </button>
+
+                        <div id="feedbackUploadProgress" style="display:none;margin-top:16px;">
+                            <div style="background:#E5E7EB;border-radius:8px;height:8px;overflow:hidden;">
+                                <div id="feedbackUploadBar" style="background:#7C3AED;height:100%;width:0%;transition:width 0.3s;border-radius:8px;"></div>
+                            </div>
+                            <p id="feedbackUploadStatus" style="font-size:13px;color:#6B7280;margin:8px 0 0;">Uploading...</p>
+                        </div>
+
+                        <div id="feedbackUploadSuccess" style="display:none;margin-top:16px;padding:16px;background:#D1FAE5;border-radius:12px;">
+                            <p style="margin:0;font-size:16px;font-weight:700;color:#065F46;">✅ Video sent!</p>
+                            <p style="margin:4px 0 0;font-size:13px;color:#065F46;">Thank you for your feedback. The PI team will review it.</p>
+                        </div>
+
+                        <p style="font-size:11px;color:#9CA3AF;margin:16px 0 0;line-height:1.4;">Your video is stored securely and only seen by the PI team. By recording, you consent to PI viewing and using your feedback to improve services.</p>
+                    </div>
+                </div>
+
+                <!-- Written feedback (Tally form) -->
+                <div id="feedbackWrittenScreen" style="display:none;">
+                    <button onclick="showFeedbackChoice()" style="background:none;border:none;color:#2563EB;font-size:14px;font-weight:600;cursor:pointer;padding:0 0 12px;display:flex;align-items:center;gap:4px;">← Back</button>
+                    <iframe
+                        id="tallyFeedbackIframe"
+                        data-tally-src="https://tally.so/embed/Y5Dd20?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                        loading="lazy"
+                        width="100%"
+                        frameborder="0"
+                        marginheight="0"
+                        marginwidth="0"
+                        title="Share Your Thoughts"
+                        style="border: none;"
+                        sandbox="allow-scripts allow-forms allow-same-origin"
+                    ></iframe>
             </div>
         </div>
     </div>
@@ -1263,94 +1169,108 @@
 
             <div class="bsl-video-link-center">
                 <button class="bsl-video-link" onclick="playBSLVideo('at-event')">
-                    <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                    <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                 </button>
             </div>
 
             <!-- Tab buttons -->
             <div class="comm-tabs">
-                <button class="comm-tab active" onclick="switchCommTab('card')">Show Staff</button>
-                <button class="comm-tab" onclick="switchCommTab('order')">Order</button>
-                <button class="comm-tab" onclick="switchCommTab('emergency')">Emergency</button>
-                <button class="comm-tab" onclick="switchCommTab('stt')">Speech to Text</button>
-                <button class="comm-tab" onclick="switchCommTab('ftm')">🎵 Feel Music</button>
+                <button class="comm-tab active" data-color="#475569" onclick="switchCommTab('card')" style="background:#475569;color:white;border-color:#475569;">👋 Show Staff</button>
+                <button class="comm-tab" data-color="#0891B2" onclick="switchCommTab('order')" style="background:#CFFAFE;color:#0E7490;border-color:#0891B2;">🍻 Order</button>
+                <button class="comm-tab" data-color="#EF4444" onclick="switchCommTab('emergency')" style="background:#FEE2E2;color:#EF4444;border-color:#EF4444;">🚨 Emergency</button>
+                <button class="comm-tab" data-color="#7C3AED" onclick="switchCommTab('stt')" style="background:#EDE9FE;color:#7C3AED;border-color:#7C3AED;">💬 Speech to Text</button>
+                <button class="comm-tab native-hide-ftm" onclick="switchCommTab('ftm')">🎵 Feel Music</button>
             </div>
 
-            <!-- Tab 1: Show Staff Card -->
-            <div id="commCardTab" class="comm-tab-content">
-                <div class="staff-card">
-                    <div class="staff-card-header">Show This to Staff</div>
-                    <div class="staff-card-body">
-                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
-                        <p class="staff-card-line">Please face me when you talk</p>
-                        <p class="staff-card-line">Speak clearly, normal speed</p>
-                        <p class="staff-card-line">Please type or write for me</p>
-                    </div>
-                </div>
-                <p class="comm-hint">Show this to venue staff on your phone screen</p>
-
-                <div class="staff-card" style="margin-top: 1rem;">
-                    <div class="staff-card-header">In a Queue</div>
-                    <div class="staff-card-body">
-                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
-                        <p class="staff-card-line">I cannot hear when it is my turn</p>
-                        <p class="staff-card-line">Please tap my shoulder or wave</p>
-                    </div>
-                </div>
-                <p class="comm-hint">Show this to the person next to you in a queue</p>
-            </div>
+            <!-- Tab 1: Show Staff Card (rendered dynamically by _renderStaffCards) -->
+            <div id="commCardTab" class="comm-tab-content"></div>
 
             <!-- Tab 2: Order Food & Drink -->
             <div id="commOrderTab" class="comm-tab-content" style="display: none;">
-                <div class="staff-card">
-                    <div class="staff-card-header">Show This to Bar / Food Staff</div>
-                    <div class="staff-card-body">
-                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
-                        <p class="staff-card-line">I would like to order:</p>
-                    </div>
-                </div>
+                <!-- Instructions -->
+                <p style="font-size:16px;font-weight:600;color:#1F2937;text-align:center;margin:0 0 4px;line-height:1.4;">Tap item(s) to build your order below</p>
+                <p id="orderCountBadge" style="font-size:14px;font-weight:600;color:#10B981;text-align:center;margin:0 0 12px;display:none;">0 items added</p>
+
+                <!-- Item picker -->
                 <div class="order-builder">
-                    <div class="order-items" id="orderItems"></div>
                     <div class="order-quick-picks">
-                        <p class="order-pick-label">Tap to add:</p>
+                        <!-- Cold Drinks -->
+                        <p style="font-size:13px;font-weight:700;color:#2563EB;margin:0 0 6px;">🧊 Cold Drinks</p>
                         <div class="order-pick-grid">
-                            <button class="order-pick" onclick="addOrderItem(this)">🍺 Beer / Lager</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🍷 Wine</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🥤 Soft Drink</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">💧 Water</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">☕ Tea / Coffee</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🍔 Burger</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🍕 Pizza</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🍟 Chips</button>
-                            <button class="order-pick" onclick="addOrderItem(this)">🌮 Food (other)</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Water', ['Still', 'Sparkling'])">💧 Water</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Soft Drink', ['Coke/Pepsi', 'Diet Coke/Pepsi', 'Lemonade', 'Fanta', 'Dr Pepper', 'Red Bull', 'Monster', 'Prime'])">🥤 Soft Drink</button>
+                        </div>
+
+                        <!-- Hot Drinks -->
+                        <p style="font-size:13px;font-weight:700;color:#DC2626;margin:12px 0 6px;">☕ Hot Drinks</p>
+                        <div class="order-pick-grid">
+                            <button class="order-pick" onclick="openOrderSubModal('Tea', ['Normal', 'Decaf', 'Fruit', 'Peppermint'])">☕ Tea</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Coffee', ['Normal', 'Decaf', 'Espresso', 'Mocha'])">☕ Coffee</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Hot Chocolate', ['Normal', 'White Chocolate', 'With Rum', 'With Baileys', 'Mocha'])">🍫 Hot Choc</button>
+                        </div>
+
+                        <!-- Alcoholic -->
+                        <p style="font-size:13px;font-weight:700;color:#7C3AED;margin:12px 0 6px;">🍷 Alcoholic</p>
+                        <div class="order-pick-grid">
+                            <button class="order-pick" onclick="openOrderSubModal('Beer / Lager', ['Half Pint', 'Pint', 'Shandy'])">🍺 Beer / Lager</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Cider', ['Normal', 'Mulled'])">🍏 Cider</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Red Wine', ['Small', 'Medium', 'Large', 'Bottle', 'Mulled'])">🍷 Red Wine</button>
+                            <button class="order-pick" onclick="openOrderSubModal('White Wine', ['Small', 'Medium', 'Large', 'Bottle'])">🥂 White Wine</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Sparkling Wine', ['Spritzer', 'Prosecco', 'Champagne'])">🍾 Sparkling</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Single Spirit', ['Vodka', 'Rum', 'Whiskey', 'Tequila', 'Gin', 'Brandy'])">🥃 Single Spirit</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Double Spirit', ['Vodka', 'Rum', 'Whiskey', 'Tequila', 'Gin', 'Brandy'])">🥃🥃 Double Spirit</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Cocktail', ['Margarita', 'Martini', 'Mojito', 'Negroni', 'Whiskey Sour'])">🍹 Cocktail</button>
+                        </div>
+
+                        <!-- Food -->
+                        <p style="font-size:13px;font-weight:700;color:#059669;margin:12px 0 6px;">🍽️ Food</p>
+                        <div class="order-pick-grid">
+                            <button class="order-pick" onclick="openOrderSubModal('Burger', ['Beef', 'Chicken', 'Veggie'], true)">🍔 Burger</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Pizza', ['Margherita', 'Pepperoni', 'Veggie', 'Meat Feast'], false)">🍕 Pizza</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Chips', ['Regular', 'Cheesy', 'Loaded'])">🍟 Chips</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Hot Dog', ['Regular', 'With Onions', 'With Cheese', 'With Cheese &amp; Onions'])">🌭 Hot Dog</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Wrap / Burrito', ['Chicken', 'Beef', 'Veggie'])">🌮 Wrap</button>
+                            <button class="order-pick" onclick="openOrderSubModal('Nachos', ['Regular', 'With Cheese', 'Loaded'])">🧀 Nachos</button>
                         </div>
                     </div>
                     <div class="order-custom">
                         <input type="text" id="orderCustomInput" class="order-custom-input" placeholder="Type something else...">
                         <button class="order-custom-btn" onclick="addCustomOrderItem()">Add</button>
                     </div>
+                    <div class="order-items" id="orderItems"></div>
                     <div class="order-actions">
-                        <button class="btn-primary btn-large" onclick="showOrderCard()">Show Order to Staff</button>
-                        <button class="btn-secondary" onclick="clearOrder()">Clear</button>
+                        <button id="showOrderBtn" class="btn-primary btn-large btn-shimmer" onclick="showOrderCard()">📋 Create Order</button>
+                        <button class="btn-secondary" onclick="clearOrder()" style="background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA;">🗑️ Clear</button>
                     </div>
                 </div>
 
-                <!-- Order display card (shown when ready) -->
-                <div id="orderDisplayCard" class="staff-card" style="display: none; margin-top: 1rem;">
-                    <div class="staff-card-header">My Order</div>
+                <!-- Order Sub-Selection Modal -->
+                <div id="orderSubModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.4);display:none;align-items:flex-end;justify-content:center;padding:0 0 env(safe-area-inset-bottom,20px) 0;">
+                    <div style="background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:400px;padding:20px 16px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 24px rgba(0,0,0,0.15);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                            <h3 id="orderSubTitle" style="margin:0;font-size:18px;font-weight:700;color:#1F2937;"></h3>
+                            <button onclick="closeOrderSubModal()" style="background:none;border:none;font-size:24px;color:#6B7280;cursor:pointer;padding:4px;">✕</button>
+                        </div>
+                        <div id="orderSubOptions" style="display:flex;flex-direction:column;gap:8px;"></div>
+                    </div>
+                </div>
+
+                <!-- Order display card — shown to staff -->
+                <div id="orderDisplayCard" class="staff-card staff-card-large order-show-card" style="border-color: #0891B2; margin-top: 16px;">
+                    <div class="staff-card-header" style="background: #0891B2;">🍽️ My Order</div>
                     <div class="staff-card-body">
-                        <p class="staff-card-line staff-card-primary">I am Deaf</p>
-                        <p class="staff-card-line">I would like:</p>
-                        <div id="orderDisplayList" class="order-display-list"></div>
-                        <p class="staff-card-line" style="margin-top: 0.75rem; border-top: 2px solid #E5E7EB; padding-top: 0.75rem; font-style: italic; color: #6B7280;">Thank you</p>
+                        <div id="orderDisplayList" class="order-display-list">
+                            <p class="staff-card-line order-empty-hint" style="color: #9CA3AF; font-style: italic;">Press '📋 Create Order' for your items to show here</p>
+                        </div>
+                        <p class="staff-card-thanks">Thank you</p>
                     </div>
                 </div>
             </div>
 
             <!-- Tab 3: Emergency -->
             <div id="commEmergencyTab" class="comm-tab-content" style="display: none;">
-                <div class="staff-card" style="border-color: #DC2626;">
-                    <div class="staff-card-header" style="background: #DC2626;">Emergency — Show to Staff</div>
+                <div class="staff-card staff-card-large" style="border-color: #DC2626;">
+                    <div class="staff-card-header" style="background: #DC2626;">🚨 Emergency — Show to Staff</div>
                     <div class="staff-card-body">
                         <p class="staff-card-line staff-card-primary" style="color: #DC2626;">I am Deaf</p>
                         <p class="staff-card-line">I cannot hear announcements</p>
@@ -1358,10 +1278,9 @@
                         <p class="staff-card-line">Show me where to go</p>
                     </div>
                 </div>
-                <p class="comm-hint">Show this to any staff member or steward</p>
 
-                <div class="staff-card" style="margin-top: 1rem; border-color: #F59E0B;">
-                    <div class="staff-card-header" style="background: #F59E0B;">I Need Help</div>
+                <div class="staff-card staff-card-large" style="margin-top: 1rem; border-color: #F59E0B;">
+                    <div class="staff-card-header" style="background: #F59E0B;">🆘 I Need Help</div>
                     <div class="staff-card-body">
                         <p class="staff-card-line staff-card-primary" style="color: #F59E0B;">I am Deaf and I need help</p>
                         <p class="staff-card-line">Please take me to the access team</p>
@@ -1382,25 +1301,34 @@
             <!-- Tab 4: Speech to Text -->
             <div id="commSTTTab" class="comm-tab-content" style="display: none;">
                 <div id="sttSupported">
+                    <div class="staff-card" style="margin-bottom:16px;border-color:#7C3AED;">
+                        <div class="staff-card-header" style="background:#7C3AED;">🗣️ Show This to the Speaker</div>
+                        <div class="staff-card-body">
+                            <p class="staff-card-line staff-card-primary">Please <strong>SPEAK CLEARLY</strong></p>
+                            <p class="staff-card-line">Your words will appear on my screen</p>
+                            <p class="staff-card-line">If possible, don't stand with light behind you</p>
+                        </div>
+                    </div>
                     <div class="stt-display" id="sttDisplay">
                         <p class="stt-placeholder" id="sttPlaceholder">Press "Start Listening" and ask the other person to speak</p>
                         <p class="stt-text" id="sttText"></p>
                     </div>
                     <div class="stt-controls">
                         <button class="btn-primary btn-large stt-btn" id="sttToggleBtn" onclick="toggleSTT()">
-                            Start Listening
+                            🎙️ Start Listening
                         </button>
-                        <button class="btn-secondary" onclick="clearSTT()">Clear</button>
+                        <button class="btn-secondary" onclick="clearSTT()" style="background:#FEE2E2;color:#991B1B;border:1px solid #FECACA;">🗑️ Clear</button>
                     </div>
                     <div class="stt-reply">
                         <label for="sttReplyInput" class="stt-reply-label">Type your reply:</label>
                         <textarea id="sttReplyInput" class="stt-reply-input" rows="2" placeholder="Type here..."></textarea>
                     </div>
+                    <p style="font-size:11px;color:#9CA3AF;margin:12px 0 0;line-height:1.4;">Speech-to-text accuracy depends on background noise, accents, and device microphone quality. It may not capture every word correctly. This tool is provided as an aid to communication, not a substitute for professional interpretation.</p>
                 </div>
                 <div id="sttUnsupported" style="display: none;">
                     <div class="stt-unsupported-msg">
-                        <p>Speech-to-text is not supported in this browser.</p>
-                        <p>Try using <strong>Chrome</strong> or <strong>Edge</strong> for this feature.</p>
+                        <p>Speech-to-text is not available in the app.</p>
+                        <p>Use this feature at <strong>app.performanceinterpreting.co.uk</strong> in Chrome or Safari instead.</p>
                     </div>
                 </div>
             </div>
@@ -1408,7 +1336,7 @@
             <!-- Tab 5: Feel the Music -->
             <div id="commFTMTab" class="comm-tab-content" style="display: none;">
                 <div class="ftm-container">
-                    <div class="ftm-visualiser" id="ftmVisualiser">
+                    <div class="ftm-visualiser" id="ftmVisualiser" role="img" aria-label="Audio frequency visualiser">
                         <div class="ftm-bars" id="ftmBars">
                             <div class="ftm-bar" data-i="0"></div>
                             <div class="ftm-bar" data-i="1"></div>
@@ -1428,8 +1356,9 @@
                             <div class="ftm-bar" data-i="15"></div>
                         </div>
                     </div>
-                    <p class="ftm-status" id="ftmStatus">Feel the bass through your phone</p>
-                    <button class="btn-primary btn-large ftm-toggle-btn" id="ftmToggleBtn" onclick="toggleFTM()">
+                    <p class="ftm-status" id="ftmStatus" aria-live="polite">Feel the bass through your phone</p>
+                    <p style="text-align:center;font-size:14px;font-weight:600;color:#7C3AED;margin:8px 0 12px;padding:8px 16px;background:#F5F3FF;border-radius:8px;">🚧 Coming soon to all platforms</p>
+                    <button class="btn-primary btn-large ftm-toggle-btn" id="ftmToggleBtn" onclick="toggleFTM()" aria-pressed="false">
                         Start Feeling
                     </button>
                     <button class="btn-secondary ftm-recalibrate-btn" id="ftmRecalibrateBtn" onclick="ftmRecalibrate()" style="display:none;">
@@ -1445,37 +1374,60 @@
                     </div>
                     <div class="ftm-error" id="ftmError" style="display: none;">
                         <p>Microphone access is needed to feel the music.</p>
-                        <p>Please allow microphone access in your browser or device settings.</p>
+                        <p>Please allow microphone access in your device settings.</p>
                     </div>
-                    <p class="comm-hint" style="margin-top: 1rem;">Hold your phone or place it against your body to feel the vibrations</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=1.9.74"></script>
+    <script src="app.js?v=2.0.0"></script>
 
     <!-- Tally Embed Script -->
     <script>
         // Feedback Modal Functions
         function openFeedbackModal() {
+            // Show BSL intro option before opening feedback form (every time, unless just dismissed)
+            if (!window._feedbackBslDone) {
+                window._feedbackBslDone = true;
+                const bslPrompt = document.createElement('div');
+                bslPrompt.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);padding:20px;';
+                bslPrompt.innerHTML = `
+                    <div style="background:#fff;border-radius:16px;padding:24px;max-width:300px;width:100%;text-align:center;position:relative;">
+                        <button onclick="this.closest('div[style*=fixed]').remove();" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:22px;color:#9CA3AF;cursor:pointer;padding:4px;line-height:1;">✕</button>
+                        <p style="margin:0 0 4px;font-size:18px;font-weight:700;color:#1F2937;">Share Your Feedback</p>
+                        <p style="margin:0 0 16px;font-size:14px;color:#6B7280;">Watch a short BSL video explaining how to give feedback</p>
+                        <button onclick="if(typeof playBSLVideo==='function')playBSLVideo('faqs');this.closest('div[style*=fixed]').remove();" style="display:block;width:100%;padding:12px;margin-bottom:8px;border:1.5px solid #2563EB;border-radius:10px;background:#EFF6FF;color:#2563EB;font-size:15px;font-weight:600;cursor:pointer;">▶ Watch BSL Video</button>
+                        <button onclick="this.closest('div[style*=fixed]').remove();openFeedbackModal();" style="display:block;width:100%;padding:12px;border:none;border-radius:10px;background:#F3F4F6;color:#374151;font-size:15px;font-weight:500;cursor:pointer;">Skip</button>
+                    </div>
+                `;
+                bslPrompt.addEventListener('click', (e) => {
+                    if (e.target === bslPrompt) { bslPrompt.remove(); }
+                });
+                document.body.appendChild(bslPrompt);
+                return;
+            }
+
+            if (window.storeModalTrigger) window.storeModalTrigger();
             const modal = document.getElementById('feedbackModal');
             modal.classList.add('active');
             document.body.classList.add('modal-open');
-            
-            // Load Tally iframe if not already loaded
-            const iframe = modal.querySelector('iframe');
-            if (iframe && iframe.hasAttribute('data-tally-src')) {
-                iframe.src = iframe.getAttribute('data-tally-src');
-                iframe.removeAttribute('data-tally-src');
-            }
+
+            // Always show choice screen first
+            showFeedbackChoice();
+            if (window.activateFocusTrap) window.activateFocusTrap(modal);
+            if (window.pushModalState) window.pushModalState('feedbackModal', closeFeedbackModal);
         }
 
         function closeFeedbackModal() {
+            if (window.deactivateFocusTrap) window.deactivateFocusTrap();
             const modal = document.getElementById('feedbackModal');
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
+            window._feedbackBslDone = false; // Reset so BSL prompt shows next time
+            if (window.restoreModalFocus) window.restoreModalFocus();
+            if (window.clearModalState) window.clearModalState();
         }
 
         function closeFeedbackModalOnOverlay(event) {
@@ -1484,15 +1436,76 @@
             }
         }
 
-        // Close modal on ESC key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modal = document.getElementById('feedbackModal');
-                if (modal && modal.classList.contains('active')) {
-                    closeFeedbackModal();
-                }
+        // Feedback screen navigation
+        function showFeedbackChoice() {
+            document.getElementById('feedbackChoiceScreen').style.display = '';
+            document.getElementById('feedbackVideoScreen').style.display = 'none';
+            document.getElementById('feedbackWrittenScreen').style.display = 'none';
+            document.getElementById('feedbackUploadProgress').style.display = 'none';
+            document.getElementById('feedbackUploadSuccess').style.display = 'none';
+        }
+
+        function showVideoFeedback() {
+            document.getElementById('feedbackChoiceScreen').style.display = 'none';
+            document.getElementById('feedbackVideoScreen').style.display = '';
+            document.getElementById('feedbackWrittenScreen').style.display = 'none';
+        }
+
+        function showWrittenFeedback() {
+            document.getElementById('feedbackChoiceScreen').style.display = 'none';
+            document.getElementById('feedbackVideoScreen').style.display = 'none';
+            document.getElementById('feedbackWrittenScreen').style.display = '';
+            var iframe = document.getElementById('tallyFeedbackIframe');
+            if (iframe && iframe.hasAttribute('data-tally-src')) {
+                iframe.src = iframe.getAttribute('data-tally-src');
+                iframe.removeAttribute('data-tally-src');
             }
-        });
+        }
+
+        async function handleVideoFeedback(input) {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            if (file.size > 50 * 1024 * 1024) {
+                alert('Video is too large (max 50MB). Please record a shorter video.');
+                input.value = '';
+                return;
+            }
+            var progress = document.getElementById('feedbackUploadProgress');
+            var bar = document.getElementById('feedbackUploadBar');
+            var status = document.getElementById('feedbackUploadStatus');
+            var success = document.getElementById('feedbackUploadSuccess');
+            progress.style.display = '';
+            bar.style.width = '10%';
+            status.textContent = 'Uploading video...';
+            status.style.color = '#6B7280';
+            try {
+                var response = await fetch('https://pi-feedback-uploads.vercel.app/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': file.type || 'video/mp4',
+                    },
+                    body: file,
+                });
+                bar.style.width = '80%';
+                if (!response.ok) {
+                    var errData = await response.json().catch(function() { return {}; });
+                    throw new Error(errData.error || 'Upload failed');
+                }
+                bar.style.width = '100%';
+                status.textContent = 'Done!';
+                progress.style.display = 'none';
+                success.style.display = '';
+                input.value = '';
+            } catch (err) {
+                console.error('Upload error:', err);
+                bar.style.width = '0%';
+                status.textContent = err.message || 'Upload failed. Please try again.';
+                status.style.color = '#DC2626';
+                input.value = '';
+            }
+        }
+
+        // ESC key handling consolidated in app.js unified handler (A11Y-01)
     </script>
     <!-- Install App Modal -->
     <div class="install-prompt" id="installPrompt" role="dialog" aria-modal="true" aria-labelledby="installPromptTitle">
@@ -1544,68 +1557,86 @@
     <div class="festival-modal-overlay" id="festivalChecklistModal" onclick="closeFestivalChecklistModalOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="festivalChecklistTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2 id="festivalChecklistTitle">Festival Checklist</h2>
                 <button class="festival-modal-close" onclick="closeFestivalChecklistModal()" aria-label="Close dialog">✕</button>
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">✅</span>
+                    <div class="bg-modal-header-text">
+                        <h2 id="festivalChecklistTitle">Festival Checklist</h2>
+                        <p>Everything you need to pack</p>
+                    </div>
+                </div>
             </div>
             <div class="festival-modal-body">
-                <div class="festival-hero-statement">
+                <div class="festival-hero-statement" style="padding-top:20px;">
                     <p class="festival-hero-main">Plan. Pack. Enjoy.</p>
-                    <p class="festival-hero-sub">Quick tips for an easy, accessible festival day.</p>
+                    <p class="festival-hero-sub">Quick tips for an easy, accessible festival experience.</p>
                 </div>
 
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Before You Go</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
                         <li>Tickets ready</li>
                         <li>Check times for interpreted stages</li>
-                        <li>Download the map</li>
+                        <li>Download the map (if available)</li>
                         <li>Charge your phone + pack a power bank</li>
                         <li>Pack suncream and earplugs</li>
                     </ul>
                 </div>
 
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>When You Arrive</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
-                        <li>Find the Access Point or Interpreter Area</li>
-                        <li>Get your wristband (if needed)</li>
+                        <li>Get your wristband first</li>
+                        <li>Find the interpreter area</li>
                         <li>Say hello to the interpreter team</li>
                         <li>Plan how to get between stages</li>
                     </ul>
                 </div>
 
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>During the Festival</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <ul class="festival-checklist festival-accordion-body">
                         <li>Drink plenty of water</li>
                         <li>Ask staff if you need help seeing the interpreter</li>
-                        <li>Follow us on social media or WhatsApp for updates</li>
+                        <li>Join the Deaf Access Customer WhatsApp Group for updates and interpreter requests</li>
                     </ul>
                 </div>
 
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>After the Festival</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
-                    <ul class="festival-checklist festival-accordion-body">
-                        <li>Tell us how it was</li>
-                        <li>Follow us to hear about more BSL and ISL events</li>
-                    </ul>
+                    <div class="festival-accordion-body">
+                        <ul class="festival-checklist">
+                            <li>Tell us how it was</li>
+                            <li>Follow us to hear about more BSL and ISL events</li>
+                        </ul>
+                        <div class="festival-social-links" style="display: flex; gap: 16px; margin-top: 12px; justify-content: center;">
+                            <a href="https://www.facebook.com/performanceinterpreting" target="_blank" rel="noopener" aria-label="Facebook" style="color: var(--primary); display: flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                Facebook
+                            </a>
+                            <a href="https://www.instagram.com/performanceinterpreting/" target="_blank" rel="noopener" aria-label="Instagram" style="color: var(--primary); display: flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                Instagram
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="festival-section festival-cta">
                     <p>Had a great time? Let us know how it went!</p>
-                    <button onclick="openFeedbackModal(); closeFestivalChecklistModal();" class="festival-contact-btn">Share Your Thoughts</button>
+                    <button onclick="openFeedbackModal();" class="festival-contact-btn">Share Your Thoughts</button>
                 </div>
             </div>
         </div>
@@ -1615,61 +1646,102 @@
     <div class="festival-modal-overlay" id="knowYourRightsModal" onclick="closeKnowYourRightsModalOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="knowYourRightsTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2 id="knowYourRightsTitle">Know Your Rights</h2>
                 <button class="festival-modal-close" onclick="closeKnowYourRightsModal()" aria-label="Close dialog">✕</button>
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">⚖️</span>
+                    <div class="bg-modal-header-text">
+                        <h2 id="knowYourRightsTitle">Know Your Rights</h2>
+                        <p>Your legal protections</p>
+                    </div>
+                </div>
             </div>
             <div class="festival-modal-body">
-                <div class="rights-hero-statement">
+                <div class="rights-hero-statement" style="padding-top:20px;">
                     <p class="rights-hero-main">You have the right to enjoy live events.</p>
                     <p class="rights-hero-sub">The law protects you.</p>
                 </div>
 
                 <div style="padding:10px 14px;background:#F3F4F6;border-radius:10px;margin-bottom:16px;border:1px solid #E5E7EB;">
-                    <p style="margin:0;font-size:12px;color:var(--gray-600);line-height:1.5;">This information is general guidance only, not legal advice. Laws and procedures may change. For advice about your specific situation, contact the <a href="https://www.equalityadvisoryservice.com" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">EASS</a> (England, Scotland, Wales), the <a href="https://www.equalityni.org" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Equality Commission</a> (Northern Ireland), or the <a href="https://www.ihrec.ie/your-rights/" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">IHREC</a> (Ireland). Performance Interpreting Ltd is not a law firm and does not provide legal services.</p>
+                    <p style="margin:0;font-size:12px;color:#6B7280;line-height:1.5;">This information is general guidance only, not legal advice. Laws and procedures may change. For advice about your specific situation, contact the <a href="https://www.equalityadvisoryservice.com" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">EASS</a> (England, Scotland, Wales), the <a href="https://www.equalityni.org" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Equality Commission</a> (Northern Ireland), or the <a href="https://www.ihrec.ie/your-rights/" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">IHREC</a> (Ireland). Performance Interpreting Ltd is not a law firm and does not provide legal services.</p>
                 </div>
 
                 <div class="bsl-video-link-center">
                     <button class="bsl-video-link" onclick="playBSLVideo('know-rights')">
-                        <span class="bsl-video-link-icon">▶</span> Watch in BSL
+                        <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
                     </button>
                 </div>
 
                 <!-- The Law (UK) -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>The Law (UK)</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p>The <strong>Equality Act 2010</strong> covers England, Scotland, and Wales. It says venues and event providers must make <strong>"reasonable adjustments"</strong> so Deaf people can access their services.</p>
-                        <p>BSL interpreters are one example of a reasonable adjustment.</p>
-                        <p>In <strong>Northern Ireland</strong>, similar protection comes from the Disability Discrimination Act 1995.</p>
+                        <p>The <strong><a href="https://www.legislation.gov.uk/ukpga/2010/15/contents" target="_blank" rel="noopener" style="color:inherit;">Equality Act 2010</a></strong> covers England, Scotland, and Wales. It says venues and event providers must make <strong>"reasonable adjustments"</strong> so Deaf people can access their services.</p>
+                        <p>Interpreters are one example of a reasonable adjustment.</p>
+                        <p>In <strong>Northern Ireland</strong>, similar protection comes from the <a href="https://www.legislation.gov.uk/ukpga/1995/50/contents" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Disability Discrimination Act 1995</a>.</p>
+                    </div>
+                </div>
+
+                <!-- Rights in Ireland -->
+                <div class="festival-section festival-section-4">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                        <span>Your Rights in Ireland (ISL)</span>
+                        <span class="festival-toggle-icon">▼</span>
+                    </h3>
+                    <div class="festival-accordion-body">
+                        <p>Ireland has different laws from the UK.</p>
+                        <p>The <strong><a href="https://www.irishstatutebook.ie/eli/2017/act/40/enacted/en/html" target="_blank" rel="noopener" style="color:inherit;">Irish Sign Language Act 2017</a></strong> officially recognises ISL as a native language of the Deaf community. It gives Deaf people the right to use ISL when accessing public services and places a legal duty on public bodies to provide ISL interpreters.</p>
+                        <p><strong>Important:</strong> This duty mainly applies to public bodies, not automatically to private event organisers.</p>
+                        <p>For cultural events (concerts, theatre, festivals), the ISL Act recognises that Deaf people should be able to access social, cultural and educational activities. Section 9 of the Act created a state-funded support scheme run by the <strong>Sign Language Interpreting Service (SLIS)</strong>.</p>
+                        <p>Through the <strong>SLIS Social Inclusion Voucher Scheme</strong>, Deaf ISL users can request interpreters for events. Sometimes the interpreter is funded by the scheme rather than the event organiser.</p>
+                        <p><a href="https://slis.ie/" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">Learn more about SLIS</a></p>
+                        <p>For events and venues, the <strong><a href="https://www.irishstatutebook.ie/eli/2000/act/8/enacted/en/html" target="_blank" rel="noopener" style="color:inherit;">Equal Status Acts 2000-2018</a></strong> say venues must make "reasonable accommodation" for Deaf people, provided it does not involve more than a <strong>"nominal cost"</strong> to the venue.</p>
+                        <p>If a venue in Ireland refuses, you can complain to the <strong><a href="https://www.workplacerelations.ie" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Workplace Relations Commission (WRC)</a></strong>.</p>
+                        <ul class="festival-checklist">
+                            <li>Notify the venue in writing using <strong>Form ES-1</strong> within 2 months</li>
+                            <li>File your complaint with the <a href="https://www.workplacerelations.ie" target="_blank" rel="noopener">WRC</a> within 6 months</li>
+                            <li>It is free</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Who can help in Ireland</strong></p>
+                        <ul class="festival-checklist">
+                            <li><a href="https://www.irishdeafsociety.ie" target="_blank" rel="noopener">Irish Deaf Society (IDS)</a> - advocacy and advice</li>
+                            <li><a href="https://slis.ie/" target="_blank" rel="noopener">Sign Language Interpreting Service (SLIS)</a> - interpreter guidance</li>
+                            <li><a href="https://www.ihrec.ie/your-rights/" target="_blank" rel="noopener">Irish Human Rights and Equality Commission (IHREC)</a> - rights guidance</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Northern Ireland</strong></p>
+                        <p>Northern Ireland is not covered by the Equality Act 2010. Instead, the <strong>Disability Discrimination Act 1995</strong> protects your right to access services, including events and venues.</p>
+                        <p>Venues must make reasonable adjustments so Deaf people are not left out.</p>
+                        <p>If a venue refuses, you can contact the <strong><a href="https://www.equalityni.org" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Equality Commission for Northern Ireland (ECNI)</a></strong> for advice and support.</p>
                     </div>
                 </div>
 
                 <!-- What Are Reasonable Adjustments? -->
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
-                        <span>What Are Reasonable Adjustments?</span>
-                        <span class="festival-toggle-icon">▶</span>
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                        <span>What Are Reasonable Adjustments for BSL Users?</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p>"Reasonable adjustments" means changes a venue makes so Deaf people are not left out.</p>
-                        <p>There are three types:</p>
+                        <p>In the Equality Act, <strong>"reasonable adjustments"</strong> are deemed as auxiliary aids for Deaf people. This means the support required to make the show accessible.</p>
+                        <p>Examples of auxiliary aids:</p>
                         <ul class="festival-checklist">
-                            <li>Change a rule or process</li>
-                            <li>Change something in the building</li>
-                            <li>Provide extra help — like a BSL interpreter</li>
+                            <li>Interpreters</li>
+                            <li>Captions</li>
+                            <li>Lip Speakers</li>
+                            <li>Loop Systems</li>
                         </ul>
+                        <p>The aid must be appropriate to your needs to access the event.</p>
                         <p>What counts as "reasonable" depends on things like the size of the event and the resources of the venue. Courts look at this on a case-by-case basis.</p>
                     </div>
                 </div>
 
                 <!-- Planning Ahead -->
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Planning Ahead</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
                         <p>Under the Equality Act 2010, venues have an <strong>"anticipatory duty"</strong>. This means they must think about accessibility before anyone asks.</p>
@@ -1677,117 +1749,92 @@
                         <ul class="festival-checklist">
                             <li>Have an access policy</li>
                             <li>Put access information on their website</li>
-                            <li>Have a process for booking BSL interpreters when needed</li>
+                            <li>Have a process for booking interpreters when needed</li>
                             <li>Train staff so they know how to help</li>
                         </ul>
-                        <p>This does not mean every event must have a BSL interpreter from the start. But venues should have a plan in place so they can respond when you ask.</p>
+                        <p>This does not mean every event must have an interpreter from the start. But venues should have a plan in place so they can respond when you ask.</p>
                     </div>
                 </div>
 
                 <!-- You Don't Pay for Access -->
                 <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>You Don't Pay for Access</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p><strong>You should not pay extra for access.</strong> The cost of a BSL interpreter is for the venue, not you.</p>
-                        <p>The law says venues cannot pass the cost of reasonable adjustments on to the person who needs them.</p>
+                        <p><strong>You should not pay extra for access.</strong> The cost of an interpreter is for the venue or event organiser, not you.</p>
+                        <p>The law says an event organiser cannot pass the cost of reasonable adjustments on to the person who needs them.</p>
                     </div>
                 </div>
 
                 <!-- Companion / PA Tickets -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Companion / PA Tickets</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p>Many venues offer a free ticket for a <strong>companion</strong> or <strong>Personal Assistant (PA)</strong>. Ask the access team when you book.</p>
-                        <p>This is standard at most arenas, theatres, and festivals. <a href="https://attitudeiseverything.org.uk" target="_blank" rel="noopener">Attitude Is Everything</a> includes free PA tickets as a basic standard in their venue charter.</p>
+                        <p>Many venues offer a free or discounted ticket for a <strong>companion</strong> or <strong>Personal Assistant (PA)</strong>. Ask the access team when you book.</p>
+                        <p>This is standard at most arenas, theatres, and festivals. <a href="https://attitudeiseverything.org.uk" target="_blank" rel="noopener">Attitude Is Everything</a> includes free companion/PA tickets as a Bronze-level requirement in their <a href="https://attitudeiseverything.org.uk/industry/live-events-access-charter/" target="_blank" rel="noopener">Live Events Access Charter</a> - a framework that venues and festivals sign up to for improving accessibility.</p>
                         <p>If you need a companion to access the event, the venue should try to help. Ask them what they offer.</p>
                     </div>
                 </div>
 
                 <!-- Nimbus Access Card -->
                 <div class="festival-section festival-section-2">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Nimbus Access Card</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p>Many venues now accept the <strong>Nimbus Access Card</strong>. This saves you having to provide evidence of your access needs every time you use a venue.</p>
+                        <p>Many venues now accept the <strong><a href="https://www.accesscard.online" target="_blank" rel="noopener" style="color:inherit;">Nimbus Access Card</a></strong>. This saves you having to provide evidence of your access needs every time you use a venue.</p>
                         <p>Some venues have their own access system, so please check with them.</p>
                         <p><a href="https://app.accesscard.online/venue-registration/" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">Apply for a Nimbus Access Card</a></p>
                     </div>
                 </div>
 
                 <!-- Common Questions -->
-                <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                <div class="festival-section festival-section-2">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>Common Questions About Access</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p><strong>"The venue has a hearing loop. Is that enough?"</strong><br>A hearing loop helps hearing aid users. It does not help Deaf BSL users. A loop on its own is not access for BSL users.</p>
-                        <p><strong>"The venue offered me a notepad."</strong><br>A notepad is not the same as BSL. English is not the first language of many Deaf people. A notepad is not equal access.</p>
-                        <p><strong>"The venue said it's too expensive."</strong><br>Cost is one factor, but venues must look at what is reasonable for their situation. Many events can afford a BSL interpreter.</p>
-                        <p><strong>"The venue said nobody has asked before."</strong><br>Under the anticipatory duty, venues should have a plan for access — even before someone asks. But you may still need to make a request for a specific event.</p>
+                        <p><strong>"The venue has a hearing loop. Is that enough?"</strong><br>A hearing loop helps hearing aid users. A loop on its own does not provide access to communication for BSL/ISL users. The support provided must be appropriate to your needs to access the event, i.e. a BSL/ISL interpreter.</p>
+                        <p><strong>"The venue said nobody has asked before."</strong><br>Under the anticipatory duty, venues should have a plan for access, even before someone asks. But you may still need to make a request for a specific event.</p>
                     </div>
                 </div>
 
                 <!-- BSL Act 2022 -->
                 <div class="festival-section festival-section-3">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>BSL Act 2022</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p>The <strong>BSL Act 2022</strong> says BSL is an official language of England, Wales, and Scotland.</p>
+                        <p>The <strong><a href="https://www.legislation.gov.uk/ukpga/2022/34/enacted" target="_blank" rel="noopener" style="color:inherit;">BSL Act 2022</a></strong> says BSL is an official language of England, Wales, and Scotland.</p>
                         <p>The BSL Act does <strong>not</strong> give you new rights at events. It does not force venues to provide BSL.</p>
                         <p>Your main protection at events comes from the <strong>Equality Act 2010</strong>.</p>
                     </div>
                 </div>
 
-                <!-- Rights in Ireland -->
-                <div class="festival-section festival-section-4">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
-                        <span>Your Rights in Ireland (ISL)</span>
-                        <span class="festival-toggle-icon">▶</span>
-                    </h3>
-                    <div class="festival-accordion-body">
-                        <p>Ireland has different laws from the UK.</p>
-                        <p>The <strong>Irish Sign Language Act 2017</strong> officially recognises ISL as a native language of the Deaf community. It gives Deaf people the right to use ISL when accessing public services and places a legal duty on public bodies to provide ISL interpreters.</p>
-                        <p><strong>Important:</strong> This duty mainly applies to public bodies, not automatically to private event organisers.</p>
-                        <p>For cultural events (concerts, theatre, festivals), the ISL Act recognises that Deaf people should be able to access social, cultural and educational activities. Section 9 of the Act created a state-funded support scheme run by the <strong>Sign Language Interpreting Service (SLIS)</strong>.</p>
-                        <p>Through the <strong>SLIS Social Inclusion Voucher Scheme</strong>, Deaf ISL users can request interpreters for events, and the interpreter is funded by the scheme rather than the event organiser.</p>
-                        <p><a href="https://slis.ie/voucher-scheme-2023/" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">Learn more about the SLIS Voucher Scheme</a></p>
-                        <p>For events and venues, the <strong>Equal Status Acts 2000–2018</strong> say venues must make "reasonable accommodation" for Deaf people.</p>
-                        <p>If a venue in Ireland refuses, you can complain to the <strong>Workplace Relations Commission (WRC)</strong>.</p>
-                        <ul class="festival-checklist">
-                            <li>Tell the venue in writing within 2 months</li>
-                            <li>File your complaint with the WRC within 6 months</li>
-                            <li>It is free</li>
-                        </ul>
-                    </div>
-                </div>
-
                 <!-- What To Do If a Venue Says No -->
                 <div class="festival-section festival-section-1">
-                    <h3 class="festival-section-title festival-accordion-toggle" role="button" tabindex="0" onclick="toggleFestivalSection(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
+                    <h3 class="festival-section-title festival-accordion-toggle" onclick="toggleFestivalSection(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFestivalSection(this)}">
                         <span>What To Do If a Venue Says No</span>
-                        <span class="festival-toggle-icon">▶</span>
+                        <span class="festival-toggle-icon">▼</span>
                     </h3>
                     <div class="festival-accordion-body">
-                        <p><strong>Step 1:</strong> Write to the venue. Ask for a "reasonable adjustment" under the Equality Act 2010. Keep a copy of your message.</p>
-                        <p><strong>Step 2:</strong> If the venue does not help, contact the <strong>Equality Advisory Support Service (EASS)</strong>. They have BSL support.</p>
+                        <p><strong>Step 1:</strong> Write to the venue. Ask for a "reasonable adjustment" under the Equality Act 2010 (for England, Wales and Scotland), or the Disability Discrimination Act 1995 (Northern Ireland). Keep a copy of your message.</p>
+                        <p><strong>Step 2:</strong> If the venue does not help, contact the <strong><a href="https://www.equalityadvisoryservice.com" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;">Equality Advisory Support Service (EASS)</a></strong>. They have BSL support.</p>
                         <ul class="festival-checklist">
                             <li>Phone: 0808 800 0082</li>
                             <li>Textphone: 0808 800 0084</li>
                             <li>BSL support on their website</li>
-                            <li>Open Mon–Fri 9am–7pm, Sat 10am–2pm</li>
+                            <li>Open Mon-Fri 9am-7pm, Sat 10am-2pm</li>
                         </ul>
-                        <p><strong>Step 3:</strong> If the venue still says no, you can take legal action. You have 6 months.</p>
+                        <p><strong>Step 3:</strong> If the venue still says no, you can consider taking legal action. You have 6 months.</p>
                         <p>You can also report access issues to <a href="https://attitudeiseverything.org.uk" target="_blank" rel="noopener">Attitude Is Everything</a>. They work with venues to improve access.</p>
                     </div>
                 </div>
@@ -1795,7 +1842,7 @@
                 <!-- Contact PI -->
                 <div class="festival-section festival-cta">
                     <p>Need help? Not sure what to do? <strong>We are here for you.</strong></p>
-                    <a href="mailto:office@performanceinterpreting.co.uk?subject=I need help with access&body=Hi PI,%0D%0A%0D%0AI need some help with:%0D%0A%0D%0A(Fill in what's relevant - delete the rest)%0D%0A%0D%0AEvent:%0D%0AVenue:%0D%0ADate:%0D%0A%0D%0AWhat happened:%0D%0A%0D%0A" class="rights-contact-btn">Email Us</a>
+                    <a href="https://www.performanceinterpreting.co.uk/#contact" target="_blank" class="rights-contact-btn">Contact Us</a>
                 </div>
             </div>
         </div>
@@ -1804,15 +1851,21 @@
     <script>
         // Festival Checklist Modal Functions
         function openFestivalChecklistModal() {
+            if (window.storeModalTrigger) window.storeModalTrigger();
             const modal = document.getElementById('festivalChecklistModal');
             modal.classList.add('active');
             document.body.classList.add('modal-open');
+            if (window.activateFocusTrap) window.activateFocusTrap(modal);
+            if (window.pushModalState) window.pushModalState('festivalChecklistModal', closeFestivalChecklistModal);
         }
 
         function closeFestivalChecklistModal() {
+            if (window.deactivateFocusTrap) window.deactivateFocusTrap();
             const modal = document.getElementById('festivalChecklistModal');
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
+            if (window.restoreModalFocus) window.restoreModalFocus();
+            if (window.clearModalState) window.clearModalState();
         }
 
         function closeFestivalChecklistModalOnOverlay(event) {
@@ -1823,15 +1876,21 @@
 
         // Know Your Rights Modal Functions
         function openKnowYourRightsModal() {
+            if (window.storeModalTrigger) window.storeModalTrigger();
             const modal = document.getElementById('knowYourRightsModal');
             modal.classList.add('active');
             document.body.classList.add('modal-open');
+            if (window.activateFocusTrap) window.activateFocusTrap(modal);
+            if (window.pushModalState) window.pushModalState('knowYourRightsModal', closeKnowYourRightsModal);
         }
 
         function closeKnowYourRightsModal() {
+            if (window.deactivateFocusTrap) window.deactivateFocusTrap();
             const modal = document.getElementById('knowYourRightsModal');
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
+            if (window.restoreModalFocus) window.restoreModalFocus();
+            if (window.clearModalState) window.clearModalState();
         }
 
         function closeKnowYourRightsModalOnOverlay(event) {
@@ -1840,33 +1899,34 @@
             }
         }
 
-        // Close modals on ESC key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const festivalModal = document.getElementById('festivalChecklistModal');
-                if (festivalModal && festivalModal.classList.contains('active')) {
-                    closeFestivalChecklistModal();
-                }
-                const rightsModal = document.getElementById('knowYourRightsModal');
-                if (rightsModal && rightsModal.classList.contains('active')) {
-                    closeKnowYourRightsModal();
-                }
-            }
-        });
+        // ESC key handling consolidated in app.js unified handler (A11Y-01)
     </script>
 
     <!-- Notification Preferences Modal -->
     <div class="festival-modal-overlay" id="notificationPreferencesModal" onclick="closeNotificationPreferencesOnOverlay(event)" role="dialog" aria-modal="true" aria-labelledby="notificationPreferencesTitle">
         <div class="festival-modal-container">
             <div class="festival-modal-header">
-                <h2 id="notificationPreferencesTitle">Get Event Notifications</h2>
                 <button class="festival-modal-close" onclick="closeNotificationPreferences()" aria-label="Close dialog">✕</button>
+                <div class="bg-modal-header-content">
+                    <span class="bg-modal-icon">🔔</span>
+                    <div class="bg-modal-header-text">
+                        <h2 id="notificationPreferencesTitle">Event Notifications</h2>
+                        <p>Get notified about new events</p>
+                    </div>
+                </div>
             </div>
             <div class="festival-modal-body">
-                <p class="festival-subtitle" style="margin-bottom: 24px;">
-                    <strong>100% Private. We collect nothing about you.</strong><br>
-                    Get a notification when new events match what you like. We only save your choices — not your name, email, or any personal details.
-                </p>
+                <div style="padding-top: 16px; margin-bottom: 20px;">
+                    <div class="bsl-video-link-center" style="margin-bottom: 16px;">
+                        <button class="bsl-video-link" onclick="playBSLVideo('notifications')">
+                            <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
+                        </button>
+                    </div>
+                    <p class="festival-checklist-subtitle" style="margin-bottom: 0;">
+                        <strong>100% Private. We collect nothing about you.</strong><br>
+                        Get a notification when new events match what you like. We only save your choices — not your name, email, or any personal details.
+                    </p>
+                </div>
 
                 <div class="festival-divider"></div>
 
@@ -1899,15 +1959,30 @@
                     </div>
                 </div>
 
-                <div id="notificationSubscribed" style="display: none; text-align: center; padding: 40px 20px;">
-                    <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
-                    <h3 style="color: var(--gray-900); margin-bottom: 8px;">All set!</h3>
-                    <p style="color: var(--gray-600); margin-bottom: 24px;">
-                        You'll be notified when new events match your preferences.
-                    </p>
-                    <button onclick="unsubscribeFromNotifications()" class="notification-unsubscribe-btn">
-                        Unsubscribe
-                    </button>
+                <div id="notificationSubscribed" style="display: none; padding: 20px 0;">
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">✅</div>
+                        <h3 style="color: var(--gray-900); margin-bottom: 4px;">All set!</h3>
+                        <p style="color: var(--gray-600); font-size: 14px;">
+                            You'll be notified when new events match your preferences.
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <button onclick="editNotificationPreferences()" class="notification-subscribe-btn">
+                            Edit Preferences
+                        </button>
+                    </div>
+
+                    <div id="subscribedPrefsDisplay" style="opacity: 0.5; pointer-events: none;">
+                        <!-- Populated by JS with saved categories/locations -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="unsubscribeFromNotifications()" style="background: none; border: none; color: var(--gray-500); font-size: 13px; cursor: pointer; text-decoration: underline;">
+                            Unsubscribe
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1915,26 +1990,47 @@
 
     <script src="notifications.js"></script>
 
-    <!-- Tally Embed Script -->
+    <!-- Tally Embed Script (PWA only — skip in native to avoid external script injection) -->
     <script>
-        var d = document,
-            w = "https://tally.so/widgets/embed.js",
-            v = function () {
-                "undefined" != typeof Tally
-                    ? Tally.loadEmbeds()
-                    : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function (e) {
-                        e.src = e.dataset.tallySrc;
-                    });
-            };
-        if ("undefined" != typeof Tally) v();
-        else if (d.querySelector('script[src="' + w + '"]') == null) {
-            var s = d.createElement("script");
-            (s.src = w), (s.onload = v), (s.onerror = v), d.body.appendChild(s);
+        if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) {
+            var d = document,
+                w = "https://tally.so/widgets/embed.js",
+                v = function () {
+                    "undefined" != typeof Tally
+                        ? Tally.loadEmbeds()
+                        : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function (e) {
+                            e.src = e.dataset.tallySrc;
+                        });
+                };
+            if ("undefined" != typeof Tally) v();
+            else if (d.querySelector('script[src="' + w + '"]') == null) {
+                // SRI hash pins this script version. If Tally updates embed.js, regenerate:
+                // curl -s "https://tally.so/widgets/embed.js" | openssl dgst -sha384 -binary | openssl base64 -A
+                var s = d.createElement("script");
+                s.src = w;
+                s.integrity = "sha384-WnVlqVsUsk21DKTBdtfQ85w0O8KxzdXX1035L0p9bw8MTfT1hgMYlCUIXHVxvY3y";
+                s.crossOrigin = "anonymous";
+                s.onload = v;
+                s.onerror = v;
+                d.body.appendChild(s);
+            }
         }
     </script>
 
-    <!-- Cloudflare Web Analytics -->
-    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3eabb76276574cc4b06e2a714cf8ffd6"}'></script>
+    <!-- Cloudflare Web Analytics (PWA only — skip in native to avoid polluting web analytics) -->
+    <script>
+        if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) {
+            // SRI hash pins this script version. If Cloudflare updates beacon.min.js, regenerate:
+            // curl -s "https://static.cloudflareinsights.com/beacon.min.js" | openssl dgst -sha384 -binary | openssl base64 -A
+            var b = document.createElement('script');
+            b.defer = true;
+            b.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+            b.integrity = "sha384-OngJu5CJZ5lWGKcpmuxzX/oKa+Gcbcw0xdBkaOPd+KAe6c0poNtwdci1DEIrrtF/";
+            b.crossOrigin = "anonymous";
+            b.setAttribute('data-cf-beacon', '{"token": "3eabb76276574cc4b06e2a714cf8ffd6"}');
+            document.body.appendChild(b);
+        }
+    </script>
 
 </body>
 </html>

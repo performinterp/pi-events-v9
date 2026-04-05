@@ -81,6 +81,14 @@ function dailyAutoPublish() {
     // 1b. Load cancelled events blocklist
     const cancelledKeys = getCancelledKeys(publishedSS);
 
+    // 1c. Correct typos in source sheets (PI Workflow) before reading
+    if (!DRY_RUN) {
+      var sourceTyposCorrected = correctSourceTypos();
+      if (sourceTyposCorrected > 0) {
+        log.warnings.push('Corrected ' + sourceTyposCorrected + ' typo(s) in source sheets');
+      }
+    }
+
     // 2. Read events from sources
     const preApprovedEvents = getEventsFromPreApproved();
     const monthlyEvents = getEventsFromMonthlyTabs();
@@ -158,9 +166,30 @@ function dailyAutoPublish() {
       log.warnings.push('Date-varying dedup: merged ' + dateVaryResult.removed + ' row(s): ' + dateVaryResult.merged.join('; '));
     }
 
-    // Track all events with assumed categories (from all sources, not just new)
+    // Track events with assumed categories, but exclude ones already manually
+    // corrected in PUBLISHED (so the digest doesn't keep flagging fixed items)
+    const publishedCategories = {};
+    const freshPublished = publishedSheet.getDataRange().getValues();
+    const pubHeaders = freshPublished[0].map(h => (h || '').toString().trim().toUpperCase());
+    const pubDateIdx = pubHeaders.indexOf('DATE');
+    const pubEventIdx = pubHeaders.indexOf('EVENT');
+    const pubVenueIdx = pubHeaders.indexOf('VENUE');
+    const pubCatIdx = pubHeaders.indexOf('CATEGORY');
+    if (pubDateIdx >= 0 && pubEventIdx >= 0 && pubCatIdx >= 0) {
+      for (let p = 1; p < freshPublished.length; p++) {
+        var pKey = makeDedupKey(freshPublished[p][pubDateIdx], freshPublished[p][pubEventIdx],
+          pubVenueIdx >= 0 ? freshPublished[p][pubVenueIdx] : '');
+        publishedCategories[pKey] = (freshPublished[p][pubCatIdx] || '').toString().trim();
+      }
+    }
     log.assumedCategories = mergedEvents
-      .filter(e => e.categoryAssumed)
+      .filter(e => {
+        if (!e.categoryAssumed) return false;
+        // If PUBLISHED already has a non-default category for this event, don't flag it
+        var existingCat = publishedCategories[e.key];
+        if (existingCat && existingCat !== 'Concert' && existingCat !== e.row[7]) return false;
+        return true;
+      })
       .map(e => ({ date: e.row[0], event: e.row[1], venue: e.row[2], category: e.row[7] }));
 
     // 8. Enrich missing images via artist name matching
@@ -170,6 +199,10 @@ function dailyAutoPublish() {
     // 8b. Enrich missing event links via venue homepage lookup
     const linkEnrichResult = enrichMissingEventLinks(publishedSheet);
     log.linksEnriched = linkEnrichResult;
+
+    // 8c. Festival event page discovery (finds both image + link from official event pages)
+    const festivalResult = enrichViaFestivalDiscovery(publishedSheet);
+    log.festivalEnriched = festivalResult;
 
     // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
@@ -224,6 +257,7 @@ VENUE_TYPO_CORRECTIONS = typeof VENUE_TYPO_CORRECTIONS !== 'undefined' ? VENUE_T
   { pattern: /\bShefeild\b/gi, replacement: 'Sheffield' },
   { pattern: /\bReding\b/g, replacement: 'Reading' },
   { pattern: /\bUtlilita\b/gi, replacement: 'Utilita' },
+  { pattern: /\bCaste\b/g, replacement: 'Castle' },
 ];
 
 // Also correct city names in the CITY column
@@ -232,6 +266,22 @@ CITY_TYPO_CORRECTIONS = typeof CITY_TYPO_CORRECTIONS !== 'undefined' ? CITY_TYPO
   { pattern: /^Lodnon$/i, replacement: 'London' },
   { pattern: /^Mnchester$/i, replacement: 'Manchester' },
 ];
+
+// ==================== EVENT NAME TYPO CORRECTIONS ====================
+EVENT_TYPO_CORRECTIONS = typeof EVENT_TYPO_CORRECTIONS !== 'undefined' ? EVENT_TYPO_CORRECTIONS : [
+  { pattern: /\bSummetime\b/gi, replacement: 'Summertime' },
+  { pattern: /\bCapataldi\b/gi, replacement: 'Capaldi' },
+  { pattern: /\bCapitol\s+Summetime\b/gi, replacement: 'Capital Summertime' },
+];
+
+function correctEventTypos(eventName) {
+  if (!eventName) return '';
+  var e = eventName;
+  for (var i = 0; i < EVENT_TYPO_CORRECTIONS.length; i++) {
+    e = e.replace(EVENT_TYPO_CORRECTIONS[i].pattern, EVENT_TYPO_CORRECTIONS[i].replacement);
+  }
+  return e;
+}
 
 function correctVenueTypos(venue) {
   if (!venue) return '';
@@ -262,6 +312,7 @@ function correctPublishedTypos(sheet) {
   var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
   var venueCol = headers.indexOf('VENUE');
   var cityCol = headers.indexOf('CITY');
+  var eventCol = headers.indexOf('EVENT');
   if (venueCol < 0) return 0;
 
   var corrected = 0;
@@ -288,7 +339,92 @@ function correctPublishedTypos(sheet) {
       }
     }
 
+    // Correct event name typos
+    if (eventCol >= 0) {
+      var eventName = (data[i][eventCol] || '').toString().trim();
+      var fixedEvent = correctEventTypos(eventName);
+      if (fixedEvent !== eventName) {
+        sheet.getRange(i + 1, eventCol + 1).setValue(fixedEvent);
+        changed = true;
+      }
+    }
+
     if (changed) corrected++;
+  }
+  return corrected;
+}
+
+/**
+ * Correct typos in PI Workflow source sheets (PRE_APPROVED + monthly tabs).
+ * Fixes event names, venues, and cities at the root so dedup keys match.
+ */
+function correctSourceTypos() {
+  try {
+    var ss = SpreadsheetApp.openById(PI_WORKFLOW_ID);
+    var corrected = 0;
+
+    // Fix PRE_APPROVED EVENTS sheet
+    var preApproved = ss.getSheetByName(PRE_APPROVED_SHEET);
+    if (preApproved && preApproved.getLastRow() >= 2) {
+      corrected += correctSheetTypos_(preApproved, { event: 'EVENT_NAME', venue: 'VENUE', city: 'CITY' });
+    }
+
+    // Fix monthly tabs
+    var sheets = ss.getSheets();
+    for (var i = 0; i < sheets.length; i++) {
+      if (isMonthlyTab(sheets[i].getName()) && sheets[i].getLastRow() >= 2) {
+        corrected += correctSheetTypos_(sheets[i], { event: 'EVENT', venue: 'VENUE', city: null });
+      }
+    }
+
+    if (corrected > 0) Logger.log('Source typos corrected: ' + corrected + ' cell(s)');
+    return corrected;
+  } catch (e) {
+    Logger.log('Error correcting source typos: ' + e.toString());
+    return 0;
+  }
+}
+
+/**
+ * Apply all typo corrections to a sheet. Header names are case-insensitive.
+ * @param {Sheet} sheet - The sheet to correct
+ * @param {Object} colNames - { event, venue, city } header name mappings (null to skip)
+ */
+function correctSheetTypos_(sheet, colNames) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return 0;
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var eventCol = colNames.event ? headers.indexOf(colNames.event.toUpperCase()) : -1;
+  var venueCol = colNames.venue ? headers.indexOf(colNames.venue.toUpperCase()) : -1;
+  var cityCol = colNames.city ? headers.indexOf(colNames.city.toUpperCase()) : -1;
+
+  var corrected = 0;
+  for (var i = 1; i < data.length; i++) {
+    if (eventCol >= 0) {
+      var eventName = (data[i][eventCol] || '').toString().trim();
+      var fixedEvent = correctEventTypos(eventName);
+      if (fixedEvent !== eventName) {
+        sheet.getRange(i + 1, eventCol + 1).setValue(fixedEvent);
+        corrected++;
+      }
+    }
+    if (venueCol >= 0) {
+      var venue = (data[i][venueCol] || '').toString().trim();
+      var fixedVenue = correctVenueTypos(venue);
+      if (fixedVenue !== venue) {
+        sheet.getRange(i + 1, venueCol + 1).setValue(fixedVenue);
+        corrected++;
+      }
+    }
+    if (cityCol >= 0) {
+      var city = (data[i][cityCol] || '').toString().trim();
+      var fixedCity = correctCityTypos(city);
+      if (fixedCity && fixedCity !== city) {
+        sheet.getRange(i + 1, cityCol + 1).setValue(fixedCity);
+        corrected++;
+      }
+    }
   }
   return corrected;
 }
@@ -397,7 +533,7 @@ function getEventsFromPreApproved() {
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       const dateRaw = (row[col.date] || '').toString().trim();
-      const eventName = (row[col.name] || '').toString().trim();
+      const eventName = correctEventTypos((row[col.name] || '').toString().trim());
       const venue = correctVenueTypos((row[col.venue] || '').toString().trim());
 
       if (!dateRaw || !eventName || !venue) continue;
@@ -495,7 +631,7 @@ function getEventsFromMonthlyTabs() {
         if (!isTruthyValue(publicAppVal)) continue;
 
         const dateRaw = (row[dateIdx] || '').toString().trim();
-        const eventName = (row[eventIdx] || '').toString().trim();
+        const eventName = correctEventTypos((row[eventIdx] || '').toString().trim());
         const venue = correctVenueTypos((row[venueIdx] || '').toString().trim());
 
         if (!dateRaw || !eventName || !venue) continue;
@@ -663,6 +799,14 @@ function deduplicatePublished(sheet) {
     var group = groups[key];
     if (group.length < 2) continue;
 
+    // Skip festival venues where each date is a separate event
+    var sampleVenue = (group[0].row[col.venue] || '').toString().trim();
+    var isExempt = false;
+    for (var fe = 0; fe < FESTIVAL_DEDUP_EXEMPT.length; fe++) {
+      if (FESTIVAL_DEDUP_EXEMPT[fe].test(sampleVenue)) { isExempt = true; break; }
+    }
+    if (isExempt) continue;
+
     // Score each row: higher = better data
     // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
@@ -738,6 +882,14 @@ function deduplicatePublished(sheet) {
  * Groups of 3+ entries are assumed to be legitimate multi-show events
  * (like Strictly Come Dancing with 3 nights at the same venue).
  */
+// Venues where each date is a separately-ticketed event (festivals, residencies).
+// Date-varying dedup should NOT merge events at these venues.
+FESTIVAL_DEDUP_EXEMPT = typeof FESTIVAL_DEDUP_EXEMPT !== 'undefined' ? FESTIVAL_DEDUP_EXEMPT : [
+  /hyde\s*park/i,         // BST Hyde Park — each headliner date is a separate event
+  /knebworth/i,           // Multi-day festival events
+  /edinburgh\s*castle/i,  // Summer concert series — different acts each night
+];
+
 function deduplicateDateVarying(sheet) {
   var data = sheet.getDataRange().getValues();
   if (data.length < 3) return { removed: 0, merged: [] };
@@ -776,6 +928,14 @@ function deduplicateDateVarying(sheet) {
   for (var key in groups) {
     var group = groups[key];
     if (group.length < 2) continue;
+
+    // Skip festival venues where each date is a separate event
+    var sampleVenue = (group[0].row[col.venue] || '').toString().trim();
+    var isExempt = false;
+    for (var fe = 0; fe < FESTIVAL_DEDUP_EXEMPT.length; fe++) {
+      if (FESTIVAL_DEDUP_EXEMPT[fe].test(sampleVenue)) { isExempt = true; break; }
+    }
+    if (isExempt) continue;
 
     // Parse dates for all entries
     var allParsed = true;
@@ -1046,6 +1206,7 @@ function sendDigestEmail(log) {
   body += `-`.repeat(55) + `\n`;
   const enrichResult = log.enriched || { enriched: 0, totalMissing: 0, filled: [] };
   const linkResult = log.linksEnriched || { enriched: 0, totalMissing: 0, filled: [] };
+  const festivalResult = log.festivalEnriched || { enriched: 0, filled: [] };
   body += `  Total published events:  ${quality.total || '?'}\n`;
   body += `  Added today:             ${addedCount}\n`;
   if (enrichResult.enriched > 0) {
@@ -1053,6 +1214,9 @@ function sendDigestEmail(log) {
   }
   if (linkResult.enriched > 0) {
     body += `  Links auto-filled:       ${linkResult.enriched} (via venue lookup)\n`;
+  }
+  if (festivalResult.enriched > 0) {
+    body += `  Festival pages found:    ${festivalResult.enriched} (via event page discovery)\n`;
   }
   body += `  Removed (past):          ${removedCount}\n`;
   body += `  Skipped (duplicates):    ${log.skipped}\n`;
@@ -1174,6 +1338,16 @@ function sendDigestEmail(log) {
     body += '\n';
   }
 
+  // ---- FESTIVAL PAGES DISCOVERED ----
+  if (festivalResult.filled.length > 0) {
+    body += `FESTIVAL PAGES DISCOVERED (${festivalResult.enriched} via event page discovery)\n`;
+    body += `-`.repeat(55) + `\n`;
+    for (const name of festivalResult.filled) {
+      body += `  + ${name}\n`;
+    }
+    body += '\n';
+  }
+
   // ---- ASSUMED CATEGORIES ----
   const assumed = log.assumedCategories || [];
   if (assumed.length > 0) {
@@ -1283,6 +1457,272 @@ function auditPublishedData(data) {
 
 // Venue configs for og:image scraping (slug-based URL construction)
 // Venue scrape configs (only define if not already in Code.gs)
+// ==================== FESTIVAL EVENT PAGE DISCOVERY ====================
+// Festivals with known URL patterns. Each config generates date-aware URLs
+// to find both the event link AND og:image in a single fetch.
+
+FESTIVAL_CONFIGS = typeof FESTIVAL_CONFIGS !== 'undefined' ? FESTIVAL_CONFIGS : [
+  {
+    name: 'BST Hyde Park',
+    venueMatcher: /hyde\s*park/i,
+    eventMatcher: /^BST:/i,
+    baseUrl: 'https://www.bst-hydepark.com/events/',
+    // BST URLs: /events/garth-brooks-sat-27-june/
+    slugGenerator: function(eventName, dateStr) {
+      var artist = eventName.replace(/^BST:\s*/i, '')
+        .replace(/\s*[&+]\s*Support(ing)?\s*Acts?\s*(tbc)?/gi, '')
+        .trim();
+      var slug = artist.toLowerCase()
+        .replace(/[''`]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      var date = parseDateForDedup_(dateStr);
+      if (!date) return [];
+      var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      var months = ['january', 'february', 'march', 'april', 'may', 'june',
+                    'july', 'august', 'september', 'october', 'november', 'december'];
+      var dayName = days[date.getDay()];
+      var dateNum = date.getDate();
+      var monthName = months[date.getMonth()];
+      // Try multiple slug patterns: with day, without day, with year
+      return [
+        slug + '-' + dayName + '-' + dateNum + '-' + monthName,
+        slug + '-' + dateNum + '-' + monthName,
+        slug + '-' + dayName + '-' + dateNum + '-' + monthName + '-' + date.getFullYear()
+      ];
+    }
+  },
+  {
+    name: 'Edinburgh Castle',
+    venueMatcher: /edinburgh\s*castle/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.edinburghcastle.scot/whats-on/',
+    slugGenerator: function(eventName, dateStr) {
+      var name = eventName.replace(/\s*\blive\b$/gi, '').trim();
+      var slug = slugify_(name);
+      return [slug, slug + '-' + new Date().getFullYear()];
+    }
+  },
+  {
+    name: 'Heritage Live',
+    venueMatcher: /kenwood|sandringham|audley\s*end|englefield/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.heritagelive.net/whats-on/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug, slug + '-' + new Date().getFullYear()];
+    }
+  },
+  {
+    name: 'Hampton Court Palace Festival',
+    venueMatcher: /hampton\s*court/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.hamptoncourtpalacefestival.com/artists/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug];
+    }
+  },
+  {
+    name: 'Kew the Music',
+    venueMatcher: /kew\s*(gardens|the\s*music)/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.kewthemusic.org/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug];
+    }
+  },
+  {
+    name: 'The O2 Arena',
+    venueMatcher: /\b(the\s*)?o2\s*(arena)?\b/i,
+    eventMatcher: null,
+    // Exclude sub-venues (indigo, Eventim Apollo, etc.)
+    venueExclude: /indigo|apollo|forum|kentish|academy|brixton/i,
+    baseUrl: 'https://www.theo2.co.uk/events/detail/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug, slug + '-' + new Date().getFullYear()];
+    }
+  },
+  {
+    name: 'OVO Arena Wembley',
+    venueMatcher: /ovo.*wembley|wembley.*ovo/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.ovoarena.co.uk/events/detail/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug, slug + '-2'];
+    }
+  },
+  {
+    name: 'AO Arena Manchester',
+    venueMatcher: /ao\s*arena|manchester\s*arena/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.ao-arena.com/events/detail/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug, slug + '-' + new Date().getFullYear()];
+    }
+  },
+  {
+    name: 'Eventim Apollo',
+    venueMatcher: /eventim\s*apollo|hammersmith.*apollo/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.eventimapollo.com/events/',
+    slugGenerator: function(eventName, dateStr) {
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      return [slug];
+    }
+  },
+  {
+    name: 'Royal Albert Hall',
+    venueMatcher: /royal\s*albert\s*hall/i,
+    eventMatcher: null,
+    baseUrl: 'https://www.royalalberthall.com/tickets/events/',
+    slugGenerator: function(eventName, dateStr) {
+      var year = new Date().getFullYear();
+      var slug = slugify_(stripEventSuffixes_(eventName));
+      // RAH uses /tickets/events/{year}/{slug}
+      return [year + '/' + slug];
+    }
+  }
+];
+
+/**
+ * Shared slug helper: lowercase, strip special chars, hyphenate.
+ */
+function slugify_(name) {
+  return (name || '').toLowerCase()
+    .replace(/[''`]/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
+ * Strip common event name suffixes before slugification.
+ */
+function stripEventSuffixes_(eventName) {
+  return (eventName || '').toString().trim()
+    .replace(/^BST:\s*/i, '')
+    .replace(/\s*[\(\[].*?[\)\]]/g, '')
+    .replace(/\s*[&+]\s*Support(ing)?\s*Acts?\s*(tbc)?/gi, '')
+    .replace(/\s*concerts?$/gi, '')
+    .replace(/\s*\blive\b$/gi, '')
+    .replace(/\s*\btour\b$/gi, '')
+    .replace(/\s*\bshow\b$/gi, '')
+    .replace(/\s*\b(20\d{2})\b/g, '')
+    .trim();
+}
+
+/**
+ * Discover event page + image for festival events.
+ * Tries each FESTIVAL_CONFIG's URL pattern against events missing image or link.
+ * Sets BOTH image URL and event link when a valid page is found.
+ * Returns { enriched, filled[] }
+ */
+function enrichViaFestivalDiscovery(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { enriched: 0, filled: [] };
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var dateCol = headers.indexOf('DATE');
+  var eventCol = headers.indexOf('EVENT');
+  var venueCol = headers.indexOf('VENUE');
+  var imgCol = headers.indexOf('IMAGE URL');
+  var linkCol = headers.indexOf('EVENT URL');
+
+  if (eventCol < 0 || venueCol < 0) return { enriched: 0, filled: [] };
+
+  var enriched = 0;
+  var filled = [];
+  var scrapeCache = CacheService.getScriptCache();
+
+  for (var i = 1; i < data.length; i++) {
+    var img = imgCol >= 0 ? (data[i][imgCol] || '').toString().trim() : '';
+    var link = linkCol >= 0 ? (data[i][linkCol] || '').toString().trim() : '';
+    // Skip if both image and link are already set
+    if (img && link) continue;
+
+    var eventName = (data[i][eventCol] || '').toString().trim();
+    var venue = (data[i][venueCol] || '').toString().trim();
+    var dateStr = dateCol >= 0 ? (data[i][dateCol] || '').toString().trim() : '';
+    if (!eventName || !venue) continue;
+
+    // Find matching festival config
+    var config = null;
+    for (var c = 0; c < FESTIVAL_CONFIGS.length; c++) {
+      var fc = FESTIVAL_CONFIGS[c];
+      if (!fc.venueMatcher.test(venue)) continue;
+      if (fc.venueExclude && fc.venueExclude.test(venue)) continue;
+      if (fc.eventMatcher && !fc.eventMatcher.test(eventName)) continue;
+      config = fc;
+      break;
+    }
+    if (!config) continue;
+
+    // Check cache to avoid re-fetching known failures
+    var cacheKey = 'fest_' + normalizeForImageMatch(eventName + venue + dateStr);
+    if (cacheKey.length > 250) cacheKey = cacheKey.substring(0, 250);
+    if (scrapeCache.get(cacheKey)) continue;
+
+    // Generate slugs and try each
+    var slugs = config.slugGenerator(eventName, dateStr);
+    var found = false;
+
+    for (var s = 0; s < slugs.length && !found; s++) {
+      var url = config.baseUrl + slugs[s] + '/';
+      try {
+        var response = UrlFetchApp.fetch(url, {
+          muteHttpExceptions: true,
+          followRedirects: true,
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PIEventsBot/1.0)' }
+        });
+
+        if (response.getResponseCode() === 200) {
+          var html = response.getContentText();
+          var ogImage = extractOgImage_(html);
+
+          if (!DRY_RUN) {
+            // Set event link if missing
+            if (!link && linkCol >= 0) {
+              sheet.getRange(i + 1, linkCol + 1).setValue(url);
+            }
+            // Set image if missing and we found an og:image
+            if (!img && imgCol >= 0 && ogImage) {
+              sheet.getRange(i + 1, imgCol + 1).setValue(ogImage);
+            }
+          }
+
+          var parts = [];
+          if (!link) parts.push('link');
+          if (!img && ogImage) parts.push('image');
+          if (parts.length > 0) {
+            filled.push(eventName + ' [' + config.name + ': ' + parts.join('+') + ']');
+            enriched++;
+          }
+          found = true;
+        }
+        Utilities.sleep(500); // Rate limit
+      } catch (e) {
+        // Fetch failed — try next slug
+      }
+    }
+
+    if (!found) {
+      // Cache the miss for 7 days
+      scrapeCache.put(cacheKey, 'miss', 604800);
+    }
+  }
+
+  return { enriched: enriched, filled: filled };
+}
+
 VENUE_SCRAPE_CONFIGS = typeof VENUE_SCRAPE_CONFIGS !== 'undefined' ? VENUE_SCRAPE_CONFIGS : [
   { matcher: /motorpoint.*nottingham|nottingham.*(motorpoint|arena)/i, baseUrl: 'https://www.motorpointarenanottingham.com/whats-on/' },
   { matcher: /southbank|south\s*bank|rfh|qeh|purcell|royal\s*festival/i, baseUrl: 'https://www.southbankcentre.co.uk/whats-on/', trailingSlash: true },
@@ -1571,9 +2011,12 @@ function generateEventSlugs_(eventName) {
 }
 
 /**
- * Extract og:image or twitter:image from HTML.
+ * Extract event image from HTML using multiple strategies:
+ * 1. og:image / twitter:image meta tags
+ * 2. JSON-LD structured data (used by AEG venues: O2, OVO, AO Arena, etc.)
  */
 function extractOgImage_(html) {
+  // Strategy 1: og:image / twitter:image meta tags
   var patterns = [
     /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
     /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
@@ -1586,6 +2029,31 @@ function extractOgImage_(html) {
       return m[1];
     }
   }
+
+  // Strategy 2: JSON-LD structured data (common on AEG venue sites)
+  var ldMatches = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
+  if (ldMatches) {
+    for (var l = 0; l < ldMatches.length; l++) {
+      var jsonContent = ldMatches[l].replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim();
+      try {
+        var ld = JSON.parse(jsonContent);
+        var items = Array.isArray(ld) ? ld : [ld];
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          if (item.image) {
+            var img = Array.isArray(item.image) ? item.image[0] : item.image;
+            var imgUrl = (typeof img === 'string') ? img : (img.url || '');
+            if (imgUrl && imgUrl.indexOf('logo') < 0 && imgUrl.indexOf('icon') < 0) {
+              return imgUrl;
+            }
+          }
+        }
+      } catch (e) {
+        // Invalid JSON — skip this LD block
+      }
+    }
+  }
+
   return null;
 }
 
@@ -2063,6 +2531,9 @@ function dailyAutoPublishDryRun_() {
 
     // Link enrichment (DRY_RUN=true so no writes, but shows what WOULD fill)
     log.linksEnriched = enrichMissingEventLinks(publishedSheet);
+
+    // Festival event page discovery (DRY_RUN=true so no writes)
+    log.festivalEnriched = enrichViaFestivalDiscovery(publishedSheet);
 
     // Audit data quality
     log.quality = auditPublishedData(existingData);
