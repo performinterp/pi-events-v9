@@ -281,10 +281,11 @@ async function subscribeNativePush(preferences) {
     // Register device with backend
     const platform = window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'unknown';
     const userType = localStorage.getItem('pi-user-type') || 'deaf';
+    const goingTo = JSON.parse(localStorage.getItem('pi-going-festivals') || '[]');
     const response = await fetch(`${NOTIFICATION_CONFIG.apiBase}/register-device`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, platform, preferences, appVersion: NOTIFICATION_CONFIG.appVersion, userType })
+        body: JSON.stringify({ token, platform, preferences, goingTo, appVersion: NOTIFICATION_CONFIG.appVersion, userType })
     });
 
     if (!response.ok) {

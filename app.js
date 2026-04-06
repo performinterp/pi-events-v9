@@ -350,6 +350,7 @@ if (IS_NATIVE_APP) {
             // to avoid race conditions with preference saving
             PushNotifications.addListener('registration', token => {
                 window._nativePushToken = token.value;
+                localStorage.setItem('pi-push-token', token.value);
             });
 
             // Handle registration error
@@ -359,22 +360,25 @@ if (IS_NATIVE_APP) {
 
             // Handle push received while app is open
             PushNotifications.addListener('pushNotificationReceived', notification => {
-                if (typeof showToast === 'function') {
-                    showToast(notification.title || 'New event available!');
-                }
-                // Store in local notification history
                 storeNotification({
                     title: notification.title || 'New Event',
                     body: notification.body || '',
                     data: notification.data || {},
                     time: new Date().toISOString(),
                 });
+                // Refresh notification pane if it's currently open
+                const drawer = document.getElementById('notificationsDrawer');
+                if (drawer && drawer.classList.contains('open') && typeof openNotificationsDrawer === 'function') {
+                    openNotificationsDrawer();
+                } else {
+                    // Show blue in-app banner (matches notification prompt style)
+                    showPushBanner(notification.title, notification.body);
+                }
             });
 
-            // Handle push tap (opens app from background)
+            // Handle push tap (opens app from background → open notification pane)
             PushNotifications.addListener('pushNotificationActionPerformed', notification => {
                 console.log('[Native Push] Action performed:', notification);
-                // Store the notification so it appears in the drawer
                 const n = notification.notification || {};
                 storeNotification({
                     title: n.title || 'New Event',
@@ -382,13 +386,13 @@ if (IS_NATIVE_APP) {
                     data: n.data || {},
                     time: new Date().toISOString(),
                 });
-                // Clear iOS badge
                 PushNotifications.removeAllDeliveredNotifications();
-                // Navigate if URL provided
-                const data = n.data;
-                if (data && data.url) {
-                    window.location.hash = data.url;
-                }
+                // Open the notification pane after a short delay (app needs to render first)
+                setTimeout(() => {
+                    if (typeof openNotificationsDrawer === 'function') {
+                        openNotificationsDrawer();
+                    }
+                }, 500);
             });
 
             // Clear badge when app resumes from background
@@ -775,15 +779,14 @@ const NativeShell = {
             <div class="notif-drawer-overlay" onclick="closeNotificationsDrawer()"></div>
             <div class="notif-drawer-panel">
                 <div class="notif-drawer-header">
-                    <h3 style="margin:0;font-size:17px;font-weight:700;color:#1F2937;">Notifications</h3>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <button class="bsl-video-link" onclick="playBSLVideo('orientation')" style="padding:4px 10px;font-size:12px;">
-                            <span class="bsl-video-link-icon">▶</span> <span class="video-lang-label">BSL</span>
-                        </button>
-                        <button onclick="closeNotificationsDrawer()" style="background:none;border:none;font-size:22px;color:#9CA3AF;cursor:pointer;padding:4px;">✕</button>
+                    <div style="display:flex;align-items:center;gap:0;flex:1;">
+                        <button id="drawerTabNotifs" onclick="switchDrawerTab('notifications')" style="flex:1;padding:8px 0;font-size:14px;font-weight:700;color:#2563EB;border:none;background:none;border-bottom:2px solid #2563EB;cursor:pointer;">🔔 Notifications</button>
+                        <button id="drawerTabMyEvents" onclick="switchDrawerTab('myevents')" style="flex:1;padding:8px 0;font-size:14px;font-weight:600;color:#9CA3AF;border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;">❤️ My Events</button>
                     </div>
+                    <button onclick="closeNotificationsDrawer()" style="background:none;border:none;font-size:22px;color:#9CA3AF;cursor:pointer;padding:4px;flex-shrink:0;">✕</button>
                 </div>
                 <div id="notifDrawerContent" class="notif-drawer-content"></div>
+                <div id="myEventsDrawerContent" class="notif-drawer-content" style="display:none;"></div>
             </div>
         `;
         document.body.appendChild(drawer);
@@ -4052,6 +4055,284 @@ function isFestivalEvent(event) {
     return cat.includes('festival');
 }
 
+// ========================================
+// "I'M GOING" — Festival tracking for deadline notifications
+// ========================================
+
+function getGoingFestivals() {
+    return JSON.parse(localStorage.getItem('pi-going-festivals') || '[]');
+}
+
+function isGoingToFestival(eventName) {
+    var key = normaliseFestivalKey(eventName);
+    return getGoingFestivals().includes(key);
+}
+
+function toggleGoingFestival(eventName) {
+    var key = normaliseFestivalKey(eventName);
+    var going = getGoingFestivals();
+    var idx = going.indexOf(key);
+    if (idx >= 0) {
+        going.splice(idx, 1);
+    } else {
+        going.push(key);
+    }
+    localStorage.setItem('pi-going-festivals', JSON.stringify(going));
+    // Update push registration with new going list
+    updatePushGoingList(going);
+    return idx < 0; // returns true if now going
+}
+
+function normaliseFestivalKey(name) {
+    return (name || '').toLowerCase()
+        .replace(/\s*(20\d{2})\b/g, '')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function updatePushGoingList(going) {
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform || !window.Capacitor.isNativePlatform()) return;
+    var token = window._nativePushToken || localStorage.getItem('pi-push-token');
+    if (!token) return;
+    var platform = window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'unknown';
+    var prefs = JSON.parse(localStorage.getItem('pi-notification-preferences') || '{}');
+    fetch(NOTIFICATION_CONFIG.apiBase + '/register-device', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            token: token,
+            platform: platform,
+            preferences: prefs,
+            goingTo: going,
+            appVersion: NOTIFICATION_CONFIG.appVersion,
+            userType: localStorage.getItem('pi-user-type') || 'deaf'
+        })
+    }).catch(function(e) { console.log('Going list update failed:', e); });
+}
+
+function buildGoingButton(event, style) {
+    var name = event['EVENT'] || '';
+    var isGoing = isGoingToFestival(name);
+    var btnClass = style === 'compact' ? 'compact-btn' : (style === 'list' ? 'list-btn' : 'btn-primary');
+    var bg = isGoing ? '#059669' : 'transparent';
+    var color = isGoing ? '#fff' : '#059669';
+    var border = isGoing ? '#059669' : '#059669';
+    var opacity = isGoing ? '1' : '0.7';
+    var label = isGoing ? '✅ I\'m Going' : '🎟️ Going?';
+    var safeEvent = escapeHtml(name).replace(/'/g, '&#39;');
+    return '<button onclick="handleGoingToggle(this, \'' + safeEvent + '\')" class="' + btnClass + '" style="flex:1;margin-top:6px;background:' + bg + ';border:2px solid ' + border + ';color:' + color + ';opacity:' + opacity + ';">' + label + '</button>';
+}
+
+function handleGoingToggle(btn, eventName) {
+    var decoded = eventName.replace(/&#39;/g, "'");
+    var nowGoing = toggleGoingFestival(decoded);
+    btn.style.background = nowGoing ? '#ECFDF5' : '#fff';
+    btn.style.borderColor = nowGoing ? '#059669' : '#D1D5DB';
+    btn.style.color = nowGoing ? '#059669' : '#6B7280';
+    btn.style.opacity = nowGoing ? '1' : '0.7';
+    btn.style.fontWeight = nowGoing ? '700' : '600';
+    btn.textContent = nowGoing ? "✅ I'm Going" : "🎟️ Going?";
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+    if (typeof showToast === 'function') {
+        showToast(nowGoing ? 'You\'ll get access form reminders for this festival' : 'Removed from your festivals');
+    }
+}
+
+window.handleGoingToggle = handleGoingToggle;
+
+// ========================================
+// "INTERESTED" — Event tracking for all events
+// ========================================
+
+function getInterestedEvents() {
+    return JSON.parse(localStorage.getItem('pi-interested-events') || '[]');
+}
+
+function isInterestedInEvent(eventName, eventDate) {
+    var key = makeEventKey(eventName, eventDate);
+    return getInterestedEvents().some(function(e) { return e.key === key; });
+}
+
+function toggleInterestedEvent(eventName, eventDate, eventVenue, eventCategory) {
+    var key = makeEventKey(eventName, eventDate);
+    var events = getInterestedEvents();
+    var idx = events.findIndex(function(e) { return e.key === key; });
+    if (idx >= 0) {
+        events.splice(idx, 1);
+    } else {
+        events.push({ key: key, name: eventName, date: eventDate, venue: eventVenue, category: eventCategory, addedAt: new Date().toISOString() });
+    }
+    localStorage.setItem('pi-interested-events', JSON.stringify(events));
+    return idx < 0; // true if now interested
+}
+
+function makeEventKey(name, date) {
+    return ((name || '') + '|' + (date || '')).toLowerCase();
+}
+
+function handleInterestedToggle(btn, eventName, eventDate, eventVenue, eventCategory) {
+    var decoded = { name: eventName.replace(/&#39;/g, "'"), date: eventDate, venue: eventVenue.replace(/&#39;/g, "'"), category: eventCategory };
+    var nowInterested = toggleInterestedEvent(decoded.name, decoded.date, decoded.venue, decoded.category);
+    btn.classList.toggle('interested-active', nowInterested);
+    btn.querySelector('.interested-label').textContent = nowInterested ? 'Interested' : 'Interested?';
+    btn.querySelector('.interested-icon').textContent = nowInterested ? '❤️' : '🤍';
+    btn.style.opacity = nowInterested ? '1' : '0.7';
+    btn.style.background = nowInterested ? '#FEF2F2' : '#fff';
+    btn.style.borderColor = nowInterested ? '#EF4444' : '#D1D5DB';
+    btn.style.color = nowInterested ? '#DC2626' : '#6B7280';
+    btn.style.fontWeight = nowInterested ? '700' : '600';
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+window.handleInterestedToggle = handleInterestedToggle;
+
+// ========================================
+// "GOING" — for ALL events (extends festival going)
+// ========================================
+
+function getGoingEvents() {
+    return JSON.parse(localStorage.getItem('pi-going-events') || '[]');
+}
+
+function isGoingToEvent(eventName, eventDate) {
+    var key = makeEventKey(eventName, eventDate);
+    return getGoingEvents().some(function(e) { return e.key === key; });
+}
+
+function toggleGoingEvent(eventName, eventDate, eventVenue, eventCategory) {
+    var key = makeEventKey(eventName, eventDate);
+    var events = getGoingEvents();
+    var idx = events.findIndex(function(e) { return e.key === key; });
+    if (idx >= 0) {
+        events.splice(idx, 1);
+    } else {
+        events.push({ key: key, name: eventName, date: eventDate, venue: eventVenue, category: eventCategory, addedAt: new Date().toISOString() });
+    }
+    localStorage.setItem('pi-going-events', JSON.stringify(events));
+
+    // Also update festival going list if this is a festival
+    if ((eventCategory || '').toLowerCase().includes('festival')) {
+        var festKey = normaliseFestivalKey(eventName);
+        var festGoing = getGoingFestivals();
+        var festIdx = festGoing.indexOf(festKey);
+        if (idx >= 0 && festIdx >= 0) {
+            festGoing.splice(festIdx, 1);
+        } else if (idx < 0 && festIdx < 0) {
+            festGoing.push(festKey);
+        }
+        localStorage.setItem('pi-going-festivals', JSON.stringify(festGoing));
+        updatePushGoingList(festGoing);
+    }
+
+    return idx < 0;
+}
+
+function handleGoingToggleAll(btn, eventName, eventDate, eventVenue, eventCategory) {
+    var name = eventName.replace(/&#39;/g, "'");
+    var venue = eventVenue.replace(/&#39;/g, "'");
+    var nowGoing = toggleGoingEvent(name, eventDate, venue, eventCategory);
+    btn.style.background = nowGoing ? '#ECFDF5' : '#fff';
+    btn.style.borderColor = nowGoing ? '#059669' : '#D1D5DB';
+    btn.style.color = nowGoing ? '#059669' : '#6B7280';
+    btn.style.opacity = nowGoing ? '1' : '0.7';
+    btn.style.fontWeight = nowGoing ? '700' : '600';
+    btn.textContent = nowGoing ? "✅ I'm Going" : "🎟️ Going?";
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+window.handleGoingToggleAll = handleGoingToggleAll;
+
+/**
+ * Handle Interested/Going from data attributes (avoids escaping issues).
+ * Also syncs state between card and modal buttons.
+ */
+function handleInterestedFromData(btn) {
+    var evt = JSON.parse(btn.dataset.eventJson || '{}');
+    var nowInterested = toggleInterestedEvent(evt['EVENT'], evt['DATE'], evt['VENUE'], evt['CATEGORY']);
+    updateInterestedUI(btn, nowInterested);
+    syncAllInterestedButtons(evt['EVENT'], evt['DATE'], nowInterested);
+    refreshMyEventsIfOpen();
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+function handleGoingFromData(btn) {
+    var evt = JSON.parse(btn.dataset.eventJson || '{}');
+    var nowGoing = toggleGoingEvent(evt['EVENT'], evt['DATE'], evt['VENUE'], evt['CATEGORY']);
+    updateGoingUI(btn, nowGoing);
+    syncAllGoingButtons(evt['EVENT'], evt['DATE'], nowGoing);
+    refreshMyEventsIfOpen();
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+function updateInterestedUI(btn, active) {
+    var icon = btn.querySelector('.interested-icon');
+    var label = btn.querySelector('.interested-label');
+    if (icon) icon.textContent = active ? '❤️' : '🤍';
+    if (label) label.textContent = active ? 'Interested' : 'Interested?';
+    btn.style.background = active ? '#FEF2F2' : 'transparent';
+    btn.style.color = active ? '#DC2626' : '#9CA3AF';
+    btn.style.boxShadow = active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    btn.style.borderColor = active ? '#FCA5A5' : 'transparent';
+}
+
+function updateGoingUI(btn, active) {
+    var icon = btn.querySelector('.going-icon');
+    var label = btn.querySelector('.going-label');
+    if (icon) icon.textContent = active ? '✅' : '🎟️';
+    if (label) label.textContent = active ? "I'm Going" : 'Going?';
+    btn.style.background = active ? '#ECFDF5' : 'transparent';
+    btn.style.color = active ? '#059669' : '#9CA3AF';
+    btn.style.boxShadow = active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    btn.style.borderColor = active ? '#A7F3D0' : 'transparent';
+}
+
+function refreshMyEventsIfOpen() {
+    var eventsContent = document.getElementById('myEventsDrawerContent');
+    if (eventsContent && eventsContent.style.display !== 'none') {
+        renderMyEvents();
+    }
+}
+
+function syncAllInterestedButtons(eventName, eventDate, active) {
+    document.querySelectorAll('[data-action="interested"]').forEach(function(b) {
+        try {
+            var d = JSON.parse(b.dataset.eventJson || '{}');
+            if (d['EVENT'] === eventName && d['DATE'] === eventDate) updateInterestedUI(b, active);
+        } catch(e) {}
+    });
+    // Also sync modal pill buttons
+    var modalBtns = document.getElementById('accessFirstMyEventBtns');
+    if (modalBtns) {
+        var intBtn = modalBtns.querySelector('.interested-icon');
+        if (intBtn) {
+            var parent = intBtn.closest('button');
+            if (parent) {
+                var pIcon = parent.querySelector('.interested-icon');
+                var pLabel = parent.querySelector('.interested-label');
+                if (pIcon) pIcon.textContent = active ? '❤️' : '🤍';
+                if (pLabel) pLabel.textContent = active ? 'Interested' : 'Interested?';
+                parent.style.borderColor = active ? '#EF4444' : '#D1D5DB';
+                parent.style.background = active ? '#FEF2F2' : '#fff';
+                parent.style.color = active ? '#DC2626' : '#6B7280';
+                parent.style.opacity = active ? '1' : '0.7';
+            }
+        }
+    }
+}
+
+function syncAllGoingButtons(eventName, eventDate, active) {
+    document.querySelectorAll('[data-action="going"]').forEach(function(b) {
+        try {
+            var d = JSON.parse(b.dataset.eventJson || '{}');
+            if (d['EVENT'] === eventName && d['DATE'] === eventDate) updateGoingUI(b, active);
+        } catch(e) {}
+    });
+}
+
+window.handleInterestedFromData = handleInterestedFromData;
+window.handleGoingFromData = handleGoingFromData;
+
 function getFestivalAccessInfo(event) {
     var name = (event['EVENT'] || '').toLowerCase();
     for (var key in FESTIVAL_ACCESS_INFO) {
@@ -4952,6 +5233,17 @@ function createEventCard(event) {
                     </button>
                     ${f.note ? '<p style="font-size:11px;color:#6B7280;text-align:center;margin:4px 0 0;">' + f.note + '</p>' : ''}
                 </div>` : ''; })()}
+                <div class="event-save-control" style="display:flex;margin:8px 0;padding:3px;background:#F9FAFB;border-radius:10px;gap:0;border:1px solid #E5E7EB;position:relative;">
+                    <button class="event-save-btn" data-action="interested" data-event-json="${safeJsonDataAttr(event)}" onclick="event.stopPropagation();handleInterestedFromData(this)" style="flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;${isInterestedInEvent(event['EVENT'], event['DATE']) ? 'background:#FEF2F2;color:#DC2626;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;'}">
+                        <span class="interested-icon">${isInterestedInEvent(event['EVENT'], event['DATE']) ? '❤️' : '🤍'}</span>
+                        <span class="interested-label">${isInterestedInEvent(event['EVENT'], event['DATE']) ? 'Interested' : 'Interested?'}</span>
+                    </button>
+                    <div style="width:1px;background:#E5E7EB;margin:6px 0;flex-shrink:0;"></div>
+                    <button class="event-save-btn" data-action="going" data-event-json="${safeJsonDataAttr(event)}" onclick="event.stopPropagation();handleGoingFromData(this)" style="flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;${isGoingToEvent(event['EVENT'], event['DATE']) ? 'background:#ECFDF5;color:#059669;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;'}">
+                        <span class="going-icon">${isGoingToEvent(event['EVENT'], event['DATE']) ? '✅' : '🎟️'}</span>
+                        <span class="going-label">${isGoingToEvent(event['EVENT'], event['DATE']) ? "I'm Going" : 'Going?'}</span>
+                    </button>
+                </div>
                 <div class="event-utility-actions">
                     <button class="utility-btn" onclick='addToCalendar(${safeJsonAttr(event)})' aria-label="Add to calendar">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -4960,7 +5252,7 @@ function createEventCard(event) {
                             <line x1="8" y1="2" x2="8" y2="6"></line>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        <span>Calendar</span>
+                        <span>Cal</span>
                     </button>
                     <button class="utility-btn" onclick='shareEvent(${safeJsonAttr(event)})' aria-label="Share event">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -7499,40 +7791,13 @@ function displaySearchResults(results, query) {
         return;
     }
 
-    // Display results as event cards (matching browse view)
-    const resultsHTML = results.map(event => {
-        const badge = calculateBadgeStatus(event);
-        const date = formatDate(event.DATE);
-        const imgSrc = event['IMAGE URL'] && event['IMAGE URL'].trim() !== '' ? escapeHtml(event['IMAGE URL']) : getDefaultImage(event);
-        const actionButton = buildEventActionButton(event, badge, 'full');
-        const isCancelled = (event['STATUS'] || '').toLowerCase() === 'cancelled';
-
-        return `
-            <article class="event-card ${isCancelled ? 'event-cancelled' : ''}" data-event-json="${safeJsonDataAttr(event)}" style="margin-bottom:16px;cursor:pointer;">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:${isCancelled ? '#FEF2F2' : badge.badge === 'green' ? '#F0FDF4' : badge.badge === 'orange' ? '#FFFBEB' : '#F9FAFB'};border-bottom:1px solid #E5E7EB;">
-                    <span style="font-size:12px;font-weight:700;color:#1E40AF;line-height:1;">${escapeHtml(date.day)} ${escapeHtml(date.month)}</span>
-                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;line-height:1;background:${badge.badge === 'green' ? '#D1FAE5' : badge.badge === 'orange' ? '#FEF3C7' : '#FEE2E2'};color:${badge.badge === 'green' ? '#065F46' : badge.badge === 'orange' ? '#92400E' : '#991B1B'};">${badge.icon} ${escapeHtml(badge.shortLabel)}</span>
-                </div>
-                <div class="event-image-container">
-                    <img src="${imgSrc}" alt="${escapeHtml(event['EVENT'] || 'Event')}" class="event-image" loading="lazy" onerror="this.onerror=null;this.src='${getDefaultImage(event)}'" />
-                </div>
-                <div class="event-content" style="padding:14px 16px;">
-                    <h3 style="margin:0 0 6px;font-size:17px;font-weight:700;color:#1F2937;">${escapeHtml(event['EVENT'] || 'Untitled Event')}</h3>
-                    <p style="margin:0 0 4px;font-size:13px;color:#6B7280;">📍 ${escapeHtml(event['VENUE'] || 'Venue TBC')}</p>
-                    ${event['TIME'] ? `<p style="margin:0 0 4px;font-size:13px;color:#6B7280;">🕐 ${formatEventTime(event)}</p>` : ''}
-                    ${renderAccessIcons(event, 3)}
-                    ${event['INTERPRETERS'] && event['INTERPRETERS'].toLowerCase() !== 'request interpreter' ? `<p style="margin:6px 0 0;font-size:13px;color:#065F46;font-weight:600;">👥 ${escapeHtml(event['INTERPRETERS'])}</p>` : ''}
-                    <div class="event-actions" style="margin-top:12px;">
-                        ${actionButton}
-                    </div>
-                </div>
-            </article>
-        `;
-    }).join('');
+    // Group multi-date events (same as Browse view)
+    const grouped = groupEventsByNameAndVenue(results);
+    const resultsHTML = grouped.map(event => createEventCard(event)).join('');
 
     resultsContainer.innerHTML = `
         <div class="search-results-header">
-            <h3>Found ${results.length} event${results.length === 1 ? '' : 's'}</h3>
+            <h3>Found ${grouped.length} event${grouped.length === 1 ? '' : 's'} (${results.length} date${results.length === 1 ? '' : 's'})</h3>
         </div>
         ${resultsHTML}
     `;
@@ -7898,6 +8163,42 @@ function openAccessFirstModal(event) {
         vrsButton.classList.add('bounce-cta');
     } else if (emailButton) {
         emailButton.classList.add('bounce-cta');
+    }
+
+    // Populate Interested / I'm Going buttons
+    const myEventBtns = document.getElementById('accessFirstMyEventBtns');
+    if (myEventBtns && event['EVENT']) {
+        const eName = escapeHtml(event['EVENT'] || '').replace(/'/g, '&#39;');
+        const eDate = escapeHtml(event['DATE'] || '');
+        const eVenue = escapeHtml(event['VENUE'] || '').replace(/'/g, '&#39;');
+        const eCat = escapeHtml(event['CATEGORY'] || '');
+        const interested = isInterestedInEvent(event['EVENT'], event['DATE']);
+
+        let btnsHtml = '';
+
+        // Access form for festivals (so it's accessible from My Events route)
+        if (isFestivalEvent(event)) {
+            const festInfo = getFestivalAccessInfo(event);
+            if (festInfo && festInfo.accessForm) {
+                btnsHtml += '<a href="' + escapeHtml(festInfo.accessForm) + '" target="_blank" rel="noopener" class="btn-primary btn-large" style="text-decoration:none;text-align:center;background:#7C3AED;border-color:#7C3AED;margin-bottom:8px;display:block;">♿ Access Form</a>';
+            }
+        }
+
+        var isGoing = isGoingToEvent(event['EVENT'], event['DATE']);
+        var safeJson = escapeHtml(JSON.stringify(event)).replace(/'/g, '&#39;');
+
+        btnsHtml += '<div style="display:flex;padding:3px;background:#F9FAFB;border-radius:10px;gap:0;border:1px solid #E5E7EB;width:100%;">';
+        btnsHtml += '<button data-action="interested" data-event-json=\'' + safeJson + '\' onclick="handleInterestedFromData(this)" style="flex:1;padding:10px 8px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;' + (interested ? 'background:#FEF2F2;color:#DC2626;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;') + '">' +
+            '<span class="interested-icon">' + (interested ? '❤️' : '🤍') + '</span> <span class="interested-label">' + (interested ? 'Interested' : 'Interested?') + '</span></button>';
+
+        btnsHtml += '<div style="width:1px;background:#E5E7EB;margin:6px 0;flex-shrink:0;"></div>';
+
+        btnsHtml += '<button data-action="going" data-event-json=\'' + safeJson + '\' onclick="handleGoingFromData(this)" style="flex:1;padding:10px 8px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;' + (isGoing ? 'background:#ECFDF5;color:#059669;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;') + '">' +
+            '<span class="going-icon">' + (isGoing ? '✅' : '🎟️') + '</span> <span class="going-label">' + (isGoing ? 'I\'m Going' : 'Going?') + '</span></button>';
+
+        btnsHtml += '</div>';
+
+        myEventBtns.innerHTML = btnsHtml;
     }
 
     // Show modal
@@ -8341,6 +8642,42 @@ function openRequestBSLModal(event) {
         vrsButton.classList.add('bounce-cta');
     } else if (emailButton) {
         emailButton.classList.add('bounce-cta');
+    }
+
+    // Populate Interested / I'm Going buttons
+    const myEventBtns2 = document.getElementById('accessFirstMyEventBtns');
+    if (myEventBtns2 && event['EVENT']) {
+        const eName = escapeHtml(event['EVENT'] || '').replace(/'/g, '&#39;');
+        const eDate = escapeHtml(event['DATE'] || '');
+        const eVenue = escapeHtml(event['VENUE'] || '').replace(/'/g, '&#39;');
+        const eCat = escapeHtml(event['CATEGORY'] || '');
+        const interested = isInterestedInEvent(event['EVENT'], event['DATE']);
+
+        let btnsHtml = '';
+
+        // Access form for festivals (so it's accessible from My Events route)
+        if (isFestivalEvent(event)) {
+            const festInfo = getFestivalAccessInfo(event);
+            if (festInfo && festInfo.accessForm) {
+                btnsHtml += '<a href="' + escapeHtml(festInfo.accessForm) + '" target="_blank" rel="noopener" class="btn-primary btn-large" style="text-decoration:none;text-align:center;background:#7C3AED;border-color:#7C3AED;margin-bottom:8px;display:block;">♿ Access Form</a>';
+            }
+        }
+
+        var isGoing = isGoingToEvent(event['EVENT'], event['DATE']);
+        var safeJson = escapeHtml(JSON.stringify(event)).replace(/'/g, '&#39;');
+
+        btnsHtml += '<div style="display:flex;padding:3px;background:#F9FAFB;border-radius:10px;gap:0;border:1px solid #E5E7EB;width:100%;">';
+        btnsHtml += '<button data-action="interested" data-event-json=\'' + safeJson + '\' onclick="handleInterestedFromData(this)" style="flex:1;padding:10px 8px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;' + (interested ? 'background:#FEF2F2;color:#DC2626;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;') + '">' +
+            '<span class="interested-icon">' + (interested ? '❤️' : '🤍') + '</span> <span class="interested-label">' + (interested ? 'Interested' : 'Interested?') + '</span></button>';
+
+        btnsHtml += '<div style="width:1px;background:#E5E7EB;margin:6px 0;flex-shrink:0;"></div>';
+
+        btnsHtml += '<button data-action="going" data-event-json=\'' + safeJson + '\' onclick="handleGoingFromData(this)" style="flex:1;padding:10px 8px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;' + (isGoing ? 'background:#ECFDF5;color:#059669;box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent;color:#9CA3AF;') + '">' +
+            '<span class="going-icon">' + (isGoing ? '✅' : '🎟️') + '</span> <span class="going-label">' + (isGoing ? 'I\'m Going' : 'Going?') + '</span></button>';
+
+        btnsHtml += '</div>';
+
+        myEventBtns2.innerHTML = btnsHtml;
     }
 
     modal.style.display = 'flex';
@@ -10502,8 +10839,8 @@ function storeNotification(notif) {
     stored.unshift(notif);
     // Keep max 50
     localStorage.setItem('pi-notif-history', JSON.stringify(stored.slice(0, 50)));
-    updateNotifDot();
     localStorage.setItem('pi-notif-unread', 'true');
+    updateNotifDot();
 }
 
 function getNotifications() {
@@ -10562,25 +10899,36 @@ function openNotificationsDrawer() {
             `;
         }
     } else {
-        content.innerHTML = notifications.map(n => {
+        content.innerHTML = notifications.map((n, idx) => {
             const time = n.time ? timeAgo(n.time) : '';
             return `
-                <div class="notif-item">
-                    <div class="notif-item-icon">🎟️</div>
-                    <div class="notif-item-body">
-                        <p class="notif-item-title">${escapeHtml(n.title)}</p>
-                        <p class="notif-item-text">${escapeHtml(n.body)}</p>
-                        ${time ? `<p class="notif-item-time">${time}</p>` : ''}
+                <div class="notif-item" data-idx="${idx}" style="position:relative;overflow:hidden;cursor:pointer;">
+                    <div class="notif-item-inner" style="display:flex;align-items:flex-start;gap:12px;padding:0;transition:transform 0.2s;">
+                        <div class="notif-item-icon">🎟️</div>
+                        <div class="notif-item-body" style="flex:1;min-width:0;">
+                            <p class="notif-item-title">${escapeHtml(n.title)}</p>
+                            <p class="notif-item-text">${escapeHtml(n.body)}</p>
+                            ${time ? `<p class="notif-item-time">${time}</p>` : ''}
+                        </div>
                     </div>
+                    <button onclick="deleteNotification(${idx})" class="notif-delete-btn" style="position:absolute;right:0;top:0;bottom:0;width:70px;background:#EF4444;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;display:none;align-items:center;justify-content:center;">Delete</button>
                 </div>
             `;
         }).join('') + `
-            <button onclick="clearNotifications()" style="display:block;width:100%;padding:12px;margin-top:8px;background:none;border:1px solid #E5E7EB;border-radius:10px;color:#6B7280;font-size:13px;cursor:pointer;">Clear All</button>
+            <div style="margin:12px 0 8px;padding:10px 14px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;text-align:center;">
+                <p style="font-size:13px;font-weight:600;color:#0369A1;margin:0;">👆 Tap to view event · Slide ← to <span style="color:#EF4444;">delete</span></p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="clearNotifications()" style="flex:1;padding:12px;background:none;border:1px solid #E5E7EB;border-radius:10px;color:#6B7280;font-size:13px;cursor:pointer;">Clear All</button>
+                <button onclick="closeNotificationsDrawer();NativeShell.switchTab('more');setTimeout(function(){NativeShell.handleMoreAction('notifications')},100);" style="flex:1;padding:12px;background:#F3F4F6;border:none;border-radius:10px;color:#374151;font-size:13px;font-weight:500;cursor:pointer;">⚙️ Preferences</button>
+            </div>
         `;
     }
 
     drawer.classList.add('open');
     if (typeof activateFocusTrap === 'function') activateFocusTrap(document.getElementById('notificationsDrawer'));
+    // Enable swipe-to-delete on notification items
+    setTimeout(initNotifSwipe, 50);
 }
 
 function closeNotificationsDrawer() {
@@ -10610,10 +10958,383 @@ function timeAgo(isoString) {
     return days + 'd ago';
 }
 
+/**
+ * Open event modal from a notification tap.
+ * Tries data fields first, then parses event info from the body text.
+ * Body format: "Event Name at Venue — Date"
+ */
+function openNotifEvent(idx) {
+    const notifications = getNotifications();
+    const notif = notifications[idx];
+    if (!notif) return;
+
+    // Try data fields first (from real cron notifications)
+    let name = '', date = '', venue = '';
+    if (notif.data) {
+        name = (notif.data.eventName || '').toLowerCase();
+        date = notif.data.eventDate || '';
+        venue = (notif.data.eventVenue || '').toLowerCase();
+    }
+
+    // Fallback: parse from body text ("Event Name at Venue — Date")
+    if (!name && notif.body) {
+        const bodyMatch = notif.body.match(/^(.+?)\s+at\s+(.+?)(?:\s+—\s+(.+))?$/);
+        if (bodyMatch) {
+            name = bodyMatch[1].toLowerCase();
+            venue = bodyMatch[2].toLowerCase();
+            date = bodyMatch[3] || '';
+        }
+    }
+
+    if (!name) return;
+
+    // Find matching event in loaded data
+    const match = (AppState.allEvents || []).find(e => {
+        const eName = (e['EVENT'] || '').toLowerCase();
+        const eVenue = (e['VENUE'] || '').toLowerCase();
+        const eDate = e['DATE'] || '';
+        return (eName.includes(name) || name.includes(eName)) &&
+               (eDate === date || eVenue.includes(venue) || venue.includes(eVenue));
+    });
+
+    closeNotificationsDrawer();
+
+    if (match) {
+        setTimeout(() => openEventModal(match), 300);
+    } else {
+        if (typeof showToast === 'function') {
+            showToast('Event not found — try refreshing events');
+        }
+    }
+}
+
+/**
+ * Delete a single notification by index.
+ */
+function deleteNotification(idx) {
+    const stored = JSON.parse(localStorage.getItem('pi-notif-history') || '[]');
+    stored.splice(idx, 1);
+    localStorage.setItem('pi-notif-history', JSON.stringify(stored));
+    if (stored.length === 0) {
+        localStorage.removeItem('pi-notif-unread');
+    }
+    updateNotifDot();
+    openNotificationsDrawer(); // Refresh pane
+}
+
+/**
+ * Enable swipe-to-delete on notification items.
+ * Called after the pane renders.
+ */
+function initNotifSwipe() {
+    const items = document.querySelectorAll('.notif-item');
+    items.forEach(item => {
+        const inner = item.querySelector('.notif-item-inner');
+        const deleteBtn = item.querySelector('.notif-delete-btn');
+        if (!inner || !deleteBtn) return;
+
+        let startX = 0, startY = 0, currentX = 0, isDragging = false, isHorizontal = null, deleteShowing = false;
+
+        inner.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            currentX = startX;
+            isDragging = false;
+            isHorizontal = null;
+            inner.style.transition = 'none';
+        }, { passive: true });
+
+        inner.addEventListener('touchmove', e => {
+            currentX = e.touches[0].clientX;
+            const diffX = currentX - startX;
+            const diffY = e.touches[0].clientY - startY;
+
+            if (isHorizontal === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+                isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+            }
+
+            if (isHorizontal) {
+                isDragging = true;
+                if (deleteShowing) {
+                    // Already showing delete — allow sliding back
+                    const offset = Math.max(Math.min(diffX - 70, 0), -70);
+                    inner.style.transform = `translateX(${offset}px)`;
+                } else if (diffX < -10) {
+                    inner.style.transform = `translateX(${Math.max(diffX, -70)}px)`;
+                    deleteBtn.style.display = 'flex';
+                }
+            }
+        }, { passive: true });
+
+        inner.addEventListener('touchend', () => {
+            inner.style.transition = 'transform 0.2s';
+            if (isDragging) {
+                const diff = currentX - startX;
+                if (deleteShowing) {
+                    // Was showing — if swiped right enough, hide
+                    if (diff > 30) {
+                        inner.style.transform = 'translateX(0)';
+                        deleteBtn.style.display = 'none';
+                        deleteShowing = false;
+                    } else {
+                        inner.style.transform = 'translateX(-70px)';
+                    }
+                } else {
+                    if (diff < -40) {
+                        inner.style.transform = 'translateX(-70px)';
+                        deleteShowing = true;
+                    } else {
+                        inner.style.transform = 'translateX(0)';
+                        deleteBtn.style.display = 'none';
+                    }
+                }
+            } else if (!isDragging && deleteShowing) {
+                // Pure tap while delete is showing — reset
+                inner.style.transition = 'transform 0.2s';
+                inner.style.transform = 'translateX(0)';
+                deleteBtn.style.display = 'none';
+                deleteShowing = false;
+            } else if (!isDragging && !deleteShowing) {
+                // Pure tap — open event modal
+                const idx = parseInt(item.dataset.idx);
+                if (!isNaN(idx)) openNotifEvent(idx);
+            }
+            isDragging = false;
+            isHorizontal = null;
+        });
+    });
+}
+
+/**
+ * Show a blue in-app banner when a push notification arrives while the app is open.
+ * Tapping anywhere opens the notification pane. Auto-dismisses after 5 seconds.
+ */
+function showPushBanner(title, body) {
+    // Remove existing banner if any
+    const existing = document.getElementById('pushAlertBanner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'pushAlertBanner';
+    banner.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;z-index:9999;background:linear-gradient(135deg,#1E40AF 0%,#2563EB 100%);border-radius:12px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,0.25);cursor:pointer;animation:slideUp 0.3s ease;';
+    banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;flex-shrink:0;">🔔</span>
+            <div style="flex:1;min-width:0;">
+                <p style="margin:0;font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(title || 'New Event Alert')}</p>
+                <p style="margin:2px 0 0;font-size:12px;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(body || '')}</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.2);border-radius:8px;padding:6px 10px;flex-shrink:0;">
+                <span style="font-size:12px;font-weight:700;color:#fff;">View →</span>
+            </div>
+        </div>
+    `;
+    banner.addEventListener('click', () => {
+        banner.remove();
+        if (typeof openNotificationsDrawer === 'function') openNotificationsDrawer();
+    });
+    document.body.appendChild(banner);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (banner.parentNode) {
+            banner.style.transition = 'opacity 0.3s, transform 0.3s';
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(20px)';
+            setTimeout(() => banner.remove(), 300);
+        }
+    }, 5000);
+}
+
+/**
+ * Switch between Notifications and My Events tabs in the drawer.
+ */
+function switchDrawerTab(tab) {
+    var notifTab = document.getElementById('drawerTabNotifs');
+    var eventsTab = document.getElementById('drawerTabMyEvents');
+    var notifContent = document.getElementById('notifDrawerContent');
+    var eventsContent = document.getElementById('myEventsDrawerContent');
+    if (!notifTab || !eventsTab || !notifContent || !eventsContent) return;
+
+    if (tab === 'myevents') {
+        notifTab.style.color = '#9CA3AF';
+        notifTab.style.borderBottomColor = 'transparent';
+        notifTab.style.fontWeight = '600';
+        eventsTab.style.color = '#2563EB';
+        eventsTab.style.borderBottomColor = '#2563EB';
+        eventsTab.style.fontWeight = '700';
+        notifContent.style.display = 'none';
+        eventsContent.style.display = 'block';
+        renderMyEvents();
+    } else {
+        notifTab.style.color = '#2563EB';
+        notifTab.style.borderBottomColor = '#2563EB';
+        notifTab.style.fontWeight = '700';
+        eventsTab.style.color = '#9CA3AF';
+        eventsTab.style.borderBottomColor = 'transparent';
+        eventsTab.style.fontWeight = '600';
+        notifContent.style.display = 'block';
+        eventsContent.style.display = 'none';
+    }
+}
+
+/**
+ * Render the My Events panel — Going (festivals) + Interested (all events)
+ */
+function renderMyEvents() {
+    var content = document.getElementById('myEventsDrawerContent');
+    if (!content) return;
+
+    var going = getGoingEvents();
+    var interested = getInterestedEvents();
+
+    if (going.length === 0 && interested.length === 0) {
+        content.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
+            '<div style="font-size:48px;margin-bottom:12px;">❤️</div>' +
+            '<p style="font-size:16px;font-weight:600;color:#1F2937;margin:0 0 6px;">No saved events</p>' +
+            '<p style="font-size:14px;color:#6B7280;margin:0;line-height:1.5;">Tap \'Interested?\' on any event or \'I\'m Going\' on festivals to save them here.</p>' +
+            '</div>';
+        return;
+    }
+
+    var html = '';
+
+    // Going section (all events)
+    if (going.length > 0) {
+        html += '<div style="padding:4px 0 8px;"><p style="font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">✅ Going</p>';
+        going.forEach(function(evt, idx) {
+            html += '<div class="notif-item" style="cursor:pointer;" onclick="openGoingEventModal(' + idx + ')">' +
+                '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
+                '<div style="font-size:20px;flex-shrink:0;">' + getCategoryEmojiLocal(evt.category) + '</div>' +
+                '<div style="flex:1;min-width:0;">' +
+                '<p class="notif-item-title">' + escapeHtml(evt.name) + '</p>' +
+                (evt.venue ? '<p class="notif-item-text">📍 ' + escapeHtml(evt.venue) + '</p>' : '') +
+                (evt.date ? '<p class="notif-item-time">📅 ' + escapeHtml(evt.date) + '</p>' : '') +
+                '</div>' +
+                '<button onclick="event.stopPropagation();removeGoingEvent(' + idx + ')" style="background:none;border:none;font-size:16px;color:#EF4444;cursor:pointer;padding:4px;">✕</button>' +
+                '</div></div>';
+        });
+        html += '</div>';
+    }
+
+    // Interested section
+    if (interested.length > 0) {
+        html += '<div style="padding:4px 0 8px;"><p style="font-size:12px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">❤️ Interested</p>';
+        interested.forEach(function(evt, idx) {
+            html += '<div class="notif-item" style="cursor:pointer;" onclick="openInterestedEventModal(' + idx + ')">' +
+                '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
+                '<div style="font-size:20px;flex-shrink:0;">' + getCategoryEmojiLocal(evt.category) + '</div>' +
+                '<div style="flex:1;min-width:0;">' +
+                '<p class="notif-item-title">' + escapeHtml(evt.name) + '</p>' +
+                (evt.venue ? '<p class="notif-item-text">📍 ' + escapeHtml(evt.venue) + '</p>' : '') +
+                (evt.date ? '<p class="notif-item-time">📅 ' + escapeHtml(evt.date) + '</p>' : '') +
+                '</div>' +
+                '<button onclick="event.stopPropagation();removeInterested(' + idx + ')" style="background:none;border:none;font-size:16px;color:#EF4444;cursor:pointer;padding:4px;">✕</button>' +
+                '</div></div>';
+        });
+        html += '</div>';
+    }
+
+    content.innerHTML = html;
+}
+
+function getCategoryEmojiLocal(cat) {
+    var c = (cat || '').toLowerCase();
+    if (c.includes('concert') || c.includes('music')) return '🎵';
+    if (c.includes('festival')) return '🎪';
+    if (c.includes('comedy')) return '😂';
+    if (c.includes('theatre')) return '🎭';
+    if (c.includes('sport')) return '⚽';
+    if (c.includes('family')) return '👨‍👩‍👧‍👦';
+    if (c.includes('dance')) return '💃';
+    if (c.includes('literature')) return '📚';
+    return '🎟️';
+}
+
+function removeGoingEvent(idx) {
+    var events = getGoingEvents();
+    var removed = events[idx];
+    events.splice(idx, 1);
+    localStorage.setItem('pi-going-events', JSON.stringify(events));
+    if (removed && (removed.category || '').toLowerCase().includes('festival')) {
+        var festKey = normaliseFestivalKey(removed.name);
+        var festGoing = getGoingFestivals();
+        var festIdx = festGoing.indexOf(festKey);
+        if (festIdx >= 0) {
+            festGoing.splice(festIdx, 1);
+            localStorage.setItem('pi-going-festivals', JSON.stringify(festGoing));
+            updatePushGoingList(festGoing);
+        }
+    }
+    if (removed) syncAllGoingButtons(removed.name, removed.date, false);
+    renderMyEvents();
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+function openGoingEventModal(idx) {
+    var events = getGoingEvents();
+    var evt = events[idx];
+    if (!evt) return;
+    var match = (AppState.allEvents || []).find(function(e) {
+        return (e['EVENT'] || '').toLowerCase() === evt.name.toLowerCase() &&
+               (e['DATE'] || '') === evt.date;
+    });
+    closeNotificationsDrawer();
+    if (match) {
+        setTimeout(function() { openEventModal(match); }, 300);
+    } else if (typeof showToast === 'function') {
+        showToast('Event not found — try refreshing events');
+    }
+}
+
+function removeInterested(idx) {
+    var events = getInterestedEvents();
+    var removed = events[idx];
+    events.splice(idx, 1);
+    localStorage.setItem('pi-interested-events', JSON.stringify(events));
+    if (removed) syncAllInterestedButtons(removed.name, removed.date, false);
+    renderMyEvents();
+    if (typeof nativeHaptic === 'function') nativeHaptic('light');
+}
+
+function openMyEventModal(festKey, isFestival) {
+    var match = (AppState.allEvents || []).find(function(e) {
+        return normaliseFestivalKey(e['EVENT'] || '') === festKey;
+    });
+    closeNotificationsDrawer();
+    if (match) {
+        setTimeout(function() { openEventModal(match); }, 300);
+    }
+}
+
+function openInterestedEventModal(idx) {
+    var interested = getInterestedEvents();
+    var evt = interested[idx];
+    if (!evt) return;
+    var match = (AppState.allEvents || []).find(function(e) {
+        return (e['EVENT'] || '').toLowerCase() === evt.name.toLowerCase() &&
+               (e['DATE'] || '') === evt.date;
+    });
+    closeNotificationsDrawer();
+    if (match) {
+        setTimeout(function() { openEventModal(match); }, 300);
+    } else if (typeof showToast === 'function') {
+        showToast('Event not found — try refreshing events');
+    }
+}
+
+window.switchDrawerTab = switchDrawerTab;
+window.removeGoingEvent = removeGoingEvent;
+window.removeInterested = removeInterested;
+window.openGoingEventModal = openGoingEventModal;
+window.openInterestedEventModal = openInterestedEventModal;
+window.showPushBanner = showPushBanner;
 window.toggleNotificationsDrawer = toggleNotificationsDrawer;
 window.openNotificationsDrawer = openNotificationsDrawer;
 window.closeNotificationsDrawer = closeNotificationsDrawer;
 window.clearNotifications = clearNotifications;
+window.deleteNotification = deleteNotification;
+window.openNotifEvent = openNotifEvent;
 window.storeNotification = storeNotification;
 window.updateNotifDot = updateNotifDot;
 

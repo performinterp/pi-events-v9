@@ -1951,7 +1951,7 @@ a {
 
 /* Event Content */
 .event-content {
-    padding: var(--spacing-xl);
+    padding: 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2092,7 +2092,7 @@ a {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    margin-top: auto;
+    margin-top: 8px;
 }
 
 /* Event Utility Actions (Calendar & Share) */
