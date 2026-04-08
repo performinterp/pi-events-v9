@@ -7,7 +7,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' static.cloudflareinsights.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' * data:; connect-src 'self' docs.google.com api.performanceinterpreting.co.uk; font-src 'self'; frame-src 'self' www.youtube.com; media-src 'self' media.performanceinterpreting.co.uk
+  Content-Security-Policy: default-src 'self'; script-src 'self' static.cloudflareinsights.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' * data:; connect-src 'self' docs.google.com api.performanceinterpreting.co.uk media.performanceinterpreting.co.uk; font-src 'self'; frame-src 'self' www.youtube.com; media-src 'self' media.performanceinterpreting.co.uk
 
 # Booking guide redirect stub - don't cache
 /booking-guide.html
