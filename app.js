@@ -9660,8 +9660,8 @@ function playBSLVideo(name) {
     const meta = bslVideos[name] || bslVideos['orientation'];
     const source = video.querySelector('source');
     const track = video.querySelector('track');
-    // ?v=1 cache-busts the pre-CORS Cloudflare cache. Bump if we ever need to re-bust.
-    const versionedSrc = meta.src + '?v=1';
+    // ?v=2 bust the pre-wildcard-CORS edge cache. Bump if we ever need to re-bust.
+    const versionedSrc = meta.src + '?v=2';
     if (source && source.src !== versionedSrc) {
         source.src = versionedSrc;
         if (track) {
