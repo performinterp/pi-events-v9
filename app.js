@@ -9660,8 +9660,10 @@ function playBSLVideo(name) {
     const meta = bslVideos[name] || bslVideos['orientation'];
     const source = video.querySelector('source');
     const track = video.querySelector('track');
-    if (source && source.src !== meta.src) {
-        source.src = meta.src;
+    // ?v=1 cache-busts the pre-CORS Cloudflare cache. Bump if we ever need to re-bust.
+    const versionedSrc = meta.src + '?v=1';
+    if (source && source.src !== versionedSrc) {
+        source.src = versionedSrc;
         if (track) {
             // Cache-bust captions during dev so updates show without HTTP cache delay
             track.src = meta.vtt ? (meta.vtt + '?_t=' + Date.now()) : '';
