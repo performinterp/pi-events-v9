@@ -1156,6 +1156,74 @@ a {
     overflow: hidden;
 }
 
+/* BSL video chapter buttons (rendered below the video for long videos) */
+#bslVideoChapters {
+    background: #1a1a1a;
+    padding: 12px 14px;
+    border-radius: 0 0 8px 8px;
+    margin-top: 4px;
+    max-height: 30vh;
+    overflow-y: auto;
+}
+.bsl-chapter-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9CA3AF;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+.bsl-chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.bsl-chapter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: #2a2a2a;
+    color: #e5e5e5;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+}
+.bsl-chapter-btn:hover,
+.bsl-chapter-btn:focus-visible {
+    background: #353535;
+    border-color: #4a4a4a;
+    outline: none;
+}
+.bsl-chapter-btn:active {
+    background: #404040;
+}
+.bsl-chapter-btn.active {
+    background: #2563EB;
+    border-color: #3b82f6;
+    color: #ffffff;
+    font-weight: 600;
+}
+.bsl-chapter-label {
+    flex: 1;
+    margin-right: 12px;
+}
+.bsl-chapter-time {
+    color: #9CA3AF;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+.bsl-chapter-btn.active .bsl-chapter-time {
+    color: #c7dafc;
+}
+
 /* ========================================
    CATEGORY SELECTION (Premium Cards)
    ======================================== */

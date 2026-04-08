@@ -9457,35 +9457,113 @@ function closeVideoModal() {
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
 
-// BSL Video URL map — update URLs when real recordings are ready
-const bslVideoUrls = {
-    'orientation':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'how-to-book':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'know-rights':  'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'request':      'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'booking':      'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'faqs':         'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'tips':         'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'at-event':     'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'categories':   'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'search':       'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4',
-    'volunteer':    'https://media.performanceinterpreting.co.uk/pi-events-bsl-video.mp4'
+// BSL Video metadata: src, captions track, optional chapter markers
+// Real recordings from Radha (April 2026), uploaded to Cloudflare R2 (pi-events-media)
+const MEDIA_BASE = 'https://media.performanceinterpreting.co.uk';
+const bslVideos = {
+    'how-to-book':   {
+        src: MEDIA_BASE + '/bsl-how-to-book.mp4',
+        vtt: MEDIA_BASE + '/bsl-how-to-book.vtt',
+        chapters: [
+            { time: 0,    label: 'Intro' },
+            { time: 10,   label: '1. Find your event' },
+            { time: 23,   label: '2. Check venues list' },
+            { time: 37,   label: '3. Contact the venue' },
+            { time: 53,   label: '4. Tell them what you need' },
+            { time: 70,   label: '5. Get email confirmation' },
+            { time: 83,   label: '6. Enjoy the event' },
+            { time: 103,  label: 'Venues & Ticket Vendors' }
+        ]
+    },
+    'know-rights':   {
+        src: MEDIA_BASE + '/bsl-know-rights.mp4',
+        vtt: MEDIA_BASE + '/bsl-know-rights.vtt',
+        chapters: [
+            { time: 0,    label: 'Disclaimer' },
+            { time: 7,    label: 'Your rights' },
+            { time: 16,   label: 'England, Wales, Scotland' },
+            { time: 56,   label: 'Northern Ireland' },
+            { time: 80,   label: 'No extra cost' },
+            { time: 91,   label: 'Companion tickets' },
+            { time: 101,  label: 'Nimbus Access Card' },
+            { time: 121,  label: 'Getting help' }
+        ]
+    },
+    'orientation':   {
+        src: MEDIA_BASE + '/bsl-orientation.mp4',
+        vtt: MEDIA_BASE + '/bsl-orientation.vtt',
+        chapters: [
+            { time: 0,    label: 'Welcome' },
+            { time: 15,   label: 'Events tab' },
+            { time: 75,   label: 'Support tab' },
+            { time: 110,  label: 'BSL & ISL tab' },
+            { time: 133,  label: 'Notifications' },
+            { time: 159,  label: 'More tab' },
+            { time: 200,  label: 'Get in touch' }
+        ]
+    },
+    'categories':    { src: MEDIA_BASE + '/bsl-categories.mp4',    vtt: MEDIA_BASE + '/bsl-categories.vtt' },
+    'search':        { src: MEDIA_BASE + '/bsl-search.mp4',        vtt: MEDIA_BASE + '/bsl-search.vtt' },
+    'request':       { src: MEDIA_BASE + '/bsl-request.mp4',       vtt: MEDIA_BASE + '/bsl-request.vtt' },
+    'booking':       { src: MEDIA_BASE + '/bsl-booking.mp4',       vtt: MEDIA_BASE + '/bsl-booking.vtt' },
+    'faqs':          {
+        src: MEDIA_BASE + '/bsl-faqs.mp4',
+        vtt: MEDIA_BASE + '/bsl-faqs.vtt',
+        chapters: [
+            { time: 0,      label: 'Q1: Need to ask first?' },
+            { time: 31.32,  label: 'Q2: How early to book?' },
+            { time: 54.56,  label: 'Q3: Cost more?' },
+            { time: 76.44,  label: 'Q4: Bring someone?' },
+            { time: 94.36,  label: 'Q5: BSL vs ISL?' },
+            { time: 121.12, label: 'Q7: Where is interpreter?' }
+        ]
+    },
+    'tips':          {
+        src: MEDIA_BASE + '/bsl-tips.mp4',
+        vtt: MEDIA_BASE + '/bsl-tips.vtt',
+        chapters: [
+            { time: 0,    label: 'Intro' },
+            { time: 9,    label: 'Tip 1: Access booking line' },
+            { time: 24,   label: 'Tip 2: Best seats' },
+            { time: 41,   label: 'Tip 3: Email confirmation' },
+            { time: 53,   label: 'Tip 4: Arrive early' },
+            { time: 63.5, label: 'Tip 5: Tell us how it went' }
+        ]
+    },
+    'at-event':      {
+        src: MEDIA_BASE + '/bsl-at-event.mp4',
+        vtt: MEDIA_BASE + '/bsl-at-event.vtt',
+        chapters: [
+            { time: 0,    label: 'Intro' },
+            { time: 6,    label: 'Show Staff' },
+            { time: 22,   label: 'Order' },
+            { time: 33,   label: 'Emergency' },
+            { time: 50,   label: 'Speech to Text' }
+        ]
+    },
+    'notifications': { src: MEDIA_BASE + '/bsl-notifications.mp4', vtt: MEDIA_BASE + '/bsl-notifications.vtt' },
+    'volunteer':     { src: MEDIA_BASE + '/bsl-volunteer.mp4',     vtt: MEDIA_BASE + '/bsl-volunteer.vtt' }
 };
 
-// ISL Video URL map — update URLs when real ISL recordings are ready
-const islVideoUrls = {
-    'orientation':  'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'how-to-book':  'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'know-rights':  'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'request':      'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'booking':      'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'faqs':         'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'tips':         'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'at-event':     'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'categories':   'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'search':       'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4',
-    'volunteer':    'https://media.performanceinterpreting.co.uk/pi-events-isl-video.mp4'
+// ISL Video metadata — Sarah's recordings still pending. Placeholders until processed.
+const islVideos = {
+    'orientation':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'how-to-book':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'know-rights':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'request':       { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'booking':       { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'faqs':          { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'tips':          { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'at-event':      { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'categories':    { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'search':        { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'volunteer':     { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
+    'notifications': { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' }
 };
+
+// Backward-compatibility alias — keeps any external references working
+const bslVideoUrls = Object.fromEntries(Object.entries(bslVideos).map(([k, v]) => [k, v.src]));
+const islVideoUrls = Object.fromEntries(Object.entries(islVideos).map(([k, v]) => [k, v.src]));
 
 function getVideoLanguage() {
     return localStorage.getItem('piVideoLanguage') || 'bsl';
@@ -9511,6 +9589,59 @@ function updateVideoLangLabels(lang) {
     });
 }
 
+// Render the chapter "jump to section" buttons in the modal for the current video.
+// Hides the container if the video has no chapters.
+function _renderBSLChapters(video, chapters) {
+    const container = document.getElementById('bslVideoChapters');
+    if (!container) return;
+    if (!chapters || chapters.length === 0) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+    const fmt = (s) => {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ':' + String(sec).padStart(2, '0');
+    };
+    container.innerHTML = '<div class="bsl-chapter-title">Jump to section</div>' +
+        '<div class="bsl-chapter-list">' +
+        chapters.map((ch, i) =>
+            '<button type="button" class="bsl-chapter-btn" data-time="' + ch.time + '" data-idx="' + i + '">' +
+                '<span class="bsl-chapter-label">' + ch.label + '</span>' +
+                '<span class="bsl-chapter-time">' + fmt(ch.time) + '</span>' +
+            '</button>'
+        ).join('') +
+        '</div>';
+    container.style.display = 'block';
+    // Wire click handlers
+    container.querySelectorAll('.bsl-chapter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const t = parseFloat(btn.dataset.time);
+            video.currentTime = t;
+            video.play().catch(() => {});
+        });
+    });
+    // Highlight active chapter as the video plays
+    const highlight = () => {
+        const t = video.currentTime;
+        let active = -1;
+        for (let i = chapters.length - 1; i >= 0; i--) {
+            if (t >= chapters[i].time) { active = i; break; }
+        }
+        container.querySelectorAll('.bsl-chapter-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === active);
+        });
+    };
+    // Avoid stacking listeners across switches
+    if (video._bslChapterHighlight) {
+        video.removeEventListener('timeupdate', video._bslChapterHighlight);
+    }
+    video._bslChapterHighlight = highlight;
+    video.addEventListener('timeupdate', highlight);
+    highlight();
+}
+
 function playBSLVideo(name) {
     storeModalTrigger();
     const lang = getVideoLanguage();
@@ -9526,13 +9657,19 @@ function playBSLVideo(name) {
     }
     const video = document.getElementById('bslVideo');
     if (!video) return;
-    const urlMap = bslVideoUrls;
-    const url = urlMap[name] || urlMap['orientation'];
+    const meta = bslVideos[name] || bslVideos['orientation'];
     const source = video.querySelector('source');
-    if (source && source.src !== url) {
-        source.src = url;
+    const track = video.querySelector('track');
+    if (source && source.src !== meta.src) {
+        source.src = meta.src;
+        if (track) {
+            // Cache-bust captions during dev so updates show without HTTP cache delay
+            track.src = meta.vtt ? (meta.vtt + '?_t=' + Date.now()) : '';
+            track.track && (track.track.mode = 'showing');
+        }
         video.load();
     }
+    _renderBSLChapters(video, meta.chapters);
     video.currentTime = 0;
     showVideoModal();
     video.play().catch(() => {});
