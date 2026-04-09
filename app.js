@@ -1471,20 +1471,34 @@ const NativeShell = {
         });
 
         // --- Wire up text size ---
+        // In Deafblind mode the text-size buttons need a dark background to
+        // match the DB theme. The default inline styles are white which looks
+        // wrong in DB. This mirrors the pattern used by the language buttons
+        // below — check DB state each time we paint button styles.
+        const _paintSizeBtn = (b, isActive) => {
+            const inDB = document.body.classList.contains('deafblind');
+            if (inDB) {
+                b.style.setProperty('background', '#1a1a1a', 'important');
+                b.style.setProperty('color', '#fff', 'important');
+                b.style.setProperty('border', isActive ? '3px solid #DC2626' : '1px solid #4B5563', 'important');
+            } else {
+                b.style.background = isActive ? '#EFF6FF' : '#fff';
+                b.style.color = '';
+                b.style.borderColor = isActive ? '#2563EB' : '#E5E7EB';
+                b.style.borderWidth = '';
+                b.style.borderStyle = '';
+            }
+        };
         const currentSize = localStorage.getItem('pi-text-size') || 'medium';
         container.querySelectorAll('.settings-size-btn').forEach(btn => {
-            if (btn.dataset.size === currentSize) {
-                btn.style.borderColor = '#2563EB';
-                btn.style.background = '#EFF6FF';
-            }
+            _paintSizeBtn(btn, btn.dataset.size === currentSize);
             btn.addEventListener('click', () => {
                 nativeHaptic('light');
                 const size = btn.dataset.size;
                 localStorage.setItem('pi-text-size', size);
                 _applyTextSize(size);
                 container.querySelectorAll('.settings-size-btn').forEach(b => {
-                    b.style.borderColor = b.dataset.size === size ? '#2563EB' : '#E5E7EB';
-                    b.style.background = b.dataset.size === size ? '#EFF6FF' : '#fff';
+                    _paintSizeBtn(b, b.dataset.size === size);
                 });
             });
         });
@@ -8070,9 +8084,9 @@ function openAccessFirstModal(event) {
         stepsHtml.innerHTML = `
             <p style="font-weight:600;font-size:15px;margin:0 0 12px;color:#92400E;">📋 How to book at this venue</p>
             ${bookingSteps.map(s => `
-                <div style="display:flex;gap:10px;margin-bottom:10px;">
-                    <span style="flex-shrink:0;width:24px;height:24px;background:#2563EB;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${s.step}</span>
-                    <p style="margin:0;font-size:14px;color:#1F2937;line-height:1.4;">${escapeHtml(s.text)}</p>
+                <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;">
+                    <span style="flex-shrink:0;width:24px;height:24px;margin-top:1px;background:#2563EB;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;line-height:1;">${s.step}</span>
+                    <p style="margin:0;padding-top:3px;font-size:14px;color:#1F2937;line-height:1.4;">${escapeHtml(s.text)}</p>
                 </div>
             `).join('')}
             <p style="margin:12px 0 0;font-size:13px;color:#6B7280;line-height:1.4;">We appreciate this is not straightforward and are working with the venue to streamline this. If you need support, please let us know.</p>
@@ -8408,7 +8422,12 @@ function generateAccessEmail(accessNeeds) {
             body += '\n\n' + needsSentences.join(' ');
         }
         if (accessNeeds.otherText) {
-            body += '\n\n' + accessNeeds.otherText;
+            // Most users will list items rather than write full sentences
+            // (e.g. "ramp, large print menu, quiet space"). Prefix with a
+            // natural opener so the email reads coherently. Match the
+            // self/companion voice used throughout the rest of the email.
+            const needsOpener = userType === 'companion' ? 'Their needs include' : 'My needs include';
+            body += '\n\n' + needsOpener + ': ' + accessNeeds.otherText.trim();
         }
     }
 
