@@ -36,7 +36,7 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" href="PI Favicon.png">
     
-    <link rel="stylesheet" href="styles.css?v=2.1.5">
+    <link rel="stylesheet" href="styles.css?v=2.1.6">
 </head>
 <body>
     <!-- Skip to Content Link (Accessibility) -->
@@ -142,6 +142,11 @@
                 <track kind="captions" label="English captions" srclang="en" src="https://media.performanceinterpreting.co.uk/bsl-orientation.vtt?v=2" default>
                 Your browser does not support video playback.
             </video>
+            <div id="bslVideoOffline" style="display:none; text-align:center; padding:40px 20px; color:#fff;">
+                <div style="font-size:48px; margin-bottom:12px;">📵</div>
+                <p style="font-size:16px; font-weight:600; margin:0 0 8px;">No internet connection</p>
+                <p style="font-size:14px; opacity:0.75; margin:0; line-height:1.5;">Connect to WiFi or turn on mobile data to watch this video.</p>
+            </div>
             <div id="bslVideoChapters" style="display:none;"></div>
             <button class="video-close-btn" onclick="closeVideoModal()">Close Video</button>
         </div>
@@ -1386,7 +1391,7 @@
     </div>
 
     <!-- App JavaScript -->
-    <script src="app.js?v=2.1.5"></script>
+    <script src="app.js?v=2.1.6"></script>
 
     <!-- Tally Embed Script -->
     <script>

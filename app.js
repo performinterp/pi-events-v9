@@ -395,10 +395,26 @@ if (IS_NATIVE_APP) {
                 }, 500);
             });
 
-            // Clear badge when app resumes from background
+            // When app resumes from background: pick up any notifications that arrived
+            // while the app was closed/backgrounded (pushNotificationReceived only fires
+            // when the app is foregrounded, so background-delivered notifications are missed
+            // unless we explicitly fetch them here).
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    PushNotifications.removeAllDeliveredNotifications();
+                    PushNotifications.getDeliveredNotifications().then(result => {
+                        const pending = (result && result.notifications) || [];
+                        pending.forEach(n => {
+                            storeNotification({
+                                title: n.title || 'New Event',
+                                body: n.body || '',
+                                data: n.data || {},
+                                time: new Date().toISOString(),
+                            });
+                        });
+                    }).catch(() => {}).finally(() => {
+                        PushNotifications.removeAllDeliveredNotifications();
+                        navigator.clearAppBadge?.();
+                    });
                 }
             });
         }
@@ -1421,6 +1437,15 @@ const NativeShell = {
                         </div>
                         <input type="checkbox" id="settingsHighContrast" ${localStorage.getItem('pi-high-contrast') === 'true' ? 'checked' : ''} style="width:20px;height:20px;accent-color:#2563EB;">
                     </label>
+
+                    ${IS_NATIVE_APP ? `
+                    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #E5E7EB;border-radius:10px;background:#fff;cursor:pointer;">
+                        <div>
+                            <div style="font-size:15px;font-weight:500;color:#1F2937;">Haptic Feedback</div>
+                            <div style="font-size:12px;color:#6B7280;">Vibration when tapping buttons</div>
+                        </div>
+                        <input type="checkbox" id="settingsHaptics" ${localStorage.getItem('pi-haptics-enabled') !== 'false' ? 'checked' : ''} style="width:20px;height:20px;accent-color:#2563EB;">
+                    </label>` : ''}
                 </div>
             </section>
 
@@ -1515,6 +1540,7 @@ const NativeShell = {
             nativeHaptic('light');
             localStorage.setItem('pi-high-contrast', this.checked);
             _applyHighContrast(this.checked);
+
             // Update settings page itself
             const sp = document.querySelector('.settings-page');
             if (sp) {
@@ -1528,6 +1554,16 @@ const NativeShell = {
                 sp.querySelectorAll('div[style*="font-size:12px"]').forEach(el => el.style.color = this.checked ? '#000' : '#6B7280');
             }
         });
+
+        // --- Wire up haptic feedback toggle (native only) ---
+        const hapticsCheckbox = document.getElementById('settingsHaptics');
+        if (hapticsCheckbox) {
+            hapticsCheckbox.addEventListener('change', function() {
+                localStorage.setItem('pi-haptics-enabled', this.checked ? 'true' : 'false');
+                if (this.checked) nativeHaptic('light'); // test pulse on enable
+                if (typeof showToast === 'function') showToast(this.checked ? 'Haptic feedback on' : 'Haptic feedback off');
+            });
+        }
 
         // --- Wire up sign language ---
         const currentLang = (typeof getVideoLanguage === 'function') ? getVideoLanguage() : (localStorage.getItem('piVideoLanguage') || 'bsl');
@@ -1843,6 +1879,7 @@ const NativeShell = {
 let _lastHapticTime = 0;
 function nativeHaptic(style) {
     if (!IS_NATIVE_APP) return;
+    if (localStorage.getItem('pi-haptics-enabled') === 'false') return;
     const now = Date.now();
     if (now - _lastHapticTime < 80) return; // Throttle: max ~12/sec
     _lastHapticTime = now;
@@ -3607,6 +3644,26 @@ function getDefaultImage(event) {
 }
 
 /**
+ * Image error handler for event cards.
+ * Tries the fallback category/venue image first.
+ * If that also fails (e.g. offline), replaces the img element with a
+ * styled offline placeholder so users see a clear message instead of
+ * a broken-image icon.
+ */
+function handleEventImageError(img, fallbackSrc) {
+    img.onerror = function() {
+        // Fallback also failed — show offline placeholder
+        img.onerror = null;
+        const placeholder = document.createElement('div');
+        placeholder.className = 'event-img-offline';
+        placeholder.innerHTML = '<span>🖼️</span><p>Image unavailable offline</p>';
+        img.parentNode.replaceChild(placeholder, img);
+    };
+    img.src = fallbackSrc;
+}
+window.handleEventImageError = handleEventImageError;
+
+/**
  * Escape ICS text values per RFC 5545 Section 3.3.11.
  * Backslash-escapes semicolons, commas, and backslashes;
  * replaces literal newlines with escaped \n.
@@ -5312,7 +5369,7 @@ function createEventCard(event) {
                         alt="${escapeHtml(event['EVENT'] || 'Untitled Event')}"
                         class="event-image"
                         loading="lazy"
-                        onerror="this.onerror=null;this.src='${getDefaultImage(event)}'"
+                        onerror="handleEventImageError(this,'${getDefaultImage(event)}')"
                     >
                 </div>
 
@@ -5433,7 +5490,7 @@ function createCompactEventCard(event) {
                     alt="${escapeHtml(event['EVENT'] || 'Untitled Event')}"
                     class="compact-image"
                     loading="lazy"
-                    onerror="this.onerror=null;this.src='${getDefaultImage(event)}'"
+                    onerror="handleEventImageError(this,'${getDefaultImage(event)}')"
                 >
             </div>
 
@@ -5725,11 +5782,13 @@ function openCategory(category) {
     AppState.selectedCategory = category;
     AppState.filters.category = category;
 
-    // Switch views
+    // Switch views and show loading state before rendering
     switchToEventsView();
-
-    // Apply filters and render events
-    applyFilters();
+    setLoadingState(true);
+    setTimeout(() => {
+        applyFilters();
+        setLoadingState(false);
+    }, 0);
 }
 
 /**
@@ -9522,7 +9581,8 @@ function openVideoModal() {
     const playPromise = video.play();
     const canPiP = document.pictureInPictureEnabled && !document.pictureInPictureElement;
 
-    if (canPiP) {
+    const offline = !navigator.onLine;
+    if (canPiP && !offline) {
         // Request PiP synchronously in the same gesture tick
         video.requestPictureInPicture().then(() => {
             video.addEventListener('leavepictureinpicture', () => {
@@ -9530,21 +9590,38 @@ function openVideoModal() {
             }, { once: true });
         }).catch(() => {
             // PiP failed — show modal instead
-            showVideoModal();
+            showVideoModal(false);
         });
     } else {
-        showVideoModal();
+        showVideoModal(offline);
     }
 }
 
-function showVideoModal() {
+function showVideoModal(isOffline) {
     const modal = document.getElementById('bslVideoModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        activateFocusTrap(modal);
-        pushModalState('bslVideoModal', closeVideoModal);
+    if (!modal) return;
+    const video = document.getElementById('bslVideo');
+    const offlinePlaceholder = document.getElementById('bslVideoOffline');
+
+    if (isOffline) {
+        if (video) video.style.display = 'none';
+        if (offlinePlaceholder) offlinePlaceholder.style.display = '';
+    } else {
+        if (video) video.style.display = '';
+        if (offlinePlaceholder) offlinePlaceholder.style.display = 'none';
+        // Show offline message if video fails to load
+        if (video && offlinePlaceholder) {
+            video.onerror = () => {
+                video.style.display = 'none';
+                offlinePlaceholder.style.display = '';
+            };
+        }
     }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    activateFocusTrap(modal);
+    pushModalState('bslVideoModal', closeVideoModal);
 }
 
 function closeVideoModal() {
@@ -9563,6 +9640,27 @@ function closeVideoModal() {
 
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
+
+// iOS WKWebView: force top bar to re-evaluate safe-area-inset-top after native fullscreen exit.
+// The video element's fullscreen button triggers webkit fullscreen (separate from our modal),
+// and WKWebView doesn't always repaint env(safe-area-inset-top) correctly when exiting.
+if (IS_NATIVE_APP) {
+    ['webkitfullscreenchange', 'fullscreenchange'].forEach(evt => {
+        document.addEventListener(evt, () => {
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!isFullscreen) {
+                // Exited fullscreen — force top bar to recalculate safe area padding
+                setTimeout(() => {
+                    const topBar = document.querySelector('.native-top-bar');
+                    if (topBar) {
+                        topBar.style.paddingTop = '0';
+                        requestAnimationFrame(() => { topBar.style.paddingTop = ''; });
+                    }
+                }, 50);
+            }
+        });
+    });
+}
 
 // BSL Video metadata: src, captions track, optional chapter markers
 // Real recordings from Radha (April 2026), uploaded to Cloudflare R2 (pi-events-media)
@@ -9839,8 +9937,9 @@ function playBSLVideo(name) {
     }
     _renderBSLChapters(video, meta.chapters);
     video.currentTime = 0;
-    showVideoModal();
-    video.play().catch(() => {});
+    const offline = !navigator.onLine;
+    showVideoModal(offline);
+    if (!offline) video.play().catch(() => {});
 }
 
 window.playBSLVideo = playBSLVideo;

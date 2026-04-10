@@ -1156,6 +1156,15 @@ a {
     overflow: hidden;
 }
 
+/* ISL caption styling: transparent background so navy caption bar shows through */
+video#bslVideo::cue {
+    background: transparent;
+    color: #ffffff;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
 /* BSL video chapter buttons (rendered below the video for long videos) */
 #bslVideoChapters {
     background: #1a1a1a;
@@ -2008,6 +2017,30 @@ a {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Offline image placeholder — shown when both primary and fallback image URLs fail */
+.event-img-offline {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--gray-100);
+    color: var(--gray-400);
+}
+.event-img-offline span {
+    font-size: 28px;
+    opacity: 0.5;
+}
+.event-img-offline p {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+    padding: 0 12px;
 }
 
 /* Date badge - hidden, replaced by inline pills */
@@ -8385,13 +8418,13 @@ body[data-text-size="large"] .native-more-card-label { font-size: 15px !importan
 body[data-text-size="large"] .native-segment-btn { font-size: 15px !important; }
 body[data-text-size="large"] .native-tab-label { font-size: 12px !important; }
 body[data-text-size="large"] .native-top-bar-title { font-size: 19px !important; }
-body[data-text-size="large"] .comm-support-content p,
+body[data-text-size="large"] .comm-support-content p:not(.staff-card-line):not(.staff-card-primary),
 body[data-text-size="large"] .comm-support-content li,
 body[data-text-size="large"] .festival-modal-body p,
 body[data-text-size="large"] .festival-modal-body li,
 body[data-text-size="large"] .bg-modal-body p,
 body[data-text-size="large"] .bg-modal-body li { font-size: 18px !important; }
-body[data-text-size="large"] .comm-support-content h3,
+body[data-text-size="large"] .comm-support-content h3:not(.staff-card-header),
 body[data-text-size="large"] .festival-modal-body h3,
 body[data-text-size="large"] .bg-modal-body h3 { font-size: 22px !important; }
 /* Hero titles — must beat .festival-modal-body p specificity */
@@ -8443,6 +8476,52 @@ body[data-text-size="large"] .category-card-title {
 }
 /* Large text: staff cards already 36px from base rule — no override needed */
 
+/* --- LARGE: broad coverage for areas not individually listed above --- */
+/* Event card supplementary text */
+body[data-text-size="large"] .event-time { font-size: 16px !important; }
+body[data-text-size="large"] .event-category { font-size: 14px !important; }
+body[data-text-size="large"] .event-category-tag { font-size: 13px !important; }
+body[data-text-size="large"] .event-description { font-size: 16px !important; }
+body[data-text-size="large"] .interpreters-names { font-size: 18px !important; }
+body[data-text-size="large"] .interpreters-label { font-size: 13px !important; }
+body[data-text-size="large"] .access-label-pill { font-size: 15px !important; }
+/* Event info modal */
+body[data-text-size="large"] .event-info-description { font-size: 1.1rem !important; }
+body[data-text-size="large"] .event-info-venue-name { font-size: 1.15rem !important; }
+body[data-text-size="large"] .event-info-address { font-size: 1rem !important; }
+body[data-text-size="large"] .event-info-label { font-size: 0.88rem !important; }
+body[data-text-size="large"] .event-info-interpreters p,
+body[data-text-size="large"] .event-info-price p { font-size: 1.1rem !important; }
+body[data-text-size="large"] .access-feature-item { font-size: 0.9rem !important; }
+/* Search UI */
+body[data-text-size="large"] .search-input { font-size: 18px !important; }
+body[data-text-size="large"] .category-search-input { font-size: 17px !important; }
+body[data-text-size="large"] .category-search-suggestion { font-size: 15px !important; }
+body[data-text-size="large"] .filter-label { font-size: 15px !important; }
+body[data-text-size="large"] .filter-select { font-size: 17px !important; }
+body[data-text-size="large"] .filter-pill { font-size: 16px !important; }
+body[data-text-size="large"] .suggestion-item { font-size: 16px !important; }
+body[data-text-size="large"] .category-tab { font-size: 17px !important; }
+body[data-text-size="large"] .back-button { font-size: 17px !important; }
+/* Notification drawer */
+body[data-text-size="large"] .notif-item-title { font-size: 16px !important; }
+body[data-text-size="large"] .notif-item-text { font-size: 15px !important; }
+body[data-text-size="large"] .notif-item-time { font-size: 13px !important; }
+body[data-text-size="large"] .notification-subscribe-btn { font-size: 18px !important; }
+/* Video modal */
+body[data-text-size="large"] .bsl-chapter-btn { font-size: 16px !important; }
+body[data-text-size="large"] .bsl-chapter-time { font-size: 14px !important; }
+/* Toast */
+body[data-text-size="large"] .toast-notification { font-size: 16px !important; }
+/* Flow cards (home hub) */
+body[data-text-size="large"] .flow-card-title { font-size: 1.7rem !important; }
+body[data-text-size="large"] .flow-card-description { font-size: 1.25rem !important; }
+body[data-text-size="large"] .flow-card-button { font-size: 1.25rem !important; }
+/* Festival modal sections */
+body[data-text-size="large"] .festival-section-title { font-size: 24px !important; }
+body[data-text-size="large"] .festival-checklist li { font-size: 20px !important; }
+body[data-text-size="large"] .festival-checklist-subtitle { font-size: 22px !important; }
+
 body[data-text-size="small"] .event-title { font-size: 18px !important; }
 body[data-text-size="small"] .event-venue { font-size: 12px !important; }
 body[data-text-size="small"] .event-info-text,
@@ -8456,13 +8535,13 @@ body[data-text-size="small"] .native-more-card-label { font-size: 12px !importan
 body[data-text-size="small"] .native-segment-btn { font-size: 11px !important; }
 body[data-text-size="small"] .native-tab-label { font-size: 8px !important; }
 body[data-text-size="small"] .native-top-bar-title { font-size: 15px !important; }
-body[data-text-size="small"] .comm-support-content p,
+body[data-text-size="small"] .comm-support-content p:not(.staff-card-line):not(.staff-card-primary),
 body[data-text-size="small"] .comm-support-content li,
 body[data-text-size="small"] .festival-modal-body p,
 body[data-text-size="small"] .festival-modal-body li,
 body[data-text-size="small"] .bg-modal-body p,
 body[data-text-size="small"] .bg-modal-body li { font-size: 14px !important; }
-body[data-text-size="small"] .comm-support-content h3,
+body[data-text-size="small"] .comm-support-content h3:not(.staff-card-header),
 body[data-text-size="small"] .festival-modal-body h3,
 body[data-text-size="small"] .bg-modal-body h3 { font-size: 18px !important; }
 body[data-text-size="small"] .utility-btn span { font-size: 10px !important; }
@@ -8481,6 +8560,52 @@ body[data-text-size="small"] .badge-legend-item { font-size: 0.65rem !important;
 body[data-text-size="small"] .results-title { font-size: 16px !important; }
 body[data-text-size="small"] .list-title { font-size: 13px !important; }
 body[data-text-size="small"] .compact-title { font-size: 12px !important; }
+
+/* --- SMALL: broad coverage for areas not individually listed above --- */
+/* Event card supplementary text */
+body[data-text-size="small"] .event-time { font-size: 11px !important; }
+body[data-text-size="small"] .event-category { font-size: 10px !important; }
+body[data-text-size="small"] .event-category-tag { font-size: 9px !important; }
+body[data-text-size="small"] .event-description { font-size: 12px !important; }
+body[data-text-size="small"] .interpreters-names { font-size: 13px !important; }
+body[data-text-size="small"] .interpreters-label { font-size: 9px !important; }
+body[data-text-size="small"] .access-label-pill { font-size: 11px !important; }
+/* Event info modal */
+body[data-text-size="small"] .event-info-description { font-size: 0.82rem !important; }
+body[data-text-size="small"] .event-info-venue-name { font-size: 0.88rem !important; }
+body[data-text-size="small"] .event-info-address { font-size: 0.75rem !important; }
+body[data-text-size="small"] .event-info-label { font-size: 0.65rem !important; }
+body[data-text-size="small"] .event-info-interpreters p,
+body[data-text-size="small"] .event-info-price p { font-size: 0.82rem !important; }
+body[data-text-size="small"] .access-feature-item { font-size: 0.68rem !important; }
+/* Search UI */
+body[data-text-size="small"] .search-input { font-size: 14px !important; }
+body[data-text-size="small"] .category-search-input { font-size: 13px !important; }
+body[data-text-size="small"] .category-search-suggestion { font-size: 11px !important; }
+body[data-text-size="small"] .filter-label { font-size: 11px !important; }
+body[data-text-size="small"] .filter-select { font-size: 13px !important; }
+body[data-text-size="small"] .filter-pill { font-size: 12px !important; }
+body[data-text-size="small"] .suggestion-item { font-size: 12px !important; }
+body[data-text-size="small"] .category-tab { font-size: 13px !important; }
+body[data-text-size="small"] .back-button { font-size: 13px !important; }
+/* Notification drawer */
+body[data-text-size="small"] .notif-item-title { font-size: 12px !important; }
+body[data-text-size="small"] .notif-item-text { font-size: 11px !important; }
+body[data-text-size="small"] .notif-item-time { font-size: 9px !important; }
+body[data-text-size="small"] .notification-subscribe-btn { font-size: 14px !important; }
+/* Video modal */
+body[data-text-size="small"] .bsl-chapter-btn { font-size: 12px !important; }
+body[data-text-size="small"] .bsl-chapter-time { font-size: 10px !important; }
+/* Toast */
+body[data-text-size="small"] .toast-notification { font-size: 12px !important; }
+/* Flow cards (home hub) */
+body[data-text-size="small"] .flow-card-title { font-size: 1.2rem !important; }
+body[data-text-size="small"] .flow-card-description { font-size: 0.95rem !important; }
+body[data-text-size="small"] .flow-card-button { font-size: 0.95rem !important; }
+/* Festival modal sections */
+body[data-text-size="small"] .festival-section-title { font-size: 18px !important; }
+body[data-text-size="small"] .festival-checklist li { font-size: 14px !important; }
+body[data-text-size="small"] .festival-checklist-subtitle { font-size: 16px !important; }
 
 /* ========================================
    ACCESSIBILITY: Reduce Motion
