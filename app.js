@@ -4480,6 +4480,51 @@ function calculateBadgeStatus(event) {
         };
     }
 
+    // For multi-date grouped events, derive badge from all individual date statuses
+    if (event.isGrouped && event.allDates && event.allDates.length > 1) {
+        let confirmedCount = 0, tbcCount = 0;
+        for (const d of event.allDates) {
+            const interp = (d.interpreters || '').trim().toLowerCase();
+            if (interp && interp !== 'tbc' && interp !== 'to be confirmed' && interp !== 'request interpreter') {
+                confirmedCount++; // named interpreter, venue standard, team tba, etc.
+            } else if (interp === 'tbc' || interp === 'to be confirmed') {
+                tbcCount++;
+            }
+        }
+        const total = event.allDates.length;
+        if (confirmedCount === total) {
+            return {
+                badge: 'green', icon: '✅',
+                label: 'All Dates Booked',
+                shortLabel: `${language} Interpreted`,
+                action: 'book-tickets',
+                message: `${language} interpretation confirmed for all ${total} dates`,
+                canBook: true, language: language
+            };
+        }
+        if (confirmedCount > 0) {
+            return {
+                badge: 'orange', icon: '🟠',
+                label: `${confirmedCount} of ${total} Dates`,
+                shortLabel: `${language} Partial`,
+                action: 'book-tickets',
+                message: `${language} interpretation confirmed for ${confirmedCount} of ${total} dates — check individual dates`,
+                canBook: true, language: language
+            };
+        }
+        if (tbcCount > 0) {
+            return {
+                badge: 'orange', icon: '🟠',
+                label: 'All Dates TBC',
+                shortLabel: `${language} TBC`,
+                action: 'request-interpreter',
+                message: `${language} interpretation to be confirmed for all ${total} dates`,
+                canBook: false, language: language
+            };
+        }
+        // No interpreter on any date — fall through to red
+    }
+
     if (hasInterpreter && !isRequestOrTBC) {
         return {
             badge: 'green',
@@ -5126,6 +5171,45 @@ function groupEventsByNameAndVenue(events) {
 // ========================================
 // EVENT CARD GENERATION
 // ========================================
+
+/**
+ * Builds the "All Dates" block for multi-night events in modals.
+ * Shows each date with its interpreter confirmation status.
+ * scheme: 'green' | 'orange'
+ */
+function buildMultiDateHtml(allDates, scheme) {
+    const isGreen = scheme !== 'orange';
+    const bg     = isGreen ? '#F0FDF4' : '#FFF7ED';
+    const border = isGreen ? '#BBF7D0' : '#FDBA74';
+    const head   = isGreen ? '#065F46' : '#9A3412';
+    const pillBg = isGreen ? '#ECFDF5' : '#FFFBEB';
+    const pillFg = isGreen ? '#065F46' : '#92400E';
+
+    const rows = allDates.map(function(d) {
+        const interpText  = (d.interpreters || '').trim();
+        const interpLower = interpText.toLowerCase();
+        const isConfirmed = interpText &&
+            interpLower !== 'tbc' &&
+            interpLower !== 'to be confirmed' &&
+            interpLower !== 'request interpreter';
+        const isTbc = interpLower === 'tbc' || interpLower === 'to be confirmed';
+        const interpLine = isConfirmed
+            ? '<span style="font-size:11px;font-weight:600;color:#065F46;display:block;margin-top:2px;">✅ ' + escapeHtml(interpText) + '</span>'
+            : isTbc
+            ? '<span style="font-size:11px;font-weight:600;color:#92400E;display:block;margin-top:2px;">🟠 TBC</span>'
+            : '<span style="font-size:11px;color:#9CA3AF;display:block;margin-top:2px;">Not yet booked</span>';
+        return '<div style="padding:8px 12px;border-radius:8px;background:' + pillBg + ';border:1px solid ' + border + ';">' +
+            '<span style="font-size:13px;font-weight:700;color:' + pillFg + ';">📅 ' + escapeHtml(d.day) + ' ' + escapeHtml(d.month) + '</span>' +
+            (d.time ? '<span style="font-size:12px;color:' + pillFg + ';margin-left:6px;">· ' + escapeHtml(d.time) + '</span>' : '') +
+            interpLine +
+            '</div>';
+    }).join('');
+
+    return '<div style="margin:0 0 8px;padding:10px 14px;background:' + bg + ';border:1px solid ' + border + ';border-radius:10px;">' +
+        '<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:' + head + ';text-transform:uppercase;letter-spacing:0.5px;text-align:center;">All Dates</p>' +
+        '<div style="display:flex;flex-direction:column;gap:6px;">' + rows + '</div>' +
+        '</div>';
+}
 
 function createEventCard(event) {
     const date = formatDate(event['DATE']);
@@ -7984,15 +8068,7 @@ function openAccessFirstModal(event) {
             // Build multi-date display if this is a grouped event
             let multiDateHtml = '';
             if (event.isGrouped && event.allDates && event.allDates.length > 1) {
-                multiDateHtml = '<div style="margin:0 0 8px;padding:10px 14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;">' +
-                    '<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:0.5px;text-align:center;">All Dates</p>' +
-                    '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' +
-                    event.allDates.map(function(d) {
-                        return '<span style="padding:4px 10px;border-radius:8px;background:#ECFDF5;font-size:13px;font-weight:600;color:#065F46;">' +
-                            escapeHtml(d.day) + ' ' + escapeHtml(d.month) +
-                            (d.time ? ' · ' + escapeHtml(d.time) : '') + '</span>';
-                    }).join('') +
-                    '</div></div>';
+                multiDateHtml = buildMultiDateHtml(event.allDates, 'green');
             }
             headerEl.innerHTML = `
                 <img src="${imgSrc}" alt="${escapeHtml(event['EVENT'])}" style="width:calc(100% + 32px);margin:-12px -16px 12px;height:200px;object-fit:cover;object-position:center top;border-radius:0;" onerror="this.style.display='none'">
@@ -8551,15 +8627,7 @@ function openRequestBSLModal(event) {
             // Build multi-date display if this is a grouped event
             let multiDateHtml2 = '';
             if (event.isGrouped && event.allDates && event.allDates.length > 1) {
-                multiDateHtml2 = '<div style="margin:0 0 8px;padding:10px 14px;background:#FFF7ED;border:1px solid #FDBA74;border-radius:10px;">' +
-                    '<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#9A3412;text-transform:uppercase;letter-spacing:0.5px;text-align:center;">All Dates</p>' +
-                    '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' +
-                    event.allDates.map(function(d) {
-                        return '<span style="padding:4px 10px;border-radius:8px;background:#FFFBEB;font-size:13px;font-weight:600;color:#92400E;">' +
-                            escapeHtml(d.day) + ' ' + escapeHtml(d.month) +
-                            (d.time ? ' · ' + escapeHtml(d.time) : '') + '</span>';
-                    }).join('') +
-                    '</div></div>';
+                multiDateHtml2 = buildMultiDateHtml(event.allDates, 'orange');
             }
             headerEl2.innerHTML = `
                 <img src="${imgSrc2}" alt="${escapeHtml(event['EVENT'])}" style="width:calc(100% + 32px);margin:-12px -16px 12px;height:200px;object-fit:cover;object-position:center top;border-radius:0;" onerror="this.style.display='none'">

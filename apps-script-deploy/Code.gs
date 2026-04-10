@@ -146,6 +146,12 @@ function dailyAutoPublish() {
     const enrichResult = enrichMissingImages(publishedSheet);
     log.enriched = enrichResult;
 
+    // 8.5. Enrich categories: fix O2 comedy events miscategorised as Concert
+    const categoryEnrichResult = enrichO2Categories_(publishedSheet);
+    if (categoryEnrichResult.enriched > 0) {
+      log.warnings.push(`Category enrichment: fixed ${categoryEnrichResult.enriched} O2 comedy event(s) (checked ${categoryEnrichResult.checked})`);
+    }
+
     // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
@@ -568,6 +574,14 @@ function deduplicateDateVarying(sheet) {
       if (diffDays !== 1) { allConsecutive = false; break; }
     }
     if (!allConsecutive) continue;
+
+    // Don't merge if 2+ rows already have event URLs — consecutive nights of a multi-night tour,
+    // not a data-entry error. Only merge "thin" placeholder rows against "thick" ones.
+    var rowsWithEventUrl = 0;
+    for (var g = 0; g < group.length; g++) {
+      if (col.eventUrl >= 0 && (group[g].row[col.eventUrl] || '').toString().trim()) rowsWithEventUrl++;
+    }
+    if (rowsWithEventUrl >= 2) continue;
 
     // Score each row by data quality (same logic as exact dedup)
     for (var g = 0; g < group.length; g++) {
@@ -1061,6 +1075,55 @@ VENUE_SCRAPE_CONFIGS = typeof VENUE_SCRAPE_CONFIGS !== 'undefined' ? VENUE_SCRAP
   { matcher: /o2.*forum.*kentish|kentish.*o2.*forum/i, baseUrl: 'https://academymusicgroup.com/o2forumkentishtown/events/' },
   { matcher: /3\s*arena.*dublin|dublin.*3\s*arena/i, baseUrl: 'https://3arena.ie/events/' },
 ];
+
+/**
+ * For O2 events sitting as 'Concert', fetch the event page and check the
+ * description for comedy signals. Updates CATEGORY to 'Comedy' if found.
+ * Rate-limited to 10 fetches per run to stay well within Apps Script limits.
+ */
+function enrichO2Categories_(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { enriched: 0, checked: 0 };
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var catCol  = headers.indexOf('CATEGORY');
+  var urlCol  = headers.indexOf('EVENT URL');
+  var venueCol = headers.indexOf('VENUE');
+
+  if (catCol < 0 || urlCol < 0) return { enriched: 0, checked: 0 };
+
+  var COMEDY_SIGNALS = ['comedian', 'stand-up', 'stand up', 'comedy show', 'comedy tour', 'comic', 'comedic'];
+  var enriched = 0;
+  var checked  = 0;
+  var MAX_FETCHES = 10;
+
+  for (var i = 1; i < data.length && checked < MAX_FETCHES; i++) {
+    var cat   = (data[i][catCol]  || '').toString().trim();
+    var url   = urlCol   >= 0 ? (data[i][urlCol]   || '').toString().trim() : '';
+    var venue = venueCol >= 0 ? (data[i][venueCol] || '').toString().trim() : '';
+
+    if (cat !== 'Concert') continue;
+    if (!url.includes('theo2.co.uk') && !/the o2/i.test(venue)) continue;
+
+    try {
+      checked++;
+      var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+      if (response.getResponseCode() !== 200) continue;
+
+      var html = response.getContentText().toLowerCase();
+      var isComedy = COMEDY_SIGNALS.some(function(signal) { return html.indexOf(signal) >= 0; });
+
+      if (isComedy) {
+        if (!DRY_RUN) sheet.getRange(i + 1, catCol + 1).setValue('Comedy');
+        enriched++;
+      }
+    } catch(e) {
+      // Skip on network error, try next event
+    }
+  }
+
+  return { enriched: enriched, checked: checked };
+}
 
 /**
  * Enrich missing images using two tiers:
@@ -1594,9 +1657,9 @@ CATEGORY_KEYWORDS = typeof CATEGORY_KEYWORDS !== 'undefined' ? CATEGORY_KEYWORDS
   'Concert': ['concert', 'gig', 'live music', 'band', 'singer', 'orchestra', 'symphony'],
   'Comedy': ['comedy', 'stand-up', 'comedian', 'comedians'],
   'Theatre': ['theatre', 'play', 'musical', 'opera', 'ballet', 'pantomime', 'panto'],
-  'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi'],
+  'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi', 'wwe', 'raw', 'smackdown', 'wrestlemania', 'summerslam', 'royal rumble', 'survivor series', 'elimination chamber', 'nba', 'nfl', 'nhl', 'mma', 'bellator', 'play-off final', 'playoff final', 'grand prix', 'supercross', 'motorsport'],
   'Family': ['family', 'kids', 'children', 'circus', 'dollhouse', 'cbeebies', 'peppa', 'paw patrol', 'bluey'],
-  'Festival': ['festival', 'pride', 'fest'],
+  'Festival': ['festival', 'pride', 'fest', 'bst:'],
   'Cultural': ['cultural', 'heritage', 'parade', 'st patrick', 'book launch', 'exhibition'],
   'Dance': ['dance', 'dancing'],
   'Talks & Discussions': ['conversation', 'talk', 'discussion', 'lecture', 'in conversation', 'q&a', 'spoken word'],
