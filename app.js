@@ -4465,6 +4465,21 @@ function calculateBadgeStatus(event) {
                            interpreterLower === 'tbc' ||
                            interpreterLower === 'to be confirmed';
 
+    // 🟢 GREEN: Festival team confirmed but not yet named
+    const isTeamTBA = interpreterLower === 'bsl team tba' || interpreterLower === 'isl team tba';
+    if (isTeamTBA) {
+        return {
+            badge: 'green',
+            icon: '✅',
+            label: `${language} Team TBA`,
+            shortLabel: `${language} Team TBA`,
+            action: 'book-tickets',
+            message: `${language} interpretation confirmed for this event. Interpreting team to be announced.`,
+            canBook: true,
+            language: language
+        };
+    }
+
     if (hasInterpreter && !isRequestOrTBC) {
         return {
             badge: 'green',
@@ -5515,7 +5530,12 @@ function updateResultsTitle(count) {
             titleText = `All: ${count} ${eventWord}`;
         }
 
-        resultsHeaderContent.innerHTML = `<h2 class="results-title" id="resultsTitle">${titleText}</h2>`;
+        const hasAccessFilter = AppState.filters.accessibility && AppState.filters.accessibility.length > 0;
+        const accessDisclaimer = hasAccessFilter
+            ? '<p style="margin:6px 0 0;font-size:12px;color:#6B7280;line-height:1.4;">Only showing venues with confirmed access info. If you find out-of-date information, please let us know via the Support tab.</p>'
+            : '';
+
+        resultsHeaderContent.innerHTML = `<h2 class="results-title" id="resultsTitle">${titleText}</h2>${accessDisclaimer}`;
         // Re-get the DOM reference since we just replaced it
         DOM.resultsTitle = document.getElementById('resultsTitle');
     }
@@ -9023,12 +9043,12 @@ const FESTIVAL_APPS = {
     'download': { name: 'Download Festival', ios: 'https://apps.apple.com/gb/app/download-festival/id439568471', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.downloadfestival', web: 'https://downloadfestival.co.uk/info-category/the-essentials/' },
     'creamfields': { name: 'Creamfields', ios: 'https://apps.apple.com/gb/app/creamfields/id1578659813', android: 'https://play.google.com/store/apps/details?id=com.greencopper.creamfields', web: 'https://creamfields.com/app/' },
     'bst hyde park': { name: 'BST Hyde Park', ios: 'https://apps.apple.com/gb/app/bst-hyde-park/id892502483', android: 'https://play.google.com/store/apps/details?id=com.aeg.bst', web: 'https://www.bst-hydepark.com/info-details/app/', note: 'App required for entry (digital tickets)' },
-    'wireless': { name: 'Wireless Festival', ios: 'https://apps.apple.com/gb/app/wireless-festival-2025/id1628130853', android: 'https://play.google.com/store/apps/details?id=com.greencopper.wirelessfinsburypark', web: 'https://wirelessfestival.co.uk/info-category/ticket-info/' },
-    'wireless festival': { name: 'Wireless Festival', ios: 'https://apps.apple.com/gb/app/wireless-festival-2025/id1628130853', android: 'https://play.google.com/store/apps/details?id=com.greencopper.wirelessfinsburypark', web: 'https://wirelessfestival.co.uk/info-category/ticket-info/' },
+    'wireless': { name: 'Wireless Festival', ios: 'https://apps.apple.com/gb/app/wireless-festival-2025/id1628130853', android: 'https://play.google.com/store/apps/details?id=com.greencopper.wirelessfinsburypark', web: 'https://wirelessfestival.co.uk/' },
+    'wireless festival': { name: 'Wireless Festival', ios: 'https://apps.apple.com/gb/app/wireless-festival-2025/id1628130853', android: 'https://play.google.com/store/apps/details?id=com.greencopper.wirelessfinsburypark', web: 'https://wirelessfestival.co.uk/' },
     'latitude': { name: 'Latitude Festival', ios: 'https://apps.apple.com/gb/app/latitude-festival/id448178779', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.latitude', web: 'https://www.latitudefestival.com/app/' },
     'latitude festival': { name: 'Latitude Festival', ios: 'https://apps.apple.com/gb/app/latitude-festival/id448178779', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.latitude', web: 'https://www.latitudefestival.com/app/' },
-    'isle of wight festival': { name: 'Isle of Wight Festival', ios: 'https://apps.apple.com/gb/app/isle-of-wight-festival-2025/id1363277827', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.isleofwightfestival', web: 'https://isleofwightfestival.com/news/new-app-now-available' },
-    'isle of wight': { name: 'Isle of Wight Festival', ios: 'https://apps.apple.com/gb/app/isle-of-wight-festival-2025/id1363277827', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.isleofwightfestival', web: 'https://isleofwightfestival.com/news/new-app-now-available' },
+    'isle of wight festival': { name: 'Isle of Wight Festival', ios: 'https://apps.apple.com/gb/app/isle-of-wight-festival-2025/id1363277827', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.isleofwightfestival', web: 'https://isleofwightfestival.com/info/' },
+    'isle of wight': { name: 'Isle of Wight Festival', ios: 'https://apps.apple.com/gb/app/isle-of-wight-festival-2025/id1363277827', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.isleofwightfestival', web: 'https://isleofwightfestival.com/info/' },
     'camp bestival': { name: 'Camp Bestival', ios: 'https://apps.apple.com/gb/app/camp-bestival/id6451139832', android: 'https://play.google.com/store/apps/details?id=com.appmiral.campbestival', web: 'https://dorset.campbestival.net/info/' },
     'boardmasters': { name: 'Boardmasters', ios: 'https://apps.apple.com/gb/app/boardmasters-festival/id6450421154', android: 'https://play.google.com/store/apps/details?id=com.clarifimedia.festyvent.boardmasters', web: 'https://boardmasters.com/faqs/' },
     'electric picnic': { name: 'Electric Picnic', ios: 'https://apps.apple.com/gb/app/electric-picnic/id1145983673', android: 'https://play.google.com/store/apps/details?id=com.greencopper.android.electricpicnic', web: 'https://www.electricpicnic.ie/' },
@@ -9042,7 +9062,7 @@ const FESTIVAL_APPS = {
     'brighton pride': { name: 'Brighton Pride', web: 'https://www.brighton-pride.org/access/' },
     'splendour': { name: 'Splendour Festival', web: 'https://www.splendourfestival.com/about/festival-map/' },
     'splendour festival': { name: 'Splendour Festival', web: 'https://www.splendourfestival.com/about/festival-map/' },
-    'field day': { name: 'Field Day', web: 'https://fielddayfestivals.com/information/accessibility' },
+    'field day': { name: 'Field Day', web: 'https://fielddayfestivals.com/' },
 };
 
 function getFestivalAppLink(eventName) {
@@ -9565,19 +9585,87 @@ const bslVideos = {
 };
 
 // ISL Video metadata — Sarah's recordings still pending. Placeholders until processed.
+// ISL Video metadata — Sarah's recordings, rendered 9 Apr 2026
 const islVideos = {
-    'orientation':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'how-to-book':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'know-rights':   { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'request':       { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'booking':       { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'faqs':          { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'tips':          { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'at-event':      { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'categories':    { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'search':        { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'volunteer':     { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' },
-    'notifications': { src: MEDIA_BASE + '/pi-events-isl-video.mp4', vtt: '' }
+    'how-to-book':   {
+        src: MEDIA_BASE + '/isl-how-to-book.mp4',
+        vtt: MEDIA_BASE + '/isl-how-to-book.vtt',
+        chapters: [
+            { time: 0.1,  label: 'Intro' },
+            { time: 11.6, label: '1. Find your event' },
+            { time: 23.4, label: '2. Check venues list' },
+            { time: 37.6, label: '3. Contact the venue' },
+            { time: 47.6, label: '4. Get confirmation' },
+            { time: 61.0, label: '5. Book your ticket' },
+            { time: 73.3, label: '6. Enjoy the event' },
+            { time: 86.0, label: 'Venues & Ticket Vendors' }
+        ]
+    },
+    'know-rights':   {
+        src: MEDIA_BASE + '/isl-know-rights.mp4',
+        vtt: MEDIA_BASE + '/isl-know-rights.vtt',
+        chapters: [
+            { time: 0.1,  label: 'Disclaimer' },
+            { time: 14.6, label: 'Your rights in Ireland' },
+            { time: 41.5, label: 'Northern Ireland' },
+            { time: 64.0, label: 'No extra cost' },
+            { time: 71.7, label: 'Getting help' }
+        ]
+    },
+    'orientation':   {
+        src: MEDIA_BASE + '/isl-orientation.mp4',
+        vtt: MEDIA_BASE + '/isl-orientation.vtt',
+        chapters: [
+            { time: 0.8,   label: 'Welcome' },
+            { time: 19.9,  label: 'Events tab' },
+            { time: 88.5,  label: 'Support tab' },
+            { time: 127.2, label: 'ISL & BSL tab' },
+            { time: 146.6, label: 'Notifications' },
+            { time: 169.4, label: 'More tab' },
+            { time: 203.5, label: 'Get in touch' }
+        ]
+    },
+    'categories':    { src: MEDIA_BASE + '/isl-categories.mp4',    vtt: MEDIA_BASE + '/isl-categories.vtt' },
+    'search':        { src: MEDIA_BASE + '/isl-search.mp4',        vtt: MEDIA_BASE + '/isl-search.vtt' },
+    'request':       { src: MEDIA_BASE + '/isl-request.mp4',       vtt: MEDIA_BASE + '/isl-request.vtt' },
+    'booking':       { src: MEDIA_BASE + '/isl-booking.mp4',       vtt: MEDIA_BASE + '/isl-booking.vtt' },
+    'faqs':          {
+        src: MEDIA_BASE + '/isl-faqs.mp4',
+        vtt: MEDIA_BASE + '/isl-faqs.vtt',
+        chapters: [
+            { time: 0.4,    label: 'Q1: Need to ask first?' },
+            { time: 27.1,   label: 'Q2: How early to book?' },
+            { time: 50.62,  label: 'Q3: Cost more?' },
+            { time: 70.22,  label: 'Q4: Bring someone?' },
+            { time: 126.32, label: 'Q5: ISL & BSL' },
+            { time: 158.32, label: 'Q6: Choose my interpreter?' }
+        ]
+    },
+    'tips':          {
+        src: MEDIA_BASE + '/isl-tips.mp4',
+        vtt: MEDIA_BASE + '/isl-tips.vtt',
+        chapters: [
+            { time: 0,    label: 'Intro' },
+            { time: 12.8, label: 'Tip 1: Access booking line' },
+            { time: 23.6, label: 'Tip 2: Best seats' },
+            { time: 37.2, label: 'Tip 3: Email confirmation' },
+            { time: 48.5, label: 'Tip 4: Arrive early' },
+            { time: 56.4, label: 'Tip 5: Tell us how it went' }
+        ]
+    },
+    'at-event':      {
+        src: MEDIA_BASE + '/isl-at-event.mp4',
+        vtt: MEDIA_BASE + '/isl-at-event.vtt',
+        chapters: [
+            { time: 0.5,  label: 'Intro' },
+            { time: 8.0,  label: 'Show Staff' },
+            { time: 29.7, label: 'Order' },
+            { time: 40.5, label: 'Emergency' },
+            { time: 56.4, label: 'Speech to Text' }
+        ]
+    },
+    'notifications': { src: MEDIA_BASE + '/isl-notifications.mp4', vtt: MEDIA_BASE + '/isl-notifications.vtt' },
+    'volunteer':     { src: MEDIA_BASE + '/isl-volunteer.mp4',     vtt: MEDIA_BASE + '/isl-volunteer.vtt' }
 };
 
 // Backward-compatibility alias — keeps any external references working
@@ -9664,19 +9752,10 @@ function _renderBSLChapters(video, chapters) {
 function playBSLVideo(name) {
     storeModalTrigger();
     const lang = getVideoLanguage();
-    // ISL videos coming soon
-    if (lang === 'isl') {
-        const toast = document.createElement('div');
-        toast.className = 'isl-coming-soon-toast';
-        toast.innerHTML = '<strong>ISL videos coming soon</strong><br>We are working on ISL video content. Check back for updates.';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('visible'), 10);
-        setTimeout(() => { toast.classList.remove('visible'); setTimeout(() => toast.remove(), 400); }, 3000);
-        return;
-    }
     const video = document.getElementById('bslVideo');
     if (!video) return;
-    const meta = bslVideos[name] || bslVideos['orientation'];
+    const videoMap = lang === 'isl' ? islVideos : bslVideos;
+    const meta = videoMap[name] || videoMap['orientation'];
     const source = video.querySelector('source');
     const track = video.querySelector('track');
     // ?v=2 bust the pre-wildcard-CORS edge cache. Bump if we ever need to re-bust.
