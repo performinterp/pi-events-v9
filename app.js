@@ -9370,8 +9370,8 @@ function _renderStaffCards() {
                 <div class="staff-card-body">
                     <p class="staff-card-line staff-card-primary">I am Deaf</p>
                     <p class="staff-card-line">Please face me when you talk</p>
-                    <p class="staff-card-line">If possible, don't stand with light behind you</p>
                     <p class="staff-card-line">Speak clearly, normal speed</p>
+                    <p class="staff-card-line">If possible, don't stand with light behind you</p>
                     <p class="staff-card-line">Please type or write for me</p>
                 </div>
             </div>
