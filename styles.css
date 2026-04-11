@@ -8478,6 +8478,8 @@ body[data-text-size="large"] .category-card-title {
 
 /* --- LARGE: broad coverage for areas not individually listed above --- */
 /* Event card supplementary text */
+body[data-text-size="large"] .event-meta-simple { font-size: 16px !important; }
+body[data-text-size="large"] .event-interpreters-simple { font-size: 16px !important; }
 body[data-text-size="large"] .event-time { font-size: 16px !important; }
 body[data-text-size="large"] .event-category { font-size: 14px !important; }
 body[data-text-size="large"] .event-category-tag { font-size: 13px !important; }
@@ -8630,6 +8632,8 @@ body[data-text-size="small"] .festival-checklist-subtitle { font-size: 16px !imp
   body[data-text-size="large"] .native-top-bar-title { font-size: 28px !important; }
 
   /* -- Event card supplementary -- */
+  body[data-text-size="large"] .event-meta-simple { font-size: 24px !important; }
+  body[data-text-size="large"] .event-interpreters-simple { font-size: 24px !important; }
   body[data-text-size="large"] .event-time { font-size: 22px !important; }
   body[data-text-size="large"] .event-category { font-size: 20px !important; }
   body[data-text-size="large"] .event-category-tag { font-size: 20px !important; }

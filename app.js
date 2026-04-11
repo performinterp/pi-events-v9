@@ -9474,7 +9474,12 @@ function showAccessNeedsChecklist() {
 // Apply saved accessibility settings on load
 (function _initAccessibilitySettings() {
     const size = localStorage.getItem('pi-text-size');
-    if (size) _applyTextSize(size);
+    if (size) {
+        _applyTextSize(size);
+    } else if (window.innerWidth >= 768) {
+        // Tablet: default to large text without persisting — user can override in Settings
+        _applyTextSize('large');
+    }
 
     if (localStorage.getItem('pi-reduce-motion') === 'true') _applyReduceMotion(true);
     if (localStorage.getItem('pi-high-contrast') === 'true') _applyHighContrast(true);
