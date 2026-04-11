@@ -4849,6 +4849,7 @@ const AppState = {
         search: '',
         time: 'all',
         selectedMonth: '',
+        selectedDate: '',
         interpretation: 'all',
         category: 'all',
         location: 'all',
@@ -4880,6 +4881,8 @@ function initDOMReferences() {
         timeFilter: document.getElementById('timeFilter'),
         monthSelector: document.getElementById('monthSelector'),
         monthFilter: document.getElementById('monthFilter'),
+        datePicker: document.getElementById('datePicker'),
+        dateFilter: document.getElementById('dateFilter'),
         interpretationFilter: document.getElementById('interpretationFilter'),
         locationFilter: document.getElementById('locationFilter'),
         activeFilters: document.getElementById('activeFilters'),
@@ -6406,6 +6409,10 @@ function applyFilters() {
                 const eventDate = formatDate(event['DATE']).dateObj;
                 const eventMonthYear = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}`;
                 return eventMonthYear === AppState.filters.selectedMonth;
+            } else if (AppState.filters.time === 'pick-a-date' && AppState.filters.selectedDate) {
+                const eventDate = formatDate(event['DATE']).dateObj;
+                const eventDateStr = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
+                return eventDateStr === AppState.filters.selectedDate;
             }
             return true;
         });
@@ -6875,6 +6882,8 @@ function updateActiveFilters() {
         } else if (AppState.filters.time === 'select-month' && AppState.filters.selectedMonth) {
             const monthOption = DOM.monthFilter.querySelector(`option[value="${AppState.filters.selectedMonth}"]`);
             timeLabel = monthOption ? monthOption.textContent : 'Selected Month';
+        } else if (AppState.filters.time === 'pick-a-date' && AppState.filters.selectedDate) {
+            timeLabel = AppState.filters.selectedDate;
         }
         
         if (timeLabel) {
@@ -6939,8 +6948,11 @@ window.clearFilter = function(filterType) {
     } else if (filterType === 'time') {
         AppState.filters.time = 'all';
         AppState.filters.selectedMonth = '';
+        AppState.filters.selectedDate = '';
         DOM.timeFilter.value = 'all';
         DOM.monthSelector.style.display = 'none';
+        DOM.datePicker.style.display = 'none';
+        if (DOM.dateFilter) DOM.dateFilter.value = '';
     } else if (filterType === 'category') {
         AppState.filters.category = 'all';
         AppState.selectedCategory = null; // Clear selected category
@@ -7132,16 +7144,31 @@ function initEventListeners() {
         
         if (e.target.value === 'select-month') {
             DOM.monthSelector.style.display = 'block';
-        } else {
+            DOM.datePicker.style.display = 'none';
+            AppState.filters.selectedDate = '';
+            if (DOM.dateFilter) DOM.dateFilter.value = '';
+        } else if (e.target.value === 'pick-a-date') {
+            DOM.datePicker.style.display = 'block';
             DOM.monthSelector.style.display = 'none';
             AppState.filters.selectedMonth = '';
+        } else {
+            DOM.monthSelector.style.display = 'none';
+            DOM.datePicker.style.display = 'none';
+            AppState.filters.selectedMonth = '';
+            AppState.filters.selectedDate = '';
+            if (DOM.dateFilter) DOM.dateFilter.value = '';
         }
-        
+
         applyFilters();
     });
-    
+
     DOM.monthFilter.addEventListener('change', (e) => {
         AppState.filters.selectedMonth = e.target.value;
+        applyFilters();
+    });
+
+    DOM.dateFilter.addEventListener('change', (e) => {
+        AppState.filters.selectedDate = e.target.value;
         applyFilters();
     });
     
