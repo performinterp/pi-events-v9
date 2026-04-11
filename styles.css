@@ -8608,6 +8608,152 @@ body[data-text-size="small"] .festival-checklist li { font-size: 14px !important
 body[data-text-size="small"] .festival-checklist-subtitle { font-size: 16px !important; }
 
 /* ========================================
+   ACCESSIBILITY: Text Size — TABLET (min-width: 768px)
+   Supersedes the phone rules above. Target ~1.8× base CSS values.
+   Phones keep the gentler phone-sized overrides above.
+   ======================================== */
+@media (min-width: 768px) {
+
+  /* -- Event cards -- */
+  body[data-text-size="large"] .event-title { font-size: 36px !important; }
+  body[data-text-size="large"] .event-venue { font-size: 23px !important; }
+  body[data-text-size="large"] .event-info-text,
+  body[data-text-size="large"] .event-details-row { font-size: 24px !important; }
+  body[data-text-size="large"] .date-badge .day { font-size: 32px !important; }
+  body[data-text-size="large"] .date-badge .month { font-size: 20px !important; }
+  body[data-text-size="large"] .interpretation-badge { font-size: 20px !important; padding: 6px 16px !important; }
+  body[data-text-size="large"] .category-card-title { font-size: 32px !important; }
+  body[data-text-size="large"] .category-card-count { font-size: 24px !important; }
+  body[data-text-size="large"] .native-more-card-label { font-size: 22px !important; }
+  body[data-text-size="large"] .native-segment-btn { font-size: 20px !important; }
+  body[data-text-size="large"] .native-tab-label { font-size: 16px !important; }
+  body[data-text-size="large"] .native-top-bar-title { font-size: 28px !important; }
+
+  /* -- Event card supplementary -- */
+  body[data-text-size="large"] .event-time { font-size: 22px !important; }
+  body[data-text-size="large"] .event-category { font-size: 20px !important; }
+  body[data-text-size="large"] .event-category-tag { font-size: 20px !important; }
+  body[data-text-size="large"] .event-description { font-size: 24px !important; }
+  body[data-text-size="large"] .interpreters-names { font-size: 26px !important; }
+  body[data-text-size="large"] .interpreters-label { font-size: 20px !important; }
+  body[data-text-size="large"] .access-label-pill { font-size: 22px !important; }
+  body[data-text-size="large"] .results-title { font-size: 36px !important; }
+  body[data-text-size="large"] .list-title { font-size: 26px !important; }
+  body[data-text-size="large"] .compact-title { font-size: 24px !important; }
+
+  /* -- General modal body content -- */
+  body[data-text-size="large"] .comm-support-content p:not(.staff-card-line):not(.staff-card-primary),
+  body[data-text-size="large"] .comm-support-content li,
+  body[data-text-size="large"] .festival-modal-body p,
+  body[data-text-size="large"] .festival-modal-body li,
+  body[data-text-size="large"] .bg-modal-body p,
+  body[data-text-size="large"] .bg-modal-body li { font-size: 26px !important; }
+  body[data-text-size="large"] .comm-support-content h3:not(.staff-card-header),
+  body[data-text-size="large"] .festival-modal-body h3,
+  body[data-text-size="large"] .bg-modal-body h3 { font-size: 34px !important; }
+  body[data-text-size="large"] .festival-modal-body p.rights-hero-main,
+  body[data-text-size="large"] .festival-modal-body p.festival-hero-main,
+  body[data-text-size="large"] p.rights-hero-main,
+  body[data-text-size="large"] p.festival-hero-main { font-size: 48px !important; font-weight: 800 !important; }
+  body[data-text-size="large"] .festival-modal-body p.rights-hero-sub,
+  body[data-text-size="large"] .festival-modal-body p.festival-hero-sub,
+  body[data-text-size="large"] p.rights-hero-sub,
+  body[data-text-size="large"] p.festival-hero-sub { font-size: 34px !important; }
+
+  /* -- How To / FAQ / Tips: class-based text (not caught by .bg-modal-body p) -- */
+  body[data-text-size="large"] .bg-faq-question-text { font-size: 28px !important; }
+  body[data-text-size="large"] .bg-faq-answer { font-size: 26px !important; }
+  body[data-text-size="large"] .bg-faq-toggle { font-size: 36px !important; }
+  body[data-text-size="large"] .bg-step-content h4 { font-size: 28px !important; }
+  body[data-text-size="large"] .bg-step-content p { font-size: 25px !important; }
+  body[data-text-size="large"] .bg-step-number {
+    font-size: 22px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+  body[data-text-size="large"] .bg-tip-title { font-size: 27px !important; }
+  body[data-text-size="large"] .bg-tip-icon { font-size: 32px !important; }
+  body[data-text-size="large"] .bg-tip-body-inner p { font-size: 25px !important; }
+
+  /* -- About PI accordions -- */
+  body[data-text-size="large"] .about-card summary h3 { font-size: 36px !important; }
+  body[data-text-size="large"] .about-card p { font-size: 28px !important; }
+  body[data-text-size="large"] .about-card summary::after { font-size: 36px !important; }
+  body[data-text-size="large"] .coverage-list li { font-size: 26px !important; }
+
+  /* -- Privacy & Terms -- */
+  body[data-text-size="large"] .privacy-policy-content p { font-size: 26px !important; }
+  body[data-text-size="large"] .privacy-policy-content h2 { font-size: 36px !important; }
+  body[data-text-size="large"] .privacy-policy-content li { font-size: 26px !important; }
+
+  /* -- Settings & subviews -- */
+  body[data-text-size="large"] .settings-page h3 { font-size: 28px !important; }
+  body[data-text-size="large"] .settings-page p { font-size: 26px !important; }
+  body[data-text-size="large"] .settings-page label { font-size: 26px !important; }
+  body[data-text-size="large"] .native-more-subview p { font-size: 28px !important; }
+  body[data-text-size="large"] .native-more-subview h2 { font-size: 36px !important; }
+  body[data-text-size="large"] .native-more-subview li { font-size: 28px !important; }
+
+  /* -- Search UI -- */
+  body[data-text-size="large"] .search-input { font-size: 28px !important; }
+  body[data-text-size="large"] .category-search-input { font-size: 26px !important; }
+  body[data-text-size="large"] .filter-label { font-size: 22px !important; }
+  body[data-text-size="large"] .filter-select { font-size: 26px !important; }
+  body[data-text-size="large"] .filter-pill { font-size: 24px !important; }
+  body[data-text-size="large"] .back-button { font-size: 26px !important; }
+
+  /* -- Event info modal: text -- */
+  body[data-text-size="large"] .event-info-description { font-size: 1.6rem !important; }
+  body[data-text-size="large"] .event-info-venue-name { font-size: 1.7rem !important; }
+  body[data-text-size="large"] .event-info-address { font-size: 1.4rem !important; }
+  body[data-text-size="large"] .event-info-label { font-size: 1.2rem !important; }
+  body[data-text-size="large"] .event-info-interpreters p,
+  body[data-text-size="large"] .event-info-price p { font-size: 1.7rem !important; }
+
+  /* -- Event info modal: BSL/ISL interpreter logo (access feature icons) -- */
+  body[data-text-size="large"] .access-feature-item img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  body[data-text-size="large"] .access-feature-item { font-size: 1.3rem !important; gap: 8px !important; padding: 6px 14px !important; }
+
+  /* -- Event info modal: pills and buttons -- */
+  body[data-text-size="large"] .event-info-maps-btn { font-size: 1.4rem !important; padding: 12px 22px !important; }
+  body[data-text-size="large"] .btn-large { font-size: 1.8rem !important; padding: 1.5rem !important; }
+  body[data-text-size="large"] .access-modal-title { font-size: 2.8rem !important; }
+  body[data-text-size="large"] .access-modal-subtitle { font-size: 1.8rem !important; }
+
+  /* -- BSL/ISL interpreter logo: top bar -- */
+  body[data-text-size="large"] .logo { height: 72px !important; }
+
+  /* -- Notifications -- */
+  body[data-text-size="large"] .notif-item-title { font-size: 24px !important; }
+  body[data-text-size="large"] .notif-item-text { font-size: 22px !important; }
+  body[data-text-size="large"] .notification-subscribe-btn { font-size: 28px !important; }
+
+  /* -- Toast -- */
+  body[data-text-size="large"] .toast-notification { font-size: 24px !important; }
+
+  /* -- Flow cards (home hub) -- */
+  body[data-text-size="large"] .flow-card-title { font-size: 2.6rem !important; }
+  body[data-text-size="large"] .flow-card-description { font-size: 2rem !important; }
+  body[data-text-size="large"] .flow-card-button { font-size: 2rem !important; }
+
+  /* -- Festival modal sections -- */
+  body[data-text-size="large"] .festival-section-title { font-size: 40px !important; }
+  body[data-text-size="large"] .festival-checklist li { font-size: 32px !important; }
+  body[data-text-size="large"] .festival-checklist-subtitle { font-size: 36px !important; }
+
+  /* -- Utility & misc -- */
+  body[data-text-size="large"] .utility-btn span { font-size: 18px !important; }
+  body[data-text-size="large"] .badge-legend-item { font-size: 1.1rem !important; }
+  body[data-text-size="large"] .bsl-chapter-btn { font-size: 24px !important; }
+  body[data-text-size="large"] .bsl-chapter-time { font-size: 20px !important; }
+  body[data-text-size="large"] .stt-text { font-size: 36px !important; }
+  body[data-text-size="large"] .stt-placeholder { font-size: 28px !important; }
+}
+
+/* ========================================
    ACCESSIBILITY: Reduce Motion
    ======================================== */
 body.reduce-motion *,
