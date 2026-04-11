@@ -9477,8 +9477,9 @@ function showAccessNeedsChecklist() {
     if (size) {
         _applyTextSize(size);
     } else if (window.innerWidth >= 768) {
-        // Tablet: default to large text without persisting — user can override in Settings
-        _applyTextSize('large');
+        // Tablet: default to medium (middle setting) so user can go up or down in Settings
+        _applyTextSize('medium');
+        localStorage.setItem('pi-text-size', 'medium');
     }
 
     if (localStorage.getItem('pi-reduce-motion') === 'true') _applyReduceMotion(true);
