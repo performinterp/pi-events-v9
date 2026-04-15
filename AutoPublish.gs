@@ -7,6 +7,7 @@ function onOpen() {
     .addSeparator()
     .addItem('🔍 Dedup Check (exact)', 'deduplicatePublished')
     .addItem('🔍 Dedup Check (date-varying)', 'deduplicateDateVarying')
+    .addItem('🔍 Dedup Check (same-date, any venue)', 'deduplicateByTitleAndDate')
     .addToUi();
 }
 
@@ -140,6 +141,15 @@ function dailyAutoPublish() {
       existingData = publishedSheet.getDataRange().getValues();
     }
 
+    // 5b. Same-date, any-venue dedup (self-healing): collapses rows with identical
+    // date+event but different venue strings (e.g., "Pudding Mill Lane" vs
+    // "ABBA Arena, Pudding Mill Lane"). Adopts the longest/richest venue string.
+    const titleDateDedupResult = deduplicateByTitleAndDate(publishedSheet);
+    if (titleDateDedupResult.removed > 0) {
+      log.warnings.push('Same-date dedup: merged ' + titleDateDedupResult.removed + ' row(s): ' + titleDateDedupResult.merged.join('; '));
+      existingData = publishedSheet.getDataRange().getValues();
+    }
+
     // 6. Remove past events from PUBLISHED
     const removeResult = removePastEvents(publishedSheet, existingData);
     log.removed = removeResult.removed;
@@ -207,6 +217,11 @@ function dailyAutoPublish() {
     // 8d. Sync subscriber analytics to SUBSCRIBERS sheet
     try { syncSubscriberData(); } catch (e) { log.warnings.push('Subscriber sync: ' + e.toString()); }
 
+    // 8e. Enrich categories: fix O2 comedy events miscategorised as Concert
+      const categoryEnrichResult = enrichO2Categories_(publishedSheet);
+      if (categoryEnrichResult.enriched > 0) {
+        log.warnings.push(`Category enrichment: fixed ${categoryEnrichResult.enriched} O2 comedy event(s) (checked ${categoryEnrichResult.checked})`); }
+
     // 9. Audit ALL published events for data quality
     const freshData = publishedSheet.getDataRange().getValues();
     log.quality = auditPublishedData(freshData);
@@ -261,6 +276,7 @@ VENUE_TYPO_CORRECTIONS = typeof VENUE_TYPO_CORRECTIONS !== 'undefined' ? VENUE_T
   { pattern: /\bReding\b/g, replacement: 'Reading' },
   { pattern: /\bUtlilita\b/gi, replacement: 'Utilita' },
   { pattern: /\bCaste\b/g, replacement: 'Castle' },
+  { pattern: /\bPuddling\s+Mill\s+Lane\b/gi, replacement: 'Pudding Mill Lane' },
 ];
 
 // Also correct city names in the CITY column
@@ -275,6 +291,9 @@ EVENT_TYPO_CORRECTIONS = typeof EVENT_TYPO_CORRECTIONS !== 'undefined' ? EVENT_T
   { pattern: /\bSummetime\b/gi, replacement: 'Summertime' },
   { pattern: /\bCapataldi\b/gi, replacement: 'Capaldi' },
   { pattern: /\bCapitol\s+Summetime\b/gi, replacement: 'Capital Summertime' },
+  // Artist name aliases — unify source variations so dedup + card grouping match Pre-approved
+  { pattern: /^\s*ABBA\s*$/i, replacement: 'Abba Voyage' },
+  { pattern: /\bThe\s+Weekend\b/gi, replacement: 'The Weeknd' },
 ];
 
 function correctEventTypos(eventName) {
@@ -736,11 +755,25 @@ function mergeEvents(preApproved, monthly, piOsKeys) {
   }
 
   // Monthly overwrites pre-approved (has better data: real interpreter names, confirmed times)
-  // But never overwrites PI OS events
+  // But never overwrites PI OS events. Field-level merge: keep monthly's row,
+  // but fall back to pre-approved's IMAGE URL (idx 8), EVENT URL (idx 9), and
+  // CITY (idx 3) when monthly's are empty. This matters for cross-month
+  // residencies (e.g. Luke Combs Jul 31 + Aug 1-2) where pre-approved has
+  // official URLs/images but monthly tabs don't carry those columns.
   for (const evt of monthly) {
-    if (!piOsKeys.has(evt.key)) {
-      eventMap.set(evt.key, evt);
+    if (piOsKeys.has(evt.key)) continue;
+    const existing = eventMap.get(evt.key);
+    if (existing) {
+      const preserveIdx = [3, 8, 9]; // CITY, IMAGE URL, EVENT URL
+      for (const idx of preserveIdx) {
+        const monthlyVal = (evt.row[idx] || '').toString().trim();
+        const preVal = (existing.row[idx] || '').toString().trim();
+        if (!monthlyVal && preVal) {
+          evt.row[idx] = existing.row[idx];
+        }
+      }
     }
+    eventMap.set(evt.key, evt);
   }
 
   return Array.from(eventMap.values());
@@ -891,6 +924,12 @@ FESTIVAL_DEDUP_EXEMPT = typeof FESTIVAL_DEDUP_EXEMPT !== 'undefined' ? FESTIVAL_
   /hyde\s*park/i,         // BST Hyde Park — each headliner date is a separate event
   /knebworth/i,           // Multi-day festival events
   /edinburgh\s*castle/i,  // Summer concert series — different acts each night
+  /wembley\s*stadium/i,   // Multi-night stadium residencies (Weeknd, Luke Combs, Bruno Mars etc) — each night is a separate ticketed event
+  /tottenham.*stadium|spurs.*stadium/i, // Spurs stadium — same pattern
+  /emirates\s*stadium/i,  // Emirates — same pattern
+  /london\s*stadium/i,    // London Stadium — same pattern
+  /anfield/i,             // Anfield — same pattern
+  /principality\s*stadium|millennium\s*stadium/i, // Cardiff stadium
 ];
 
 function deduplicateDateVarying(sheet) {
@@ -960,6 +999,14 @@ function deduplicateDateVarying(sheet) {
     }
     if (!allConsecutive) continue;
 
+    // Don't collapse multi-night tours — if 2+ rows already have event URLs,
+      // they're deliberately separate show dates (app groups them into one card).
+      var rowsWithEventUrl = 0;
+      for (var g = 0; g < group.length; g++) {
+        if (col.eventUrl >= 0 && (group[g].row[col.eventUrl] || '').toString().trim()) rowsWithEventUrl++;
+      }
+      if (rowsWithEventUrl >= 2) continue;
+
     // Score each row by data quality (same logic as exact dedup)
     // PI_OS events get highest priority (staff-entered data is most accurate)
     for (var g = 0; g < group.length; g++) {
@@ -1013,6 +1060,133 @@ function deduplicateDateVarying(sheet) {
   }
 
   // Remove loser rows bottom-up
+  if (!DRY_RUN && Object.keys(indicesToRemove).length > 0) {
+    var sortedIndices = Object.keys(indicesToRemove).map(Number).sort(function(a, b) { return b - a; });
+    for (var d = 0; d < sortedIndices.length; d++) {
+      sheet.deleteRow(sortedIndices[d] + 1);
+    }
+  }
+
+  return { removed: Object.keys(indicesToRemove).length, merged: mergedDescriptions };
+}
+
+/**
+ * Same-date, any-venue dedup: collapse rows where normalised date + normalised
+ * event name match, regardless of venue spelling. Merges venue-variant rows
+ * (e.g. "Pudding Mill Lane" + "ABBA Arena, Pudding Mill Lane") that slipped
+ * past exact dedup due to different venue strings that still describe the same
+ * event at the same place on the same day. Adopts the longest venue string
+ * on the winning row (assumes longer = more complete).
+ */
+function deduplicateByTitleAndDate(sheet) {
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 3) return { removed: 0, merged: [] };
+
+  var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+  var col = {
+    date: headers.indexOf('DATE'),
+    event: headers.indexOf('EVENT'),
+    venue: headers.indexOf('VENUE'),
+    city: headers.indexOf('CITY'),
+    time: headers.indexOf('TIME'),
+    interpreters: headers.indexOf('INTERPRETERS'),
+    category: headers.indexOf('CATEGORY'),
+    imageUrl: headers.indexOf('IMAGE URL'),
+    eventUrl: headers.indexOf('EVENT URL'),
+    source: headers.indexOf('SOURCE')
+  };
+
+  if (col.date < 0 || col.event < 0) return { removed: 0, merged: [] };
+
+  // Group by date+title only (ignoring venue)
+  var groups = {};
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var dateStr = (row[col.date] || '').toString().trim();
+    var eventName = (row[col.event] || '').toString().trim();
+    if (!dateStr || !eventName) continue;
+    var key = normalizeDateForKey(dateStr) + '|' + normalizeEventForDedup(eventName);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push({ index: i, row: row });
+  }
+
+  var mergedDescriptions = [];
+  var indicesToRemove = {};
+
+  for (var key in groups) {
+    var group = groups[key];
+    if (group.length < 2) continue;
+
+    // Safety: only merge if venues are in the same family (same venue,
+    // different spelling). Different venue families → different events.
+    var firstVenueFam = col.venue >= 0 ? normalizeVenueFamily(group[0].row[col.venue] || '') : '';
+    var sameVenueFam = true;
+    for (var g = 1; g < group.length; g++) {
+      var fam = col.venue >= 0 ? normalizeVenueFamily(group[g].row[col.venue] || '') : '';
+      if (fam !== firstVenueFam) { sameVenueFam = false; break; }
+    }
+    if (!sameVenueFam) continue;
+
+    // Skip festival-exempt venues
+    var sampleVenue = col.venue >= 0 ? (group[0].row[col.venue] || '').toString().trim() : '';
+    var isExempt = false;
+    for (var fe = 0; fe < FESTIVAL_DEDUP_EXEMPT.length; fe++) {
+      if (FESTIVAL_DEDUP_EXEMPT[fe].test(sampleVenue)) { isExempt = true; break; }
+    }
+    if (isExempt) continue;
+
+    // Score each row (same logic as exact dedup) + prefer longer venue string
+    for (var g = 0; g < group.length; g++) {
+      var r = group[g].row;
+      var score = 0;
+      var source = col.source >= 0 ? (r[col.source] || '').toString().trim().toUpperCase() : '';
+      if (source === 'PI_OS') score += 100;
+      else if (source === 'MANUAL') score += 50;
+      var interp = col.interpreters >= 0 ? (r[col.interpreters] || '').toString().trim() : '';
+      if (interp && interp !== 'TBC' && interp !== 'Request Interpreter') score += 10;
+      if (col.imageUrl >= 0 && (r[col.imageUrl] || '').toString().trim()) score += 5;
+      if (col.eventUrl >= 0 && (r[col.eventUrl] || '').toString().trim()) score += 5;
+      if (col.city >= 0 && (r[col.city] || '').toString().trim()) score += 3;
+      if (col.time >= 0) {
+        var time = (r[col.time] || '').toString().trim();
+        if (time && time !== 'TBC') score += 2;
+      }
+      if (col.category >= 0) {
+        var cat = (r[col.category] || '').toString().trim();
+        if (cat && cat !== 'Concert') score += 1;
+      }
+      // Longer venue string = more complete (e.g. "ABBA Arena, Pudding Mill Lane, London")
+      if (col.venue >= 0) {
+        var venueLen = (r[col.venue] || '').toString().trim().length;
+        score += Math.min(venueLen / 10, 3); // up to +3 for longest venue
+      }
+      group[g].score = score;
+    }
+
+    group.sort(function(a, b) { return b.score - a.score; });
+    var winner = group[0];
+
+    // Fill blanks in winner from losers
+    for (var l = 1; l < group.length; l++) {
+      for (var c = 0; c < winner.row.length; c++) {
+        var winVal = (winner.row[c] || '').toString().trim();
+        var loseVal = (group[l].row[c] || '').toString().trim();
+        if ((!winVal || winVal === 'TBC' || winVal === 'Request Interpreter') && loseVal && loseVal !== 'TBC' && loseVal !== 'Request Interpreter') {
+          winner.row[c] = group[l].row[c];
+        }
+      }
+      indicesToRemove[group[l].index] = true;
+    }
+
+    if (!DRY_RUN) {
+      sheet.getRange(winner.index + 1, 1, 1, winner.row.length).setValues([winner.row]);
+    }
+
+    var eventLabel = (winner.row[col.event] || '').toString().trim();
+    var dateLabel = (winner.row[col.date] || '').toString().trim();
+    mergedDescriptions.push(eventLabel + ' on ' + dateLabel + ' (' + group.length + ' rows → 1)');
+  }
+
   if (!DRY_RUN && Object.keys(indicesToRemove).length > 0) {
     var sortedIndices = Object.keys(indicesToRemove).map(Number).sort(function(a, b) { return b - a; });
     for (var d = 0; d < sortedIndices.length; d++) {
@@ -1754,6 +1928,39 @@ VENUE_SCRAPE_CONFIGS = typeof VENUE_SCRAPE_CONFIGS !== 'undefined' ? VENUE_SCRAP
  *   Tier 1: Same-venue artist matching (fast, reliable, no API calls)
  *   Tier 2: Venue website og:image scraping (UrlFetchApp, rate-limited)
  */
+function enrichO2Categories_(sheet) {
+    var data = sheet.getDataRange().getValues();
+    if (data.length < 2) return { enriched: 0, checked: 0 };
+    var headers = data[0].map(function(h) { return (h || '').toString().trim().toUpperCase(); });
+    var catCol  = headers.indexOf('CATEGORY');
+    var urlCol  = headers.indexOf('EVENT URL');
+    var venueCol = headers.indexOf('VENUE');
+    if (catCol < 0 || urlCol < 0) return { enriched: 0, checked: 0 };
+    var COMEDY_SIGNALS = ['comedian', 'stand-up', 'stand up', 'comedy show', 'comedy tour', 'comic', 'comedic'];
+    var enriched = 0;
+    var checked  = 0;
+    var MAX_FETCHES = 10;
+    for (var i = 1; i < data.length && checked < MAX_FETCHES; i++) {
+      var cat   = (data[i][catCol]  || '').toString().trim();
+      var url   = urlCol   >= 0 ? (data[i][urlCol]   || '').toString().trim() : '';
+      var venue = venueCol >= 0 ? (data[i][venueCol] || '').toString().trim() : '';
+      if (cat !== 'Concert') continue;
+      if (!url.includes('theo2.co.uk') && !/the o2/i.test(venue)) continue;
+      try {
+        checked++;
+        var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+        if (response.getResponseCode() !== 200) continue;
+        var html = response.getContentText().toLowerCase();
+        var isComedy = COMEDY_SIGNALS.some(function(signal) { return html.indexOf(signal) >= 0; });
+        if (isComedy) {
+          if (!DRY_RUN) sheet.getRange(i + 1, catCol + 1).setValue('Comedy');
+          enriched++;
+        }
+      } catch(e) {}
+    }
+    return { enriched: enriched, checked: checked };
+  }
+
 function enrichMissingImages(sheet) {
   var data = sheet.getDataRange().getValues();
   if (data.length < 2) return { enriched: 0, totalMissing: 0, filled: [] };
@@ -1936,6 +2143,8 @@ function normalizeVenueFamily(venue) {
   if (/o2.*academy.*brixton|brixton.*academy/i.test(v)) return 'o2brixton';
   if (/o2.*victoria.*manchester|manchester.*o2.*victoria/i.test(v)) return 'o2vicmanc';
   if (/royal\s*albert\s*hall/i.test(v)) return 'rah';
+  // Pudding Mill Lane — ABBA Arena residency (fixed after Puddling typo correction)
+  if (/pudding\s*mill\s*lane|abba\s*arena/i.test(v)) return 'abbaarena';
   // Fallback: strip common words
   return v.replace(/\b(the|arena|stadium|centre|center|at)\b/g, '').replace(/[^a-z0-9]/g, '');
 }
@@ -2135,6 +2344,9 @@ function makeDedupKey(dateStr, eventName, venue) {
 function normalizeEventForDedup(eventName) {
   var name = (eventName || '').toString().trim();
 
+  // Apply artist aliases first so "ABBA" collapses to "Abba Voyage" before suffix stripping
+  name = correctEventTypos(name);
+
   // Strip parenthetical/bracketed content
   name = name.replace(/\s*[\(\[].*?[\)\]]/g, '');
 
@@ -2312,7 +2524,7 @@ CATEGORY_KEYWORDS = typeof CATEGORY_KEYWORDS !== 'undefined' ? CATEGORY_KEYWORDS
   'Concert': ['concert', 'gig', 'live music', 'band', 'singer', 'orchestra', 'symphony'],
   'Comedy': ['comedy', 'stand-up', 'comedian', 'comedians', 'improv', 'smosh', 'reddit', 'reads'],
   'Theatre': ['theatre', 'play', 'musical', 'opera', 'ballet', 'pantomime', 'panto'],
-  'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi'],
+  'Sports': ['match', 'game', 'vs', 'v ', 'football', 'rugby', 'cricket', 'boxing', 'f1', 'formula 1', 'netball', 'darts', 'basketball', 'wrestling', 'ufc', 'cage warriors', 'cup final', 'cup semi', 'wwe', 'raw', 'smackdown', 'wrestlemania', 'summerslam', 'royal rumble', 'survivor series', 'elimination chamber', 'nba', 'nfl', 'nhl', 'mma', 'bellator', 'play-off final', 'playoff final', 'grand prix', 'supercross', 'motorsport', 'aew', 'kickboxing', 'tennis', 'atp', 'wta', 'snooker', 'gymnastics', 'ice hockey', 'swimming', 'semi-final', 'champions league', 'europa league', 'fa cup', 'carabao cup'],
   'Family': ['family', 'kids', 'children', 'circus', 'dollhouse', 'cbeebies', 'peppa', 'paw patrol', 'bluey'],
   'Festival': ['festival', 'pride', 'fest'],
   // Note: Festival sub-categorisation (Camping/Non-Camping) handled by detectFestivalType() below

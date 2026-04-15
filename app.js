@@ -5267,8 +5267,18 @@ function buildMultiDateHtml(allDates, scheme) {
 
     return '<div style="margin:0 0 8px;padding:10px 14px;background:' + bg + ';border:1px solid ' + border + ';border-radius:10px;">' +
         '<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:' + head + ';text-transform:uppercase;letter-spacing:0.5px;text-align:center;">All Dates</p>' +
-        '<div style="display:flex;flex-direction:column;gap:6px;">' + rows + '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:2px;">' + rows + '</div>' +
         '</div>';
+}
+
+function hasUniformInterpreters(allDates) {
+    if (!allDates || allDates.length < 2) return true;
+    const norm = (s) => (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const first = norm(allDates[0].interpreters);
+    for (let i = 1; i < allDates.length; i++) {
+        if (norm(allDates[i].interpreters) !== first) return false;
+    }
+    return true;
 }
 
 function createEventCard(event) {
@@ -8166,9 +8176,16 @@ function openAccessFirstModal(event) {
             `;
         }
         // Details: location + access + interpreters (below CTA buttons)
+        // For multi-date events where interpreters differ per date, the per-date
+        // list in buildMultiDateHtml already shows each pairing — skip the
+        // single aggregated interpreter container to avoid misleading the user.
+        const isMultiDateEvent = event.isGrouped && event.allDates && event.allDates.length > 1;
+        const showInterpreterSection = event['INTERPRETERS']
+            && event['INTERPRETERS'].trim()
+            && (!isMultiDateEvent || hasUniformInterpreters(event.allDates));
         eventNameEl.innerHTML = `
             ${event['DESCRIPTION'] && event['DESCRIPTION'].trim() ? `<div style="margin:8px 0;padding:10px 14px;background:#F0F4FF;border-radius:10px;border-left:3px solid #2563EB;font-size:13px;color:#374151;line-height:1.4;text-align:left;">${escapeHtml(event['DESCRIPTION'])}</div>` : ''}
-            ${event['INTERPRETERS'] && event['INTERPRETERS'].trim() ? `
+            ${showInterpreterSection ? `
             <div style="margin-top:12px;padding-top:8px;border-top:1px solid #E5E7EB;">
                 <p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#1E40AF;text-transform:uppercase;letter-spacing:0.8px;">Interpreters</p>
                 <div style="padding:10px 16px;background:linear-gradient(135deg,#ECFDF5 0%,#D1FAE5 100%);border:1px solid #A7F3D0;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#065F46;">✅ ${escapeHtml(event['INTERPRETERS'])}</div>
