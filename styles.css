@@ -5523,8 +5523,11 @@ button[onclick*="playBSLVideo"] {
 /* Expandable dates list */
 .expandable-dates {
     padding: 0;
-    max-height: 300px;
+    max-height: 320px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
 }
 
 .expandable-date-item {
