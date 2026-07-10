@@ -278,14 +278,15 @@ async function subscribeNativePush(preferences) {
         return;
     }
 
-    // Register device with backend
+    // Register device with backend. userType (deaf/deafblind = special-category
+    // disability data) deliberately NOT sent — stays device-local; nothing in the
+    // send path uses it. Data-minimisation (audit 2026-07-10), mirrors native app.
     const platform = window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'unknown';
-    const userType = localStorage.getItem('pi-user-type') || 'deaf';
     const goingTo = JSON.parse(localStorage.getItem('pi-going-festivals') || '[]');
     const response = await fetch(`${NOTIFICATION_CONFIG.apiBase}/register-device`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, platform, preferences, goingTo, appVersion: NOTIFICATION_CONFIG.appVersion, userType })
+        body: JSON.stringify({ token, platform, preferences, goingTo, appVersion: NOTIFICATION_CONFIG.appVersion })
     });
 
     if (!response.ok) {
