@@ -154,3 +154,7 @@
 # Old/obsolete HTML
 /o2-page-full.html / 302
 /clear-cache-v9.html / 302
+
+# Domain retired 2026-07-11 — PWA superseded by the native app.
+# Everything routes to the app guide on the main site. Must stay LAST.
+/* https://performanceinterpreting.co.uk/app-guide/ 301
